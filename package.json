@@ -1,0 +1,11 @@
+{
+  "name": "realityserver",
+  "version": "1.0.0",
+  "description": "Official RealityServer JavaScript client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "migenius",
+  "license": "ISC"
+}
