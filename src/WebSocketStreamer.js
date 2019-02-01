@@ -61,9 +61,6 @@ let websocket_impl = function() {
  */
 class WebsocketStreamer {
   constructor(defaultStateData) {
-    if (!WebsocketStreamer.supported()) {
-        throw 'Websockets not supported.';
-    }
     if(!defaultStateData)
         this.defaultStateData = new StateData();
     else
@@ -168,9 +165,25 @@ class WebsocketStreamer {
    */
   connect( url, onReady, onError, extra_connect_args )
   {
-      if (!WebsocketStreamer.supported()) {
-          if (onError) onError('Websockets not supported.');
-          return;
+      // if url is a string then make a websocket and connect. otherwise we assume it's already
+      // an instance of a W3C complient web socket implementation. 
+      if (url !== undefined  && url !== null && url.constructor === String) {
+        if (!WebsocketStreamer.supported()) {
+            if (onError) onError('Websockets not supported.');
+            return;
+        }
+        try {
+            if (extra_connect_args) {
+              this.web_socket = new websocket_impl( ...[url, undefined].concat(Array.isArray(extra_connect_args) ? extra_connect_args : [extra_connect_args]));
+            } else {
+              this.web_socket = new websocket_impl(url);
+            }
+        } catch (e) {
+            if (onError) onError(e);
+            return;
+        }
+      } else {
+        this.web_socket = url;
       }
       this.protocol_state = 'prestart';
       this.web_socket_littleendian = true;
@@ -178,18 +191,6 @@ class WebsocketStreamer {
       this.response_handlers = {};
       this.streaming_loops = {};
       this.protocol_version = 0;
-
-      try {
-          if (extra_connect_args) {
-            this.web_socket = new websocket_impl( ...[url, undefined].concat(Array.isArray(extra_connect_args) ? extra_connect_args : [extra_connect_args]));
-          } else {
-            this.web_socket = new websocket_impl(url);
-          }
-      } catch (e) {
-          if (onError) onError(e);
-          return;
-      }
-
       this.web_socket.binaryType = 'arraybuffer';
 
       var scope = this;
@@ -1228,12 +1229,12 @@ class WebsocketStreamer {
    */
   debug_commands(enable)
   {
-      if (this.protocol_version < 2) {
-          throw "Command execution not supported on the server."
-      }
       if (!this.web_socket) {
           this.on_general_error('Web socket not connected.');
           return;
+      }
+      if (this.protocol_version < 2) {
+          throw "Command execution not supported on the server."
       }
       if (this.protocol_state != 'started') {
           this.on_general_error('Web socket not started.');
