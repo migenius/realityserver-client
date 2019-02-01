@@ -158,254 +158,259 @@ class WebsocketStreamer {
    * streaming functionality is available.
    * @param url String The web service URL to connect to. Typically of the form
    * ws[s]://HOST::PORT/render_loop_stream/
-   * @param onReady Function Called when the web socket is ready to be used. Takes no
-   * parameters.
-   * @param onError Function Called if there is an error connecting to the URL. Takes one
-   * optional parameter detailing the error.
+   * @param extra_constructor_args Array Extra list of arguments to be passed to the websocket constructor
+   * after the protocols parameter.
+   * @return a promise that resolves when connected
    */
-  connect( url, onReady, onError, extra_connect_args )
+  connect( url, extra_constructor_args )
   {
-      // if url is a string then make a websocket and connect. otherwise we assume it's already
-      // an instance of a W3C complient web socket implementation. 
-      if (url !== undefined  && url !== null && url.constructor === String) {
-        if (!WebsocketStreamer.supported()) {
-            if (onError) onError('Websockets not supported.');
-            return;
-        }
-        try {
-            if (extra_connect_args) {
-              this.web_socket = new websocket_impl( ...[url, undefined].concat(Array.isArray(extra_connect_args) ? extra_connect_args : [extra_connect_args]));
-            } else {
-              this.web_socket = new websocket_impl(url);
-            }
-        } catch (e) {
-            if (onError) onError(e);
-            return;
-        }
-      } else {
-        this.web_socket = url;
-      }
-      this.protocol_state = 'prestart';
-      this.web_socket_littleendian = true;
-      this.command_id = 0;
-      this.response_handlers = {};
-      this.streaming_loops = {};
-      this.protocol_version = 0;
-      this.web_socket.binaryType = 'arraybuffer';
+	  return new Promise((resolve, reject) => {
+		  // if url is a string then make a websocket and connect. otherwise we assume it's already
+		  // an instance of a W3C complient web socket implementation. 
+		  if (url !== undefined && url !== null && url.constructor === String) {
+			  if (!WebsocketStreamer.supported()) {
+				  reject('Websockets not supported.');
+				  return;
+			  }
+			  try {
+				  if (extra_constructor_args) {
+					  this.web_socket = new websocket_impl(...[url, undefined].concat(Array.isArray(extra_constructor_args) ? extra_constructor_args : [extra_constructor_args]));
+				  } else {
+					  this.web_socket = new websocket_impl(url);
+				  }
+			  } catch (e) {
+				  reject(e);
+				  return;
+			  }
+		  } else {
+			  this.web_socket = url;
+		  }
+		  this.protocol_state = 'prestart';
+		  this.web_socket_littleendian = true;
+		  this.command_id = 0;
+		  this.response_handlers = {};
+		  this.streaming_loops = {};
+		  this.protocol_version = 0;
+		  this.web_socket.binaryType = 'arraybuffer';
 
-      var scope = this;
-       
-      this.web_socket.onopen = function (event) {
-      };
-      this.web_socket.onclose = function(event) {
-        /*
-        var code = event.code;
-        var reason = event.reason;
-        var wasClean = event.wasClean;
-        console.log('closed: ' + code + ' ' + reason + ' ' + wasClean);
-        */
-      };
-      this.web_socket.onerror = function(err) {
-        if (onError) onError(err);
-      };
+		  var scope = this;
 
-      function process_response(response) {
-          if (scope.response_handlers[response.id] !== undefined) {
-              var handler_scope = scope.response_handlers[response.id].scope;
-              if (handler_scope === undefined) {
-                  handler_scope = scope;
-              }
-              scope.response_handlers[response.id].handler.call(handler_scope,response);
-              delete scope.response_handlers[response.id];
-          }
-      }
-      function web_socket_stream(event) {
-          if (event.data instanceof ArrayBuffer) {
-              // Got some binary data, most likely an image, let's see now.
-              var time_sec = WebsocketStreamer.now();
-              var data = new DataView(event.data);
-              var message = data.getUint32(0,scope.web_socket_littleendian);
-              if (message == WebsocketStreamer.MESSAGE_ID_IMAGE) {
-                  // yup, an image
-                  var img_msg = new WebSocketMessageReader(data,4,scope.web_socket_littleendian);
-                  var header_size = img_msg.getUint32();
-                  if (header_size != 16) {
-                      // not good
-                      if (onError) onError('Invalid image message size.');
-                      return;
-                  }
-                  var image_id = img_msg.getUint32();
-                  var result = img_msg.getSint32();
-                  // render loop name
-                  var render_loop_name = img_msg.getString();
-                  if (scope.streaming_loops[render_loop_name] === undefined) {
-                      // nothing to do, no handler
-                      return;
-                  }
+		  this.web_socket.onopen = event => {
+		  };
+		  this.web_socket.onclose = event => {
+			  /*
+			  var code = event.code;
+			  var reason = event.reason;
+			  var wasClean = event.wasClean;
+			  console.log('closed: ' + code + ' ' + reason + ' ' + wasClean);
+			  */
+		  };
+		  this.web_socket.onerror = err => {
+			  reject(err);
+		  };
 
-                  if (result >= 0) {
-                      // should have an image
-                      var have_image = img_msg.getUint32();
-                      if (have_image == 0) {
-                          // got an image
-                          var img_width = img_msg.getUint32();
-                          var img_height = img_msg.getUint32();
-                          var mime_type = img_msg.getString();
-                          var img_size = img_msg.getUint32();
-                          // and finally the image itself
-                          var image = img_msg.getUint8Array(img_size);
+		  function process_response(response) {
+			  if (scope.response_handlers[response.id] !== undefined) {
+				  var handler_scope = scope.response_handlers[response.id].scope;
+				  if (handler_scope === undefined) {
+					  handler_scope = scope;
+				  }
+				  scope.response_handlers[response.id].handler.call(handler_scope, response);
+				  delete scope.response_handlers[response.id];
+			  }
+		  }
+		  function web_socket_stream(event) {
+			  if (event.data instanceof ArrayBuffer) {
+				  // Got some binary data, most likely an image, let's see now.
+				  var time_sec = WebsocketStreamer.now();
+				  var data = new DataView(event.data);
+				  var message = data.getUint32(0, scope.web_socket_littleendian);
+				  if (message == WebsocketStreamer.MESSAGE_ID_IMAGE) {
+					  // yup, an image
+					  var img_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
+					  var header_size = img_msg.getUint32();
+					  if (header_size != 16) {
+						  // not good
+						  scope.on_general_error('Invalid image message size.');
+						  return;
+					  }
+					  var image_id = img_msg.getUint32();
+					  var result = img_msg.getSint32();
+					  // render loop name
+					  var render_loop_name = img_msg.getString();
+					  if (scope.streaming_loops[render_loop_name] === undefined) {
+						  // nothing to do, no handler
+						  return;
+					  }
 
-                          // then any statistical data
-                          var have_stats = img_msg.getUint8();
-                          var stats;
-                          if (have_stats) {
-                              stats = img_msg.getTypedValue();
-                          }
-                          if (scope.streaming_loops[render_loop_name].lastRenderTime) {
-                              stats['fps'] = 1 / (time_sec-scope.streaming_loops[render_loop_name].lastRenderTime);
-                          }
-                          scope.streaming_loops[render_loop_name].lastRenderTime = time_sec;
-                          var data = {
-                              result: result,
-                              width: img_width,
-                              height: img_height,
-                              mime_type: mime_type,
-                              image: image,
-                              statistics : stats
-                          };
-                          if (stats.sequence_id > 0) {
-                              while (scope.streaming_loops[render_loop_name].command_handlers.length &&
-                                      scope.streaming_loops[render_loop_name].command_handlers[0].sequence_id <= stats.sequence_id) {
-                                  var handler = scope.streaming_loops[render_loop_name].command_handlers.shift();
-                                  for (var i=0;i<handler.handlers.length;i++) {
-                                      call_callback.call(
-                                          scope,
-                                          handler.handlers[i],
-                                          scope.on_general_error,
-                                          data);
-                                  }
-                              }
-                          }
-                          if (!scope.streaming_loops[render_loop_name].pause_count) {
-                              if (scope.streaming_loops[render_loop_name].renderHandler) {
-                                  scope.streaming_loops[render_loop_name].renderHandler.imageRendered(data.image,data.mime_type);
-                              }
-                              if (scope.streaming_loops[render_loop_name].onData) {
-                                  scope.streaming_loops[render_loop_name].onData(data);
-                              }
-                          }
-                      }
-                  } else {
-                      if (!scope.streaming_loops[render_loop_name].pause_count && scope.streaming_loops[render_loop_name].onData) {
-                          scope.streaming_loops[render_loop_name].onData({
-                              result: result                                      
-                          });
-                      }
-                  }
-                  // send ack
-                  var buffer = new ArrayBuffer(16);
-                  var response = new DataView(buffer);
-                  response.setUint32(0,WebsocketStreamer.MESSAGE_ID_IMAGE_ACK,scope.web_socket_littleendian); // image ack
-                  response.setUint32(4,image_id,scope.web_socket_littleendian); // image id
-                  response.setFloat64(8,time_sec,scope.web_socket_littleendian);
-                  scope.web_socket.send(buffer);
-              } else if (message == WebsocketStreamer.MESSAGE_ID_TIME_REQUEST) {
-                  // time request
-                  var buffer = new ArrayBuffer(12);
-                  var response = new DataView(buffer);
-                  response.setUint32(0,WebsocketStreamer.MESSAGE_ID_TIME_RESPONSE,scope.web_socket_littleendian); // time response
-                  response.setFloat64(4,time_sec,scope.web_socket_littleendian);
-                  scope.web_socket.send(buffer);
-              } else if (message == WebsocketStreamer.MESSAGE_ID_RESPONSE) {
-                  var response_msg = new WebSocketMessageReader(data,4,scope.web_socket_littleendian);
-                  var id = response_msg.getTypedValue();
-                  var response = response_msg.getTypedValue();
-                  response.id = id;
-                  if (response.id !== undefined) {
-                      process_response(response);
-                  }
-              }
-          } else {
-              var data = JSON.parse(event.data);
-              if (data.id !== undefined) {
-                  process_response(data);                
-              }
-          }
-      }
+					  if (result >= 0) {
+						  // should have an image
+						  var have_image = img_msg.getUint32();
+						  if (have_image == 0) {
+							  // got an image
+							  var img_width = img_msg.getUint32();
+							  var img_height = img_msg.getUint32();
+							  var mime_type = img_msg.getString();
+							  var img_size = img_msg.getUint32();
+							  // and finally the image itself
+							  var image = img_msg.getUint8Array(img_size);
 
-      function web_socket_handshaking(event) {
-          if (event.data instanceof ArrayBuffer) {
-              var data = new DataView(event.data);
-              // validate header
-              var hs_header = String.fromCharCode(data.getUint8(0),data.getUint8(1),data.getUint8(2),data.getUint8(3),data.getUint8(4),data.getUint8(5),data.getUint8(6),data.getUint8(7));
-              if (hs_header != 'RSWSRLIS') {
-                  // not good
-                  scope.web_socket.close();
-              } else {
-                  // check that the protcol version is acceptable
-                  const protocol_version = data.getUint32(8,scope.web_socket_littleendian);
-                  if (protocol_version < 1 || protocol_version > 2) {
-                      // unsupported protocol, can't go on
-                      if (onError) onError('Sever protocol version not supported');
-                      scope.web_socket.close();                    
-                  } else {
-                      // all good, we support this, enter started mode
-                      scope.protocol_version = protocol_version;
-                      scope.protocol_state = 'started';
-                      scope.web_socket.onmessage = web_socket_stream;
-                      if (onReady) onReady();
-                  }
-              }
-          } else {
-              scope.web_socket.close();
-              if (onError) onError('unexpected data during handshake');
-          }
-      }
-      function web_socket_prestart(event) {
-          // expecting a handshake message
-          if (event.data instanceof ArrayBuffer) {
-              var time_sec = WebsocketStreamer.now();
-              if (event.data.byteLength != 40) {
-                  if (onError) onError('Invalid handshake header size');
-                  return;
-              }
-              var data = new DataView(event.data);
-              // validate header
-              var hs_header = String.fromCharCode(data.getUint8(0),data.getUint8(1),data.getUint8(2),data.getUint8(3),data.getUint8(4),data.getUint8(5),data.getUint8(6),data.getUint8(7));
-              if (hs_header != 'RSWSRLIS') {
-                  // not good
-                  scope.web_socket.close();
-                  if (onError) onError('Invalid handshake header');
-              } else {
-                  scope.web_socket_littleendian = data.getUint8(8) == 1 ? true : false;
-                  const protocol_version = data.getUint32(12,scope.web_socket_littleendian);
-                  if (protocol_version < 1 || protocol_version > 2) {
-                      // unsupported protocol, let's ask for what we know
-                      protocol_version = 2;
-                  }
-                  // get server time
-                  var server_time = data.getFloat64(16,scope.web_socket_littleendian);
-                  scope.protocol_state = 'handshaking';
+							  // then any statistical data
+							  var have_stats = img_msg.getUint8();
+							  var stats;
+							  if (have_stats) {
+								  stats = img_msg.getTypedValue();
+							  }
+							  if (scope.streaming_loops[render_loop_name].lastRenderTime) {
+								  stats['fps'] = 1 / (time_sec - scope.streaming_loops[render_loop_name].lastRenderTime);
+							  }
+							  scope.streaming_loops[render_loop_name].lastRenderTime = time_sec;
+							  var data = {
+								  result: result,
+								  width: img_width,
+								  height: img_height,
+								  mime_type: mime_type,
+								  image: image,
+								  statistics: stats
+							  };
+							  if (stats.sequence_id > 0) {
+								  while (scope.streaming_loops[render_loop_name].command_handlers.length &&
+									  scope.streaming_loops[render_loop_name].command_handlers[0].sequence_id <= stats.sequence_id) {
+									  var handler = scope.streaming_loops[render_loop_name].command_handlers.shift();
+									  for (var i = 0; i < handler.handlers.length; i++) {
+										  call_callback.call(
+											  scope,
+											  handler.handlers[i],
+											  scope.on_general_error,
+											  data);
+									  }
+								  }
+							  }
+							  if (!scope.streaming_loops[render_loop_name].pause_count) {
+								  if (scope.streaming_loops[render_loop_name].renderHandler) {
+									  scope.streaming_loops[render_loop_name].renderHandler.imageRendered(data.image, data.mime_type);
+								  }
+								  if (scope.streaming_loops[render_loop_name].onData) {
+									  scope.streaming_loops[render_loop_name].onData(data);
+								  }
+							  }
+						  }
+					  } else {
+						  if (!scope.streaming_loops[render_loop_name].pause_count && scope.streaming_loops[render_loop_name].onData) {
+							  scope.streaming_loops[render_loop_name].onData({
+								  result: result
+							  });
+						  }
+					  }
+					  // send ack
+					  var buffer = new ArrayBuffer(16);
+					  var response = new DataView(buffer);
+					  response.setUint32(0, WebsocketStreamer.MESSAGE_ID_IMAGE_ACK, scope.web_socket_littleendian); // image ack
+					  response.setUint32(4, image_id, scope.web_socket_littleendian); // image id
+					  response.setFloat64(8, time_sec, scope.web_socket_littleendian);
+					  scope.web_socket.send(buffer);
+				  } else if (message == WebsocketStreamer.MESSAGE_ID_TIME_REQUEST) {
+					  // time request
+					  var buffer = new ArrayBuffer(12);
+					  var response = new DataView(buffer);
+					  response.setUint32(0, WebsocketStreamer.MESSAGE_ID_TIME_RESPONSE, scope.web_socket_littleendian); // time response
+					  response.setFloat64(4, time_sec, scope.web_socket_littleendian);
+					  scope.web_socket.send(buffer);
+				  } else if (message == WebsocketStreamer.MESSAGE_ID_RESPONSE) {
+					  var response_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
+					  var id = response_msg.getTypedValue();
+					  var response = response_msg.getTypedValue();
+					  response.id = id;
+					  if (response.id !== undefined) {
+						  process_response(response);
+					  }
+				  }
+			  } else {
+				  var data = JSON.parse(event.data);
+				  if (data.id !== undefined) {
+					  process_response(data);
+				  }
+			  }
+		  }
 
-                  var buffer = new ArrayBuffer(40);
-                  var response = new DataView(buffer);
-                  for (var i=0;i<hs_header.length;++i) {
-                      response.setUint8(i,hs_header.charCodeAt(i));
-                  }
-                  response.setUint32(8,protocol_version,scope.web_socket_littleendian);
-                  response.setUint32(12,0,scope.web_socket_littleendian);
-                  response.setFloat64(16,time_sec,scope.web_socket_littleendian);
-                  for (var i=0;i<16;++i) {
-                      response.setUint8(i+24,data.getUint8(i+24),scope.web_socket_littleendian);
-                  }
-                  scope.web_socket.onmessage = web_socket_handshaking;
-                  scope.web_socket.send(buffer);
-              }
-          } else {
-              if (onError) onError('unexpected data during handshake');
-          }
-      }
-      this.web_socket.onmessage = web_socket_prestart;
+		  function web_socket_handshaking(event) {
+			  if (event.data instanceof ArrayBuffer) {
+				  var data = new DataView(event.data);
+				  // validate header
+				  var hs_header = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5), data.getUint8(6), data.getUint8(7));
+				  if (hs_header != 'RSWSRLIS') {
+					  // not good
+					  scope.web_socket.close();
+				  } else {
+					  // check that the protcol version is acceptable
+					  const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
+					  if (protocol_version < 1 || protocol_version > 2) {
+						  // unsupported protocol, can't go on
+						  scope.web_socket.close();
+						  reject('Sever protocol version not supported');
+					  } else {
+						  // all good, we support this, enter started mode
+						  scope.protocol_version = protocol_version;
+						  scope.protocol_state = 'started';
+						  scope.web_socket.onmessage = web_socket_stream;
+						  resolve();
+					  }
+				  }
+			  } else {
+				  scope.web_socket.close();
+				  reject('unexpected data during handshake');
+			  }
+		  }
+		  function web_socket_prestart(event) {
+			  // remove on error as we're now connected
+			  scope.web_socket.onerror = undefined;
+			  // expecting a handshake message
+			  if (event.data instanceof ArrayBuffer) {
+				  var time_sec = WebsocketStreamer.now();
+				  if (event.data.byteLength != 40) {
+					  scope.web_socket.close();
+					  reject('Invalid handshake header size');
+					  return;
+				  }
+				  var data = new DataView(event.data);
+				  // validate header
+				  var hs_header = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5), data.getUint8(6), data.getUint8(7));
+				  if (hs_header != 'RSWSRLIS') {
+					  // not good
+					  scope.web_socket.close();
+					  reject('Invalid handshake header');
+				  } else {
+					  scope.web_socket_littleendian = data.getUint8(8) == 1 ? true : false;
+					  const protocol_version = data.getUint32(12, scope.web_socket_littleendian);
+					  if (protocol_version < 1 || protocol_version > 2) {
+						  // unsupported protocol, let's ask for what we know
+						  protocol_version = 2;
+					  }
+					  // get server time
+					  var server_time = data.getFloat64(16, scope.web_socket_littleendian);
+					  scope.protocol_state = 'handshaking';
+
+					  var buffer = new ArrayBuffer(40);
+					  var response = new DataView(buffer);
+					  for (var i = 0; i < hs_header.length; ++i) {
+						  response.setUint8(i, hs_header.charCodeAt(i));
+					  }
+					  response.setUint32(8, protocol_version, scope.web_socket_littleendian);
+					  response.setUint32(12, 0, scope.web_socket_littleendian);
+					  response.setFloat64(16, time_sec, scope.web_socket_littleendian);
+					  for (var i = 0; i < 16; ++i) {
+						  response.setUint8(i + 24, data.getUint8(i + 24), scope.web_socket_littleendian);
+					  }
+					  scope.web_socket.onmessage = web_socket_handshaking;
+					  scope.web_socket.send(buffer);
+				  }
+			  } else {
+				  this.web_socket.close();
+				  reject('unexpected data during handshake');
+			  }
+		  }
+		  this.web_socket.onmessage = web_socket_prestart;
+	  });
   }
 
   close() {
@@ -455,30 +460,21 @@ class WebsocketStreamer {
    * the image quality
    * @param renderHandler RenderedImageHandler Optional. If provided then images streamed from the render loop
    * will automatically be displayed on this render target.
-   * @param onResponse Function If supplied then this is called with the response to the stream request. Response
-   * will be true on success.
    * @param onData Function If supplied then this is called every time an image is returned and receives the image
    * and rendering statistics.
-   * @param onError Function If supplied then this is called if there is an error starting the stream.
+   * @return a promise that resolves when the stream has started
    */
-  stream(renderLoop, renderHandler, onResponse, onData, onError)
+  stream(renderLoop, renderHandler, onData)
   {
+    return new Promise((resolve,reject) => {
       if (!this.web_socket) {
-          if (onError) onError('Web socket not connected.');
+          reject('Web socket not connected.');
           return;
       }
       if (this.protocol_state != 'started') {
-          if (onError) onError('Web socket not started.');
+          reject('Web socket not started.');
           return; 
       }
-      if (! (renderHandler instanceof RenderedImageHandler)) {
-          onError = onData;
-          onData = onResponse;
-          onResponse = renderHandler;
-          renderHandler = undefined;
-      }
-
-      var scope = this;
 
       if (typeof renderLoop === 'string' || renderLoop instanceof String) {
           renderLoop = {
@@ -486,21 +482,21 @@ class WebsocketStreamer {
           }
       }
 
-      function start_stream_response(response) {
+      // always use the handler since it makes no sense to start a stream without something to deal with it
+      this.send_command('start_stream',renderLoop,response => {
           if (response.error) {
-              if (onError) onError(response.error.message);
+              reject(response.error.message);
           } else {
-              scope.streaming_loops[renderLoop.render_loop_name] = {
+              this.streaming_loops[renderLoop.render_loop_name] = {
                   renderHandler: renderHandler,
                   onData: onData,
                   command_handlers: [],
                   pause_count: 0
               };
-              if (onResponse) onResponse(response.result);
+              resolve(response.result);
           }
-      }
-      // always use the handler since it makes no sense to start a stream without something to deal with it
-      this.send_command('start_stream',renderLoop,start_stream_response);
+      });
+    });
   }
       
   /**
@@ -508,44 +504,43 @@ class WebsocketStreamer {
    * @param parameters Object The parameter to set. Must contain a 'render_loop_name' property with the name of
    * the render loop to set parameters for. Supported parameters are 'image_format' (String) to specify the
    * streamed image format and 'quality' (String) to control the image quality
-   * @param onResponse Function If supplied then this is called with the response to the set parameter request.
-   * @param onError Function If supplied then this is called if there is an error setting parameters.
+   * @return a promise that resolves with the set parameter response
    */
-  set_stream_parameters(parameters, onResponse, onError)
+  set_stream_parameters(parameters)
   {
+    return new Promise((resolve,reject) => {
       if (!this.web_socket) {
-          if (onError) onError('Web socket not connected.');
+          reject('Web socket not connected.');
           return;
       }
       if (this.protocol_state != 'started') {
-          if (onError) onError('Web socket not started.');
+          reject('Web socket not started.');
           return; 
       }
 
-      function set_stream_response(response) {
+      this.send_command('set_stream_parameters',parameters, response => {
           if (response.error) {
-              if (onError) onError(response.error.message);
+              reject(response.error.message);
           } else {
-              if (onResponse) onResponse(response.result);
+              resolve(response.result);
           }
-      }
-
-      this.send_command('set_stream_parameters',parameters,onResponse || onError ? set_stream_response : undefined);
+      });
+    });
   }
   /**
    * Stops streaming from a render loop
    * @param renderLoop String The name of the render loop to stop streaming.
-   * @param onResponse Function If supplied then this is called with the response to the set parameter request.
-   * @param onError Function If supplied then this is called if there is an error setting parameters.
+   * @return a promise that resolves when the stream is stopped
    */
-  stop_stream(renderLoop, onResponse, onError)
+  stop_stream(renderLoop)
   {
+    return new Promise((resolve,reject) => {
       if (!this.web_socket) {
-          if (onError) onError('Web socket not connected.');
+          reject('Web socket not connected.');
           return;
       }
       if (this.protocol_state != 'started') {
-          if (onError) onError('Web socket not started.');
+          reject('Web socket not started.');
           return; 
       }
 
@@ -554,19 +549,16 @@ class WebsocketStreamer {
               render_loop_name : renderLoop
           }
       }
-      
-      var scope = this;
 
-      function stop_stream_response(response) {
+      this.send_command('stop_stream',renderLoop,response => {
           if (response.error) {
-              if (onError) onError(response.error.message);
+              reject(response.error.message);
           } else {
-              delete scope.streaming_loops[renderLoop.render_loop_name]; 
-              if (onResponse) onResponse(response.result);
+              delete this.streaming_loops[renderLoop.render_loop_name]; 
+              resolve(response.result);
           }
-      }
-
-      this.send_command('stop_stream',renderLoop,stop_stream_response);
+      });
+    });
   }
 
   /**
@@ -676,22 +668,22 @@ class WebsocketStreamer {
    * @endcode
    * @param renderLoop String The name of the render loop to change the camera on.
    * @param data Object object specifying the camera to update. Supported format is:
-   * @param onResponse Function If supplied then this is called with the response to the set parameter request.
-   * @param onError Function If supplied then this is called if there is an error setting parameters.
+   * @return a promise that resolves with the result
    */
-  update_camera(renderLoop, data, onResponse, onError)
+  update_camera(renderLoop, data)
   {
+    return new Promise((resolve,reject) => {
       if (!this.web_socket) {
-          if (onError) onError('Web socket not connected.');
+          reject('Web socket not connected.');
           return;
       }
       if (this.protocol_state != 'started') {
-          if (onError) onError('Web socket not started.');
+          reject('Web socket not started.');
           return; 
       }
 
       if (!data) {
-          if (onError) onError('No data object provided.');
+          reject('No data object provided.');
           return;    
       }
 
@@ -703,15 +695,14 @@ class WebsocketStreamer {
       renderLoop.camera = data.camera;
       renderLoop.camera_instance = data.camera_instance;
 
-      function update_camera_response(response) {
+      this.send_command('set_camera',renderLoop,response => {
           if (response.error) {
-              if (onError) onError(response.error.message);
+              reject(response.error.message);
           } else {
-              if (onResponse) onResponse(response.result);
+              resolve(response.result);
           }
-      }
-
-      this.send_command('set_camera',renderLoop,onResponse || onError ? update_camera_response : undefined);
+      });
+    });
   }
 
   /**
@@ -828,18 +819,6 @@ class WebsocketStreamer {
           queue.renderHandlers.push(options.renderedHandler);
       }
 
-      if(cmd.renderTarget instanceof RenderedImageHandler) {
-          // is a render command, ensure we have a response handler for it
-          // to update the render target
-          options.responseHandler = {
-              method: "handle_render_target",
-              context: {
-                  callback: options.responseHandler,
-                  handle_render_target: WebsocketStreamer.handle_render_target, // need to have the function on the context
-                  service: this
-              }
-          }
-      }
       if (options.responseHandler) {
           var response_handlers = queue.responseHandlers
           response_handlers.length = queue.commands.length;
@@ -901,30 +880,6 @@ class WebsocketStreamer {
       {
           WebsocketStreamer.do_call_callback.apply(this,callback_args);
       }
-  }
-
-  /**
-   * @private
-   * Response handler for sending images to render targets
-   */
-  static handle_render_target(response)
-  {
-      var render_cmd = response.command;
-      if (response.isErrorResponse) {
-          // call user callback with the error, needs to be called with service as this
-          call_callback.call(this.service,this.callback,this.service.on_response_error,response);
-          return;
-      }
-      // response should be a binary
-      if (!response.result.data instanceof Uint8Array || !response.result.mime_type || response.result.mime_type.constructor !== String) {
-          call_callback.call(this.service,this.callback,this.service.on_response_error,new Response(render_cmd,{error:{code:-2, message:"Render command did not return a binary result."}}));
-          return;
-      } 
-      // looks good
-      const render_target = render_cmd.renderTarget;
-      render_target.imageRendered(response.result.data, response.result.mime_type);
-
-      call_callback.call(this.service,this.callback,this.service.on_response_error,new Response(render_cmd,{result:{}}));
   }
 
   /**
@@ -1261,17 +1216,17 @@ class WebsocketStreamer {
    * image compression settings.
    * @param maxRate Number The maximum rate in bytes per second. Set to 0 to use automatic rate
    * control (the default) or -1 to disable rate control entirely.
-   * @param onResponse Function If supplied then this is called with the response to the set max rate request.
-   * @param onError Function If supplied then this is called if there is an error setting the max rate.
+   * @return a promise that resolves when the max rate has been set.
    */
-  set_max_rate(maxRate, onResponse, onError)
+  set_max_rate(maxRate)
   {
+    return new Promise((resolve, reject) => {
       if (!this.web_socket) {
-          if (onError) onError('Web socket not connected.');
+          reject('Web socket not connected.');
           return;
       }
       if (this.protocol_state != 'started') {
-          if (onError) onError('Web socket not started.');
+          reject('Web socket not started.');
           return; 
       }
 
@@ -1283,15 +1238,15 @@ class WebsocketStreamer {
           rate: maxRate
       }
 
-      function set_max_rate_response(response) {
+      this.send_command('set_transfer_rate',args,response => {
           if (response.error) {
-              if (onError) onError(response.error.message);
+              reject(response.error.message);
           } else {
-              if (onResponse) onResponse(response.result);
+              resolve(response.result);
           }
-      }
-
-      this.send_command('set_transfer_rate',args,onResponse || onError ? set_max_rate_response : undefined);
+        }
+      );
+    });
   }
 
 
@@ -1390,7 +1345,7 @@ class WebsocketStreamer {
    */
   on_default_general_error(error)
   {
-    var errorMsg = error.toString();
+    var errorMsg = JSON.stringify(error);
     console.error(errorMsg);
   }
 
