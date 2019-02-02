@@ -10,6 +10,44 @@ const RenderedImageHandler = require('./RenderedImageHandler');
 
 let sequence_id=0;
 
+class DelayedPromise {
+  constructor() {
+    this.promise = new Promise((resolve,reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+class CommandQueue {
+  constructor(service,state_data) {
+    this.service = service;
+    this.state_data = state_data;
+    this.commands = [];
+    this.response_promises = [];
+  }
+
+  // adds command to the command queue.
+  // if want_reponse is true then a promise will be created to resolve
+  // this commands response
+  queue(command,want_response=false) {
+    this.commands.push(command);
+    if (want_response) {
+        var response_promises = this.response_promises;
+        response_promises.length = this.commands.length;
+        response_promises[response_promises.length-1] = new DelayedPromise();
+    }
+    return this;
+  }
+
+  // sends the command queue for execution. if wait_for_render is true
+  // then a promise will be created that is resolved when the commands in this
+  // queue are about to be displayed in the associated render loop stream.
+  send(wait_for_render=false) {
+    return this.service.send_command_queue(this,wait_for_render);
+  }
+}
+
 const now_function = function(){
   try {
     if (window && window.performance && performance.now) {
@@ -69,10 +107,6 @@ class WebsocketStreamer {
     this.binary_commands = true;
 
     this.m_general_error_handler = this.on_default_general_error;
-    this.m_response_error_handler = this.on_default_response_error;
-    this.m_callback_error_handler = this.on_default_callback_error;
-
-    this.catchHandlers = true;
   }
 
   /**
@@ -103,7 +137,7 @@ class WebsocketStreamer {
    * when there is an error in a callback handler, the stack is lost.
    * Set this to true to unwrap the handler calls.
    */
-  //catchHandlers = true;
+  static get catchHandlers() { return true };
 
   /**
    * @private
@@ -274,16 +308,10 @@ class WebsocketStreamer {
 								  statistics: stats
 							  };
 							  if (stats.sequence_id > 0) {
-								  while (scope.streaming_loops[render_loop_name].command_handlers.length &&
-									  scope.streaming_loops[render_loop_name].command_handlers[0].sequence_id <= stats.sequence_id) {
-									  var handler = scope.streaming_loops[render_loop_name].command_handlers.shift();
-									  for (var i = 0; i < handler.handlers.length; i++) {
-										  call_callback.call(
-											  scope,
-											  handler.handlers[i],
-											  scope.on_general_error,
-											  data);
-									  }
+								  while (scope.streaming_loops[render_loop_name].command_promises.length &&
+									  scope.streaming_loops[render_loop_name].command_promises[0].sequence_id <= stats.sequence_id) {
+									  var handler = scope.streaming_loops[render_loop_name].command_promises.shift();
+                    handler.delayed_promise.resolve(data);
 								  }
 							  }
 							  if (!scope.streaming_loops[render_loop_name].pause_count) {
@@ -490,7 +518,7 @@ class WebsocketStreamer {
               this.streaming_loops[renderLoop.render_loop_name] = {
                   renderHandler: renderHandler,
                   onData: onData,
-                  command_handlers: [],
+                  command_promises: [],
                   pause_count: 0
               };
               resolve(response.result);
@@ -612,7 +640,7 @@ class WebsocketStreamer {
    * @return the pause count. When evaluated in a truthy way will be \c true if
    * paused and ]c false if not
    */
-  is_dispay_paused(renderLoop)
+  is_display_paused(renderLoop)
   {
       if (!this.streaming_loops[renderLoop]) {
           return false;
@@ -706,475 +734,107 @@ class WebsocketStreamer {
   }
 
   /**
-   * Adds a command to be processed. The service guarantees that
-   * all added commands will be processed and any response handler will
-   * always be called regardless of if previous commands experience
-   * errors. Note however that if commands using regular StateData
-   * and RenderLoopStateData are intermixed then commands will
-   * not necessarily be executed in the order they were added. This is also
-   * the case if commands are executed on different render loops.
-   * <p>
-   * Note that adding commands using this method is equivalent to
-   * registering a process commands callback and adding commands
-   * when the process commands callback is made. This means that any
-   * callbacks already registered will be executed before the command
-   * (or commands if the \p delayProcessing flag is used) added using this
-   * method.
-   * <p>
-   * Example: Adding commands A, B, and C with delayProcessing set to
-   * true for A and B, but false for C will be equivalent to register a
-   * callback and add A, B, and C when the callback is made.
-   *
-   * @param cmd com::mi::rs:Command The command to add.
-   *
-   * @param options Object Optional. If specified, this provides options
-   * for this command. Supported properties are:
-   *   - responseHandler: A function or object giving the handler to call
-   *                       with the response to this command. The object passed
-   *                       to the handler will have the type Response
-   *                       and can be used to check if the command succeeded and
-   *                       to access any returned data. See below for supported
-   *                       handler types.
-   *   - renderedHandler: If this command is to be executed on a streaming 
-   *                       render loop then this handler will be called when
-   *                       the first image that contains the results of this
-   *                       command is about to be displayed. The object passes
-   *                       to the handler will be the same as what is passed
-   *                       to the #stream \c onData handler. See below for supported
-   *                       handler types.
-   * <p>A handler is either a function or a callback object of the form
-   * \c "{method:String, context:Object}".
-   * In the first form the function will be called in the context of the
-   * global object meaning that \c this will refer to the global
-   * object. The second form will call the function with the name given
-   * by the \c method member in the context of the object given by the
-   * \c context member. If the callback object is specified as
-   * {method:"myMethod", context:someObject} the call made will be
-   * someObject["myMethod"](arg).</p>
-   * <p>For backwards compatibility \c options can be passed a handler directly
-   * in which case it will be called as the responseHandler.</P 
-   *
-   * @param stateData StateData|RenderLoopStateData Optional.
-   * The state data to use. If null or omitted the default state data will be
-   * used as specified in the constructor.
-   *
-   * @param delayProcessing Boolean A hint that tells the service not to try to send the
-   * command immediately. This hint is useful when adding a sequence
-   * of commands in one go. Specifying this flag to true for all
-   * commands except the last one added will ensure that the Service
-   * don't start processing the events immediately, but holds
-   * processing until the last command in the sequence has been added.
-   **/
-  addCommand(cmd, options, stateData, delayProcessing)
-  {
-      if (this.protocol_version < 2) {
-          throw "Command execution not supported on the server."
-      }
-
-      // normalise and process options
-      options = options || {};
-      if(typeof options === "function") {
-          options = {
-              responseHandler: options
-          }
-      } else {
-          if (options.context && options.method) {
-              options = {
-                  responseHandler: options
-              }
-          }      
-      }
-      if (!options.stateData) {
-          options.stateData = stateData;
-      }
-      if (options.delayProcessing === undefined) {
-          options.delayProcessing = delayProcessing;
-      }
-
-  //    alert("addCommand called with cmd: " + cmd + " options: " + (options != null) + " delayProcessing: " + delayProcessing);
-      var queue;
-      if (this.processing_queue !== undefined) {
-          // state is already setup and we just add the command to the specified queue
-          queue = this.processing_queue;
-          // we're already executing so make sure we don't call it again
-          delayProcessing = true;
-      } else {
-          // If no state data is defined, use the default state data. Also make a
-          // rudimentary check to see that the stateData implements the StateData
-          // interface
-          if(!options.stateData)
-              options.stateData = this.defaultStateData
-          else if( (typeof options.stateData !== "object") || (options.stateData.stateCommands === undefined && options.stateData.renderLoopName === undefined) )
-              throw new String("WebSocketStreamer.addCommand called but stateData was not of the correct type or didn't implement a StateData interface. type: " + (typeof options.stateData));
-
-          // prep the command queue
-          this.prepare_command_queue(options.stateData,false);
-          queue = this.command_queue[this.command_queue.length - 1];
-      }
-
-      // Add the command to the current service callback.
-      queue.commands.push(cmd);
-
-      if (options.renderedHandler) {
-          queue.renderHandlers.push(options.renderedHandler);
-      }
-
-      if (options.responseHandler) {
-          var response_handlers = queue.responseHandlers
-          response_handlers.length = queue.commands.length;
-          response_handlers[response_handlers.length-1] = options.responseHandler;
-      }
-      // If processing shouldn't be delayed then execute the command queue
-      if(options.delayProcessing !== true)
-      {
-          this.execute(this.command_queue);
-          delete this.command_queue;
-      }
-
-  }
-
-
-  /**
-   * @private
-   * Calls a callback passing remaining arguments to the callback
-   * \param callback Function|Object the callback to call
-   */
-  static do_call_callback(callback)
-  {
-      if (callback) {
-          if(typeof callback === "function")
-              callback.apply(undefined,Array.prototype.slice.call(arguments, 1));
-          else
-          {
-              if(typeof callback.context[callback.method] !== "function")
-                  throw new String("Failed to call response handler method \"" + callback.method + "\" on context " + callback.context + ". Method does not exist.");
-              callback.context[callback.method].apply(callback.context,Array.prototype.slice.call(arguments, 1));        
-          }
-      }
+   * Returns a CommandQueue that can be used to queue up a series of commands to
+   * be executed.
+   * @param state if provided then this is used as the state for executing the commands.
+   * If not then the default service state is used.
+   */ 
+  queue_commands(state=null) {
+    return new CommandQueue(this,state || this.defaultStateData)
   }
 
   /**
-   * @private
-   * Calls a callback passing remaining arguments to the callback
-   * \param callback Function|Object the callback to call
-   * \param error_handler function to call if error is thrown
+   * Executes a single command and returns a promise.
+   * @param command the command to execute
+   * @param want_response if \c true then the returned promise resolves to the response of the 
+   * command. If \c false then the promise resolves immediately to undefined.
+   * @param wait_for_render if \c true, and the state executes the command on a render loop then
+   * a promise is returned that resolves just before the command results appear in a render.
+   * @param state if provided then this is used as the state to execute the command.
+   * If not then the default service state is used.
+   * @return a promise that resolves to an iterable. If a response is requested then it resolves
+   * into the first value of the iterable. If \p wait_for_render is \c true then that resolves into
+   * the last value of the iterable.
    */
-  call_callback(callback, error_handler)
-  {
-      var callback_args = [callback].concat(Array.prototype.slice.call(arguments, 2));
-      if (WebsocketStreamer.catchHandlers)
-      {
-          try
-          {
-              WebsocketStreamer.do_call_callback.apply(this,callback_args);
-          }
-          catch(e)
-          {
-              //alert("Exception caught in process commands callback handler: " + e);
-              if (typeof error_handler === "function") {
-                  error_handler.call(this,e);
-              }
-          }
-      }
-      else
-      {
-          WebsocketStreamer.do_call_callback.apply(this,callback_args);
-      }
+  execute_command(command,want_response=false,wait_for_render=false,state=undefined) {
+    return new CommandQueue(this,state || this.defaultStateData).queue(command,want_response).send(wait_for_render);
   }
 
-  /**
-   * <p>Adds a callback to the end of the callback queue. The callback
-   * will be made as soon as a callback or command is added with
-   * \p delayProcessing set to true. Callbacks will
-   * always be made in the order they were registered with the
-   * service, so if callback A is added before callback B, then A
-   * will be called before B and consequently any commands added by
-   * A will be processed before any commands added by B.</p>
-   *
-   * <p>Callbacks are one-shot, meaning that a callback needs to be
-   * registered every time the application needs to process commands.
-   * The same callback can only be registered once at a time. The
-   * application is responsible for keeping track of any user input
-   * that occurs while waiting for the callback and convert that
-   * user input into an optimized sequence of commands. The same
-   * callback function can be added again as soon as it has been
-   * called or cancelled.</p>
-   *
-   * <p>NOTE: When the callback is made the supplied CommandSequence
-   * instance must be used to add the commands, not
-   * WebSocketStreamer.addCommand().</p>
-   *
-   * @param callback Object The callback. This is either a function or
-   * a callback object of the form {method:String, context:Object}.
-   * In the first form the function will be called in the context of the
-   * global object meaning that the this pointer will refer to the global
-   * object. The second form will call the function with the name given
-   * by the "callback" memeber in the context of the object given by the
-   * context member. In the example {method:"myMethod",
-   * context:someObject} the call made will be someObject["myMethod"](seq).
-   * The callback function (regardless of which form is used when
-   * registering the callback) will be called with a single argument
-   * which is the CommandSequence to which commands should be added
-   * using the addCommand(cmd, responseHandler) method.
-   *
-   * @param stateData StateData|RenderLoopStateData Optional. The state data to use. If null or omitted
-   * the default state data will be used as specified in the constructor.
-   *
-   * @param delayProcessing Boolean Optional. This flag instructs the
-   * service if it should delay processing of the added callback or not.
-   * Defaults to false which is recommended in most cases.
-   */
-  addCallback(callback, stateData, delayProcessing)
-  {
-      if (this.protocol_version < 2) {
-          throw "Command execution not supported on the server."
+  // if wait_for_render is true but we are not currently streaming that loop then its promise will
+  // resolve immediately
+  send_command_queue(command_queue,wait_for_render) {
+    if (!command_queue) {
+          return new Promise.reject('No command queue provided');
+    }
+    if (!this.web_socket) {
+        return new Promise.reject('Web socket not connected.')
+    }
+    if (this.protocol_state != 'started') {
+        return new Promise.reject('Web socket not started.');
+    }
+
+    if (command_queue.commands.length == 0) {
+      // move along, nothing to see here
+        return new Promise.all(Promise.resolve());
+    }
+    let execute_args;
+    const promises = command_queue.response_promises.reduce((result,value) => {
+      if (value) {
+        result.push(value.promise);
       }
-      if(callback == null || callback == undefined)
-          throw new String("WebSocketStreamer.addCallback called but callback was not defined or null.");
+      return result;
+    },[]);
 
-      if(typeof callback !== "function")
-      {
-          // check if it is a valid callback object
-          if( (typeof callback.method !== "string") || (typeof callback.context !== "object"))
-              throw new String("WebSocketStreamer.addCallback called but callback was not a function or callback object of the form {method:String, context:Object}.");
+    if (command_queue.state_data.renderLoopName) {
+        execute_args = {
+            commands: command_queue.commands,
+            render_loop_name: command_queue.state_data.renderLoopName,
+            continue_on_error: command_queue.state_data.continueOnError,
+            cancel: command_queue.state_data.cancel,
+        };
+        if (wait_for_render) {
+            var stream = this.streaming_loops[execute_args.render_loop_name];
+            if (stream) {
+                const promise = new DelayedPromise();
+                execute_args.sequence_id = ++WebsocketStreamer.sequence_id;
+                stream.command_promises.push({
+                    sequence_id: execute_args.sequence_id,
+                    delayed_promise: promise
+                })
+                promises.push(promise.promise);
+            } else {
+              promises.push(Promise.resolve());
+            }
+        }
+    } else {
+      if (wait_for_render) {
+        return Promise.reject('A command wants a render handler but commands are not executing on a render loop');
       }
+        execute_args = {
+            commands: command_queue.state_data.stateCommands ? command_queue.state_data.stateCommands.concat(command_queue.commands) : command_queue.commands,
+            url: command_queue.state_data.path,
+            state_arguments: command_queue.state_data.parameters
+        };
+    }
 
-      if (this.findCallback(callback)) {
-          return;
-      }
-
-      // create a callback object to add to the command queue.
-      if(!stateData)
-          stateData = this.defaultStateData
-      else if( (typeof stateData !== "object") || (stateData.stateCommands === undefined && stateData.renderLoopName === undefined) )
-          throw new String("WebSocketStreamer.addCallback called but stateData was not of the correct type or didn't implement a StateData interface. type: " + (typeof stateData));
-
-      this.prepare_command_queue(stateData,true);
-      var queue_index = this.command_queue.length - 1;
-
-      this.command_queue[queue_index].callbacks.push(callback);
-
-      if(delayProcessing !== true)
-      {
-          this.execute(this.command_queue);
-          delete this.command_queue;
-      }
-  }
-
-  /**
-   * Cancels a registered process commands callback. This call removes
-   * the callback from the queue. Useful if the callback is no longer
-   * needed, or if the callback needs to be moved to the end of the
-   * queue. In the latter case, first cancelling and then adding the
-   * callback makse sure that it is executed after any callbacks
-   * already in the callback queue.
-   * <p>Note that since the web socket service does not have a 
-   * busy state cancelling callbacks is only possible if callbacks
-   * are added in a delayed state.</p>
-   *
-   * @param callback Function The previously added callback function.
-   *
-   * @return Boolean true if the callback was cancelled, false if it was not
-   *         in the queue.
-   */
-  cancelCallback(callback)
-  {
-      if (this.protocol_version < 2) {
-          throw "Command execution not supported on the server."
-      }
-      if(callback == null || callback == undefined)
-          throw new String("WebSocketStreamer.addCallback called but callback was not defined or null.");
-
-      if(typeof callback !== "function")
-      {
-          // check if it is a valid callback object
-          if( (typeof callback.method !== "string") || (typeof callback.context !== "object"))
-              throw new String("WebSocketStreamer.addCallback called but callback was not a function or callback object of the form {method:String, context:Object}.");
-      }
-      var location = this.findCallback(callback);
-      if (location) {
-          this.command_queue[location[0]].splice(location[1],1);
-          return true;
-      }
-      return false
-  }
-
-  /**
-   * @private find the provided callback in the command queue. Returns undefined
-   * if not found or a 2 element Array. The first is the index of the command object
-   * in this.command_queue and the second is the index in callbacks of the callback. 
-   * \param callback Object the callback to find
-   */
-  findCallback(callback)
-  {
-      if (this.command_queue === undefined) {
-          return;
-      }
-      for (var i=0;i<this.command_queue.length;i++) {
-          if (this.command_queue[i].callbacks) {
-              var callbacks = this.command_queue[i].callbacks;
-              for (var j=0;j<callbacks.length;j++) {
-                  var curr = callbacks[j];
-                  if(typeof callback === "function" && (curr === callback))
-                      return [i,j];
-                  else if( (callback.method !== null) && (callback.method !== undefined) && (callback.context !== null) && (callback.context !== undefined) && (curr.method === callback.method) && (curr.context === callback.context) )
-                      return [i,j];
-              }
+    function resolve_responses(response) {
+      // state data commands will have results as well so we need to compensate for them
+      var response_offset = this.state_data.stateCommands ? this.state_data.stateCommands.length : 0;
+      for (var i=response_offset;i<response.result.length;++i) {
+          var cmd_idx = i - response_offset;
+          if (this.response_promises[cmd_idx]) {
+            this.response_promises[cmd_idx].resolve(new Response(this.commands[cmd_idx], response.result[i]));
           }
       }
-  }
+    }
 
-  /**
-   * @private
-   * Prepares the command queue so the final entry is suitable
-   * for adding commands to
-   * @param stateData StateData|RenderLoopStateData the state we are prepping for
-   * @param forCallback Boolean \c true if preparing for a callback, \c false if for a command
-   */
-  prepare_command_queue(stateData, forCallback)
-  {
-      function make_command_object() {
-          return {
-              stateData:stateData,
-              commands: [],
-              responseHandlers: [],
-              renderHandlers: [],
-              callbacks: forCallback ? [] : undefined
-          };
-      }
-      // if no comamnd queue then make one.
-      if (!this.command_queue) {
-          this.command_queue = [ make_command_object() ];
-          return;
-      }
-      var index = this.command_queue.length-1;
-      
-      // if swapped between addCommand and addCallback, make a new entry
-      var curr_queue_for_callback = !!this.command_queue[index].callbacks;
-      if (curr_queue_for_callback != forCallback) {
-          this.command_queue.push(make_command_object());
-
-      } 
-      
-      // if new state and current state are different then make a new entry
-      if(this.command_queue[index].stateData !== stateData)
-      {
-          var needNewState = true;
-          // if both stateData are on the same render loop they might be equivalent
-          if (this.command_queue[index].stateData.renderLoopName !== undefined && 
-              this.command_queue[index].stateData.renderLoopName === stateData.renderLoopName) {
-              var currState = this.command_queue[index].stateData;
-
-              // here we can either just use the current state, swap it for the new state
-              // or push the new state
-              if (currState.cancel >= stateData.cancel) {
-                  // current state will cancel faster than new one so can just keep it if
-                  // continueOnError is the same.
-                  needNewState = currState.continueOnError != stateData.continueOnError
-              } else {
-                  // new state wants to cancel faster.
-                  // if continueOnError is the same then just replace current state with
-                  // the new one.
-                  if (currState.continueOnError == stateData.continueOnError) {
-                      this.command_queue[index].stateData = stateData;
-                      needNewState = false;
-                  }
-              } 
-          }
-          if (needNewState) {
-              this.command_queue.push(make_command_object());
-          }
-      }
-  } 
-  /**
-   * @private
-   * Executes the provided commands on the web socket connection
-   * @param commandQueue Array The command queue to execute.
-   */
-  execute(commandQueue)
-  {
-      if (!commandQueue) {
-          return;
-      }
-      if (!this.web_socket) {
-          this.on_general_error('Web socket not connected.');
-          return;
-      }
-      if (this.protocol_state != 'started') {
-          this.on_general_error('Web socket not started.');
-          return; 
-      }
-
-      for (var i=0;i<commandQueue.length;i++) {
-          var execute_args;
-
-          if (commandQueue[i].callbacks) {
-              // call callbacks to get commands
-              this.service = this;            
-              this.stateData = commandQueue[i].stateData;
-              this.processing_queue = commandQueue[i];
-              
-              for (var c=0;c<commandQueue[i].callbacks.length;c++) {
-                  this.call_callback(commandQueue[i].callbacks[c],this.on_callback_error,this);
-              }
-              delete this.service;
-              delete this.stateData;
-              delete this.processing_queue;
-          }
-          if (commandQueue[i].commands.length == 0) {
-              continue;
-          }
-          if (commandQueue[i].stateData.renderLoopName) {
-              execute_args = {
-                  commands: commandQueue[i].commands,
-                  render_loop_name: commandQueue[i].stateData.renderLoopName,
-                  continue_on_error: commandQueue[i].stateData.continueOnError,
-                  cancel: commandQueue[i].stateData.cancel,
-              };
-              if (commandQueue[i].renderHandlers.length) {
-                  var stream = this.streaming_loops[execute_args.render_loop_name];
-                  if (stream) {
-                      execute_args.sequence_id = ++WebsocketStreamer.sequence_id;
-                      stream.command_handlers.push({
-                          sequence_id: execute_args.sequence_id,
-                          handlers: commandQueue[i].renderHandlers
-                      })
-                  }
-              }
-          } else {
-              execute_args = {
-                  commands: commandQueue[i].stateData.stateCommands ? commandQueue[i].stateData.stateCommands.concat(commandQueue[i].commands) : commandQueue[i].commands,
-                  url: commandQueue[i].stateData.path,
-                  state_arguments: commandQueue[i].stateData.parameters
-              };
-          }
-
-          function execute_response(response) {
-              if (response.error) {
-                  // possible errors
-                  //if (onError) onError(response.error.message);
-              } else {
-                  // state data commands will have results as well so we need to compensate for them
-                  var response_offset = this.stateData.stateCommands ? this.stateData.stateCommands.length : 0;
-                  for (var i=response_offset;i<response.result.length;++i) {
-                      var cmd_idx = i - response_offset;
-                      var callback = this.responseHandlers[cmd_idx];
-                      if (callback) {
-                          this.service.call_callback(callback,this.service.on_response_error,new Response(this.commands[cmd_idx], response.result[i]));
-                      }
-                  }
-              }
-          }
-
-          if (commandQueue[i].responseHandlers.length) {
-              commandQueue[i].service = this;
-              this.send_command('execute',execute_args,execute_response,commandQueue[i]);
-          } else {
-              this.send_command('execute',execute_args);
-          }
-          
-          
-      }
+    if (promises.length > (!!wait_for_render ? 1 : 0)) {
+      // we want responses
+      this.send_command('execute',execute_args,resolve_responses,command_queue);
+    } else {
+      this.send_command('execute',execute_args);
+    }
+    return Promise.all(promises);
   }
 
   /**
@@ -1281,88 +941,12 @@ class WebsocketStreamer {
   }
 
   /**
-   * Sets the response error handler.
-   * This deals with errors that are caused by command response functions.
-   *
-   * If the handler is not a function the response error handler will be set to the default handler.
-   *
-   * @param handler Function Handler function to deal with command response function errors.
-   */
-  set_response_error_handler(handler)
-  {
-      if (typeof handler !== "function")
-      {
-          handler = this.on_default_response_error;
-      }
-      this.m_response_error_handler = handler;
-  }
-  /**
-   * Returns the general error handler function.
-   *
-   * @return Function Handler function that deals with command response function errors.
-   */
-  get_response_error_handler()
-  {
-      if (typeof this.m_response_error_handler === "function")
-      {
-          return this.m_response_error_handler;
-      }
-      return this.on_response_general_error;
-  }
-
-  /**
-   * Sets the callback error handler.
-   * This deals with errors that are caused by callback functions (ie functions added to addCallback).
-   *
-   * If the handler is not a function the callback error handler will be set to the default handler.
-   *
-   * @param handler Function Handler function to deal with callback function errors.
-   */
-  set_callback_error_handler(handler)
-  {
-      if (typeof handler !== "function")
-      {
-          handler = this.on_default_callback_error;
-      }
-      this.m_callback_error_handler = handler;
-  }
-  /**
-   * Returns the callback error handler function.
-   *
-   * @return Function Handler function that deals with callback function errors.
-   */
-  get_callback_error_handler()
-  {
-      if (typeof this.m_callback_error_handler === "function")
-      {
-          return this.m_callback_error_handler;
-      }
-      return this.on_callback_general_error;
-  }
-
-  /**
    * @private Default general error function.
    */
   on_default_general_error(error)
   {
     var errorMsg = JSON.stringify(error);
     console.error(errorMsg);
-  }
-
-  /**
-   * @private Default response error function.
-   */
-  on_default_response_error(error)
-  {
-      this.on_general_error("Error in response: " + error);
-  }
-
-  /**
-   * @private Default callback error function.
-   */
-  on_default_callback_error(error)
-  {
-      this.on_general_error("Error in callback: " + error);
   }
 
   /**
@@ -1373,36 +957,6 @@ class WebsocketStreamer {
       if (typeof this.m_general_error_handler === "function")
       {
           this.m_general_error_handler(error);
-      }
-      else
-      {
-          this.default_error_handler(error);
-      }
-  }
-
-  /**
-   * @private Calls the response error function handler.
-   */
-  on_response_error(error)
-  {
-      if (typeof this.m_response_error_handler === "function")
-      {
-          this.m_response_error_handler(error);
-      }
-      else
-      {
-          this.default_error_handler(error);
-      }
-  }
-
-  /**
-   * @private Calls the callback error function handler.
-   */
-  on_callback_error(error)
-  {
-      if (typeof this.m_callback_error_handler === "function")
-      {
-          this.m_callback_error_handler(error);
       }
       else
       {

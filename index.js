@@ -4,7 +4,6 @@
 ; (function () {
 	
 	const RealityServer = {
-		BatchCommand: require('./src/BatchCommand'),
 		Command: require('./src/Command'),
 		WebSocketStreamer: require('./src/WebSocketStreamer'),
 		StateData: require('./src/StateData'),

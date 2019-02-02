@@ -13,14 +13,6 @@
  * is used by RSService in calls to command response handlers. it 
  * gives access to all the data available in a response to a 
  * RealityServer command.
- * 
- * Batch commands has complex responses containing the responses of 
- * all the batch sub-commands. To make parsing eaiser there are several
- * batch command specific methods added to this interface. The result 
- * object will contain all the information needed, but the  
- * subResponses array contains all the sub-responses as Response 
- * objects. Note that sub-responses can also be responses to nested 
- * batch commands.
  */
    
 /**
@@ -46,40 +38,7 @@ class Response {
             this.error = null;
         else
             this.error = serverResponse.error;
-        
-        if( (!this.isErrorResponse) && (this.result) && (command.addCommand != undefined) && (command.continueOnError != undefined) && ( command.commands instanceof Array))
-        {
-            var responses = this.result.responses;
-            var subErrors = this.result.has_sub_error_response;
-        
-            // Check the type of the result
-            if( (!(responses instanceof Array)) || (subErrors == undefined))
-                throw new String("Failed to create batch response. Batch response result not of expected type.");
-        
-            this.isBatchResponse = true;
-
-            // Sanity check, the commands array and the responses array should 
-            // have the same size!
-            if(!responses.length == command.commands.length)
-                throw new String("Failed to create sub-responses for batch command. The nr of sub-commands did not match the number of sub-responses.");
-            
-            // Create sub-responses
-            var subcommands = command.commands;
-            this.subResponses = [];
-            var len = subcommands.length;
-            for(var i=0; i<len; i++)
-            {
-                this.subResponses.push(new Response(subcommands[i], responses[i]));
-            }
-
-            this.hasSubErrorResponse = subErrors;
-        }
-        else
-        {
-            this.isBatchResponse = false;
-            this.subResponses = null;
-            this.hasSubErrorResponse = false;
-        }
+ 
     }
 
     /**
@@ -114,35 +73,6 @@ class Response {
      * that identifies the error.
      */
     //error;
-
-    /**
-     * @public Boolean.
-     * True if this is the response to a batch command. If true then 
-     * the batch specific methods can be used to easier parse the 
-     * sub-responses of the batch command.
-     */
-    //isBatchResponse;
-
-    /**
-     * @public Array 
-     * if isBatchResponse is true, then this array contains objects of 
-     * type Response for all the sub-commands. sub-responses are 
-     * in the same order as the sub-commands were added to the original
-     * batch request.
-     */
-    //subResponses;
-
-    /**
-     * @public Boolean.
-     * Returns true if any of the sub-responses is an error response. 
-     * This function also takes sub-responses of nested batch commands
-     * into account. Note that the Response.error property only say
-     * if the batch command itself succedded or not, it does not say 
-     * anything about the individual sub-commands. Each sub-command needs
-     * to be inspected, and this is a convenience method to determine if
-     * error handling is needed or not for the sub-responses.
-     */
-    //hasSubErrorResponse;
 
     /**
      * @private Object
