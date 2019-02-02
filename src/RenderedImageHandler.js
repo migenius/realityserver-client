@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved. 
+ * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 
 class RenderedImageHandler {
@@ -10,7 +10,8 @@ class RenderedImageHandler {
      * @return String A String describing this Object.
      */
     imageRendered(image, mime_type) {
-        throw "Implement me";
+        image;mime_type;
+        throw 'Implement me';
     };
 }
 

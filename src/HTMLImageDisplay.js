@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved. 
+ * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 const RenderedImageHandler = require('./RenderedImageHandler');
 
@@ -9,9 +9,9 @@ class HTMLImageDisplay extends RenderedImageHandler {
         this.image = image;
         try {
             this.urlCreator = urlCreator || window.URL || window.webkitURL;
-        } catch(e) {}
+        } catch (e) {}
         if (!this.urlCreator) {
-            throw 'No URL creator available.'
+            throw 'No URL creator available.';
         }
     }
     /**
@@ -22,9 +22,9 @@ class HTMLImageDisplay extends RenderedImageHandler {
      */
     imageRendered(image, mime_type) {
         if (this.lastUrl) {
-          this.urlCreator.revokeObjectURL(this.lastUrl);
+            this.urlCreator.revokeObjectURL(this.lastUrl);
         }
-        var blob = new Blob( [ image ], { type: mime_type } );
+        let blob = new Blob( [ image ], { type: mime_type } );
         this.lastUrl = this.urlCreator.createObjectURL( blob );
         this.image.src = this.lastUrl;
     };
