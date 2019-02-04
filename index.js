@@ -5,13 +5,13 @@
 
     const RealityServer = {
         Command: require('./src/Command'),
-        WebSocketStreamer: require('./src/WebSocketStreamer'),
-        StateData: require('./src/StateData'),
+        HTMLImageDisplay: require('./src/HTMLImageDisplay'),
+        Matrix4x4: require('./src/types/Matrix4x4'),
         RenderLoopStateData: require('./src/RenderLoopStateData'),
         RenderedImageHandler: require('./src/RenderedImageHandler'),
-        HTMLImageDisplay: require('./src/HTMLImageDisplay'),
-        Vector4: require('./src/types/Vector4'),
-        Matrix4x4: require('./src/types/Matrix4x4')
+        Service: require('./src/Service'),
+        StateData: require('./src/StateData'),
+        Vector4: require('./src/types/Vector4')
     };
 
     module.exports = RealityServer;

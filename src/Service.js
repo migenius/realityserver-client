@@ -76,13 +76,13 @@ let Websocket_impl = function() {
 }();
 
 /**
- * @file WebSocketStreamer.js
- * This file contains the WebsocketStreamer class.
+ * @file Service.js
+ * This file contains the Service class.
  */
 
 /**
- * @class WebSocketStreamer
- * The WebSocketStreamer class provides the same functionality as
+ * @class Service
+ * The Service class provides the same functionality as
  * the RSService except it operates over a Web Socket connection
  * rather than HTTP. It is essetially a drop in replaceent for
  * RSService and additionaly provides streaming of rendered
@@ -95,10 +95,10 @@ let Websocket_impl = function() {
 
 /**
  * @ctor
- * Creates a WebSocketStreamer object that can stream images from a
+ * Creates a Service object that can stream images from a
  * render loop. Throws if web sockets are not supported by the browser.
  */
-class WebsocketStreamer {
+class Service {
     constructor(defaultStateData) {
         if (!defaultStateData) {
             this.defaultStateData = new StateData();
@@ -113,7 +113,7 @@ class WebsocketStreamer {
 
     /**
    * @public StateData|RenderLoopStateData
-   * The default state data for this WebSocketStreamer instance. If no state
+   * The default state data for this Service instance. If no state
    * data is specified in the addCommand and addCallback methods,
    * then this is the state data that will be used. If this is set
    * to an instance of RenderLoopStateData then all commands
@@ -134,7 +134,7 @@ class WebsocketStreamer {
     }
 
     /**
-   * @static WebsocketStreamer
+   * @static Service
    * By default calls to user callbacks are wrapped in try/catch
    * blocks and if they error the appropriate error handler is
    * called. Disabling this can be useful during development as
@@ -147,7 +147,7 @@ class WebsocketStreamer {
 
     /**
    * @private
-   * @static WebsocketStreamer
+   * @static Service
    * Command sequence id used to identify when the results of a
    * command appear in a render.
    */
@@ -159,7 +159,7 @@ class WebsocketStreamer {
         sequence_id = value;
     }
 
-    /** static WebsocketStreamer
+    /** static Service
    * Sets the WebSocket implementation to use. This must implement the
    * W3C WebSocket API specification
    */
@@ -168,16 +168,17 @@ class WebsocketStreamer {
     }
 
     /**
-   * @static WebsocketStreamer
-   * Returns whether web sockets are supported or not. This should be used to
-   * test if web sockets are available before attempting to use them.
+   * @static Service
+   * Returns whether the service is supported or not. Web sockets are required and must
+   * be accessible either through window.WebSocket or by setting Service.websocket to the
+   * constructor of a W3C compliant web socket implementation.
    */
     static supported() {
         return !!Websocket_impl;
     }
 
     /**
-   * @static WebsocketStreamer
+   * @static Service
    * Returns a timestamp in seconds
    */
     static now() {
@@ -227,7 +228,7 @@ class WebsocketStreamer {
             // if url is a string then make a websocket and connect. otherwise we assume it's already
             // an instance of a W3C complient web socket implementation.
             if (url !== undefined && url !== null && url.constructor === String) {
-                if (!WebsocketStreamer.supported()) {
+                if (!Service.supported()) {
                     reject('Websockets not supported.');
                     return;
                 }
@@ -286,10 +287,10 @@ class WebsocketStreamer {
             function web_socket_stream(event) {
                 if (event.data instanceof ArrayBuffer) {
                     // Got some binary data, most likely an image, let's see now.
-                    let time_sec = WebsocketStreamer.now();
+                    let time_sec = Service.now();
                     let data = new DataView(event.data);
                     let message = data.getUint32(0, scope.web_socket_littleendian);
-                    if (message === WebsocketStreamer.MESSAGE_ID_IMAGE) {
+                    if (message === Service.MESSAGE_ID_IMAGE) {
                         // yup, an image
                         let img_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
                         let header_size = img_msg.getUint32();
@@ -363,18 +364,18 @@ class WebsocketStreamer {
                         // send ack
                         let buffer = new ArrayBuffer(16);
                         let response = new DataView(buffer);
-                        response.setUint32(0, WebsocketStreamer.MESSAGE_ID_IMAGE_ACK, scope.web_socket_littleendian); // image ack
+                        response.setUint32(0, Service.MESSAGE_ID_IMAGE_ACK, scope.web_socket_littleendian); // image ack
                         response.setUint32(4, image_id, scope.web_socket_littleendian); // image id
                         response.setFloat64(8, time_sec, scope.web_socket_littleendian);
                         scope.web_socket.send(buffer);
-                    } else if (message === WebsocketStreamer.MESSAGE_ID_TIME_REQUEST) {
+                    } else if (message === Service.MESSAGE_ID_TIME_REQUEST) {
                         // time request
                         let buffer = new ArrayBuffer(12);
                         let response = new DataView(buffer);
-                        response.setUint32(0, WebsocketStreamer.MESSAGE_ID_TIME_RESPONSE, scope.web_socket_littleendian); // time response
+                        response.setUint32(0, Service.MESSAGE_ID_TIME_RESPONSE, scope.web_socket_littleendian); // time response
                         response.setFloat64(4, time_sec, scope.web_socket_littleendian);
                         scope.web_socket.send(buffer);
-                    } else if (message === WebsocketStreamer.MESSAGE_ID_RESPONSE) {
+                    } else if (message === Service.MESSAGE_ID_RESPONSE) {
                         let response_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
                         let id = response_msg.getTypedValue();
                         let response = response_msg.getTypedValue();
@@ -427,7 +428,7 @@ class WebsocketStreamer {
                 scope.web_socket.onerror = undefined;
                 // expecting a handshake message
                 if (event.data instanceof ArrayBuffer) {
-                    let time_sec = WebsocketStreamer.now();
+                    let time_sec = Service.now();
                     if (event.data.byteLength !== 40) {
                         scope.web_socket.close();
                         reject('Invalid handshake header size');
@@ -504,7 +505,7 @@ class WebsocketStreamer {
 
         if (this.binary_commands && this.protocol_version > 1) {
             let buffer = new WebSocketMessageWriter(this.web_socket_littleendian);
-            buffer.pushUint32(WebsocketStreamer.MESSAGE_ID_COMMAND);
+            buffer.pushUint32(Service.MESSAGE_ID_COMMAND);
             buffer.pushTypedValue(payload);
             buffer = buffer.finalise();
             this.web_socket.send(buffer);
@@ -823,7 +824,7 @@ class WebsocketStreamer {
                 let stream = this.streaming_loops[execute_args.render_loop_name];
                 if (stream) {
                     const promise = new DelayedPromise();
-                    execute_args.sequence_id = ++WebsocketStreamer.sequence_id;
+                    execute_args.sequence_id = ++Service.sequence_id;
                     stream.command_promises.push({
                         sequence_id: execute_args.sequence_id,
                         delayed_promise: promise
@@ -890,7 +891,7 @@ class WebsocketStreamer {
 
         this.binary_commands = !enable;
 
-        message.setUint32(0,WebsocketStreamer.MESSAGE_ID_PREFER_STRING,this.web_socket_littleendian);
+        message.setUint32(0,Service.MESSAGE_ID_PREFER_STRING,this.web_socket_littleendian);
         message.setUint32(4,!!enable ? 1 : 0,this.web_socket_littleendian);
         this.web_socket.send(buffer);
     }
@@ -1153,4 +1154,4 @@ class WebsocketStreamer {
       check(obj.vec.z,new_obj.vec.z);
   }
   */
-module.exports = WebsocketStreamer;
+module.exports = Service;
