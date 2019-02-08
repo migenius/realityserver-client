@@ -38,11 +38,28 @@ class CommandQueue {
         return this;
     }
 
-    // sends the command queue for execution. if wait_for_render is true
-    // then a promise will be created that is resolved when the commands in this
+    // Sends the command queue for execution and returns promises that will resolve
+    // to the results of the command. If wait_for_render is true
+    // then an additional promise is returned that will resolve when the commands in this
     // queue are about to be displayed in the associated render loop stream.
+    // @return Object An object with 2 properties: \c responses an array of Promises
+    // that will resolve with the results of the commands; render: a Promise that 
+    // resolves when the results are about to be displayed
     send(wait_for_render=false) {
-        return this.service.send_command_queue(this,wait_for_render);
+        this.wait_for_render = wait_for_render;
+        this.resolve_all = false;
+        return this.service.send_command_queue(this);
+    }
+
+    // sends the command queue for execution. Returns a promise that will resolve
+    // to an iterable containing the respones of all commands whose \c want_response
+    // argument was true. If wait_for_render is true then the last iterable
+    // will contain the render data for the rendered image that contains the results
+    // of the commands.
+    execute(wait_for_render=false) {
+        this.wait_for_render = wait_for_render;
+        this.resolve_all = true;
+        return this.service.send_command_queue(this);
     }
 }
 
@@ -785,12 +802,28 @@ class Service {
    * the last value of the iterable.
    */
     execute_command(command,want_response=false,wait_for_render=false,state=undefined) {
-        return new CommandQueue(this,state || this.defaultStateData).queue(command,want_response).send(wait_for_render);
+        return new CommandQueue(this,state || this.defaultStateData).queue(command,want_response).execute(wait_for_render);
     }
 
+    /**
+   * Sends a single command and returns promies that will resolve with the results.
+   * @param command the command to execute
+   * @param want_response if \c true then the returned promise resolves to the response of the
+   * command. If \c false then the promise resolves immediately to undefined.
+   * @param wait_for_render if \c true, and the state executes the command on a render loop then
+   * a promise is returned that resolves just before the command results appear in a render.
+   * @param state if provided then this is used as the state to execute the command.
+   * If not then the default service state is used.
+   * @return a promise that resolves to an iterable. If a response is requested then it resolves
+   * into the first value of the iterable. If \p wait_for_render is \c true then that resolves into
+   * the last value of the iterable.
+   */
+    send_command(command,want_response=false,wait_for_render=false,state=undefined) {
+        return new CommandQueue(this,state || this.defaultStateData).queue(command,want_response).send(wait_for_render);
+    }
     // if wait_for_render is true but we are not currently streaming that loop then its promise will
     // resolve immediately
-    send_command_queue(command_queue,wait_for_render) {
+    send_command_queue(command_queue) {
         if (!command_queue) {
             return Promise.reject('No command queue provided');
         }
@@ -801,17 +834,22 @@ class Service {
             return Promise.reject('Web socket not started.');
         }
 
+        const {wait_for_render,resolve_all} = command_queue;
+
         if (command_queue.commands.length === 0) {
             // move along, nothing to see here
             return Promise.all(Promise.resolve());
         }
         let execute_args;
-        const promises = command_queue.response_promises.reduce((result,value) => {
-            if (value) {
-                result.push(value.promise);
-            }
-            return result;
-        },[]);
+        const promises = {
+            responses: command_queue.response_promises.reduce((result,value) => {
+                    if (value) {
+                        result.push(value.promise);
+                    }
+                    return result;
+                },[]),
+            render: undefined
+        }
 
         if (command_queue.state_data.renderLoopName) {
             execute_args = {
@@ -829,9 +867,9 @@ class Service {
                         sequence_id: execute_args.sequence_id,
                         delayed_promise: promise
                     });
-                    promises.push(promise.promise);
+                    promises.render = promise.promise;
                 } else {
-                    promises.push(Promise.resolve());
+                    promises.render = Promise.resolve();
                 }
             }
         } else {
@@ -858,13 +896,20 @@ class Service {
             }
         }
 
-        if (promises.length > (!!wait_for_render ? 1 : 0)) {
+        if (promises.responses.length) {
             // we want responses
             this.send_command('execute',execute_args,resolve_responses,command_queue);
         } else {
             this.send_command('execute',execute_args);
         }
-        return Promise.all(promises);
+        if (resolve_all) {
+            if (promises.render) {
+                promises.responses.push(promises.render);
+            }
+            return Promise.all(promises.responses);
+        } else {
+            return promises;
+        }
     }
 
     /**
