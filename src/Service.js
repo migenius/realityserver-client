@@ -508,7 +508,7 @@ class Service {
    * @param handler Function The function to call with the command's results
    * @param scope Object scope in which to call handler
    */
-    send_command(command, args, handler, scope) {
+    send_ws_command(command, args, handler, scope) {
         let command_id = handler !== undefined ? this.command_id : undefined;
         if (command_id !== undefined) {
             this.response_handlers[command_id] = { handler: handler, scope: scope };
@@ -563,7 +563,7 @@ class Service {
             }
 
             // always use the handler since it makes no sense to start a stream without something to deal with it
-            this.send_command('start_stream',renderLoop,response => {
+            this.send_ws_command('start_stream',renderLoop,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
@@ -597,7 +597,7 @@ class Service {
                 return;
             }
 
-            this.send_command('set_stream_parameters',parameters, response => {
+            this.send_ws_command('set_stream_parameters',parameters, response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
@@ -628,7 +628,7 @@ class Service {
                 };
             }
 
-            this.send_command('stop_stream',renderLoop,response => {
+            this.send_ws_command('stop_stream',renderLoop,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
@@ -768,7 +768,7 @@ class Service {
             renderLoop.camera = data.camera;
             renderLoop.camera_instance = data.camera_instance;
 
-            this.send_command('set_camera',renderLoop,response => {
+            this.send_ws_command('set_camera',renderLoop,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
@@ -898,9 +898,9 @@ class Service {
 
         if (promises.responses.length) {
             // we want responses
-            this.send_command('execute',execute_args,resolve_responses,command_queue);
+            this.send_ws_command('execute',execute_args,resolve_responses,command_queue);
         } else {
-            this.send_command('execute',execute_args);
+            this.send_ws_command('execute',execute_args);
         }
         if (resolve_all) {
             if (promises.render) {
@@ -971,7 +971,7 @@ class Service {
                 rate: maxRate
             };
 
-            this.send_command('set_transfer_rate',args,response => {
+            this.send_ws_command('set_transfer_rate',args,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
