@@ -35,7 +35,7 @@ function generate_bundled_module(input_file, output_file, format, plugins = []) 
     return rollup
         .rollup({
             input: input_file,
-            plugins: pre_rollup_plugins.concat(plugins).concat(post_rollup_plugins)
+            plugins: [...pre_rollup_plugins, ...plugins, ...post_rollup_plugins]
         })
         .then(bundle =>
             bundle.write({
