@@ -8,7 +8,6 @@
         HTMLImageDisplay: require('./HTMLImageDisplay'),
         Math: require('./Math/index.js'),
         RenderLoopStateData: require('./RenderLoopStateData'),
-        RenderedImageHandler: require('./RenderedImageHandler'),
         Service: require('./Service'),
         StateData: require('./StateData'),
     };

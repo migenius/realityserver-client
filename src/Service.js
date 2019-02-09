@@ -262,15 +262,15 @@ class Service {
                     const have_image = message.getUint32();
                     if (have_image === 0) {
                         // got an image
-                        let img_width = message.getUint32();
-                        let img_height = message.getUint32();
-                        let mime_type = message.getString();
-                        let img_size = message.getUint32();
+                        const img_width = message.getUint32();
+                        const img_height = message.getUint32();
+                        const mime_type = message.getString();
+                        const img_size = message.getUint32();
                         // and finally the image itself
-                        let image = message.getUint8Array(img_size);
+                        const image = message.getUint8Array(img_size);
 
                         // then any statistical data
-                        let have_stats = message.getUint8();
+                        const have_stats = message.getUint8();
                         let stats;
                         if (have_stats) {
                             stats = message.getTypedValue();
@@ -279,7 +279,7 @@ class Service {
                             stats['fps'] = 1 / (now - stream_data.lastRenderTime);
                         }
                         stream_data.lastRenderTime = now;
-                        let data = {
+                        const data = {
                             result: result,
                             width: img_width,
                             height: img_height,
@@ -290,14 +290,11 @@ class Service {
                         if (stats.sequence_id > 0) {
                             while (stream_data.command_promises.length &&
                               stream_data.command_promises[0].sequence_id <= stats.sequence_id) {
-                                let handler = stream_data.command_promises.shift();
+                                const handler = stream_data.command_promises.shift();
                                 handler.delayed_promise.resolve(data);
                             }
                         }
                         if (!stream_data.pause_count) {
-                            if (stream_data.renderHandler) {
-                                stream_data.renderHandler.imageRendered(data.image, data.mime_type);
-                            }
                             if (stream_data.onData) {
                                 stream_data.onData(data);
                             }
@@ -493,13 +490,11 @@ class Service {
    * then must contain a 'render_loop_name' property with the name of the render loop to stream. Other supported
    * properties are 'image_format' (String) to specify the streamed image format and 'quality' (String) to control
    * the image quality
-   * @param renderHandler RenderedImageHandler Optional. If provided then images streamed from the render loop
-   * will automatically be displayed on this render target.
    * @param onData Function If supplied then this is called every time an image is returned and receives the image
    * and rendering statistics.
    * @return a promise that resolves when the stream has started
    */
-    stream(renderLoop, renderHandler, onData) {
+    stream(renderLoop, onData) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
                 reject('Web socket not connected.');
@@ -522,7 +517,6 @@ class Service {
                     reject(response.error.message);
                 } else {
                     this.streaming_loops[renderLoop.render_loop_name] = {
-                        renderHandler: renderHandler,
                         onData: onData,
                         command_promises: [],
                         pause_count: 0
