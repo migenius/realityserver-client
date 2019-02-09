@@ -7,6 +7,12 @@ const Spectrum = require('./Spectrum');
 /**
  * Class representing an RGBA Color.
  * @memberof RS.Math
+ * @example
+ * let c = new RS.Math.Color();
+ * c = new RS.Math.Color(1,0.5,0.7);
+ * c = new RS.Math.Color([0.2,0.3,0.5]);
+ * c = new RS.Math.Color({r: 0.1, r: 0.53, b: 0.2});
+ * c = new RS.Math.Color(new RS.Math.Spectrum([0.2,0.7,0.5]);
  */
 class Color {
     /**

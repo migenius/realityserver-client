@@ -6,18 +6,16 @@ const Const = require('./Functions');
 /**
  * Class representing a 2D Vector with components x and y.
  * @memberof RS.Math
- * @property {Number} x The x component of the vector
- * @property {Number} y The y component of the vector
+ * @example
+ * let v = new RS.Math.Vector2();
+ * v = new RS.Math.Vector2(1,2);
+ * v = new RS.Math.Vector2([0.2,-0.3]);
+ * v = new RS.Math.Vector2({x: 0.1, y: 0.53});
  */
 class Vector2 {
     /**
      * Creates a new Vector2. Accepts any arguments that
      * {@link RS.Math.Vector2#set} accepts.
-     * @example
-     * const v = new RS.Math.Vector2();
-     * const v = new RS.Math.Vector2(1,2);
-     * const v = new RS.Math.Vector2([0.2,-0.3]);
-     * const v = new RS.Math.Vector2({x: 0.1, y: 0.53});
      * @param {(RS.Math.Vector2|Array|Object|...Number)=} initial - initial value.
      */
     constructor(initial) {

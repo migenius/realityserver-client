@@ -15,6 +15,12 @@
  *                [31, 32, 33, 34],
  *                [41, 42, 43, 44]
  * ]); 
+* m = new RS.Math.Matrix4x4({
+ *                xx:11, xy: 12, xz: 13, xw: 14,
+ *                yx:21, yy: 22, yz: 23, yw: 24,
+ *                zx:31, zy: 32, zz: 33, zw: 34,
+ *                wx:41, wy: 42, wz: 43, ww: 44
+ * }); 
  */
 class Matrix4x4 {
     /**

@@ -6,6 +6,12 @@ const Const = require('./Functions');
 /**
  * Class representing a 3 component color spectrum.
  * @memberof RS.Math
+ * @example
+ * let s = new RS.Math.Spectrum();
+ * s = new RS.Math.Spectrum(1,0.5,0.7);
+ * s = new RS.Math.Spectrum([0.2,0.3,0.5]);
+ * s = new RS.Math.Spectrum({r: 0.1, r: 0.53, b: 0.2});
+ * s = new RS.Math.Spectrum(new RS.Math.Spectrum([0.2,0.7,0.5]);
  */
 class Spectrum {
     /**

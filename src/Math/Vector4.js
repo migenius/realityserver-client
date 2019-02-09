@@ -6,16 +6,16 @@ const Const = require('./Functions');
 /**
  * Class representing a 4D Vector with components x, y, z and w.
  * @memberof RS.Math
+ * @example
+ * let v = new RS.Math.Vector4();
+ * v = new RS.Math.Vector4(1,2,3);
+ * v = new RS.Math.Vector4([0.2,-0.3,0.5,0.4]);
+ * v = new RS.Math.Vector4({x: 0.1, y: 0.53, z: -0.2});
  */
 class Vector4 {
     /**
      * Creates a new Vector4. Accepts any arguments that
      * {@link RS.Math.Vector4#set} accepts.
-     * @example
-     * const v = new RS.Math.Vector4();
-     * const v = new RS.Math.Vector4(1,2,3);
-     * const v = new RS.Math.Vector4([0.2,-0.3,0.5]);
-     * const v = new RS.Math.Vector4({x: 0.1, y: 0.53, z: -0.2});
      * @param {(RS.Math.Vector4|Array|Object|...Number)=} initial - initial value.
      */
     constructor(initial) {

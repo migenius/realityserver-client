@@ -6,19 +6,16 @@ const Const = require('./Functions');
 /**
  * Class representing a 3D Vector with components x, y and z.
  * @memberof RS.Math
- * @property {Number} x The x component of the vector
- * @property {Number} y The y component of the vector
- * @property {Number} z The z component of the vector
+ * @example
+ * let v = new RS.Math.Vector3();
+ * v = new RS.Math.Vector3(1,2,3);
+ * v = new RS.Math.Vector3([0.2,-0.3,0.5]);
+ * v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2}); 
  */
 class Vector3 {
     /**
      * Creates a new Vector3. Accepts any arguments that
      * {@link RS.Math.Vector3#set} accepts.
-     * @example
-     * const v = new RS.Math.Vector3();
-     * const v = new RS.Math.Vector3(1,2,3);
-     * const v = new RS.Math.Vector3([0.2,-0.3,0.5]);
-     * const v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2});
      * @param {(RS.Math.Vector3|Array|Object|...Number)=} initial - initial value.
      */
     constructor(initial) {
