@@ -3,58 +3,96 @@
  *****************************************************************************/
 const Const = require('./Functions');
 
-/** \ingroup mi_v8_modules_math
-    @{
-*/
-/// \mig_inside_class RS.Math
-/// A 3 Component vector.
+/**
+ * Class representing a 3D Vector with components x, y and z.
+ * @memberof RS.Math
+ */
 class Vector3 {
-    /// @param vector Object|Array|Vector3 initial value
-    constructor(vector) {
-        if (vector !== undefined) {
-            Vector3.prototype.set.apply(this,arguments);
+    /**
+     * Creates a new Vector3. Accepts any arguments that
+     * {@link RS.Math.Vector3#set} accepts.
+     * @example
+     * const v = new RS.Math.Vector3();
+     * const v = new RS.Math.Vector3(1,2,3);
+     * const v = new RS.Math.Vector3([0.2,-0.3,0.5]);
+     * const v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2});
+     * @param {(RS.Math.Vector3|Array|Object|...Number)=} initial - initial value.
+     */
+    constructor(initial) {
+        if (initial !== undefined) {
+            this.set(...arguments);
         } else {
             this.set(0,0,0);
         }
     }
 
-    /// Sets this vector from an object. The object may be of the
-    /// following types: Vector3, and Array with 3 or more members
-    /// or an Object. In the case of an object it must have the
-    /// members x, y, and z.
-    /// @param rhs Vector3|Array|Object the object to set from
-    set(rhs) {
-        if (rhs instanceof Vector3) {
-            this.x = rhs.x;
-            this.y = rhs.y;
-            this.z = rhs.z;
-        } else if (rhs instanceof Array) {
-            if (rhs.length < 3) {
+    /**
+     * Sets this vector. The source may be of the
+     * following types:
+     * - {@link RS.Math.Vector3}
+     * - an `Array` with 3 or more members
+     * - an `Object`.
+     * - individual arguments for `x`, `y` and `z`
+     *
+     * In the case of an object being supplied it should have the
+     * members `x`, `y`, `z`. Parsing failures on `x`, `y` or
+     * `z` will set them to `0`.
+     * @example
+     * const v = new RS.Math.Vector3();
+     * v.set(1,2,3);
+     * v.set([0.2,-0.3,0.5]);
+     * v.set({x: 0.1, y: 0.53, z: -0.2});
+     * @param {(RS.Math.Vector3|Array|Object|...Number)} source - the object to set from or a set
+     * of numbers.
+     */
+    set(source) {
+        if (source instanceof Vector3) {
+            this.x = source.x;
+            this.y = source.y;
+            this.z = source.z;
+        } else if (source instanceof Array) {
+            if (source.length < 3) {
                 throw new Error('Array needs at least 3 elements.');
             }
 
-            this.x = parseFloat(rhs[0]);
-            this.y = parseFloat(rhs[1]);
-            this.z = parseFloat(rhs[2]);
-        } else if (!isNaN(rhs)) {
+            this.x = parseFloat(source[0]);
+            this.y = parseFloat(source[1]);
+            this.z = parseFloat(source[2]);
+        } else if (!isNaN(source)) {
             this.x = parseFloat(arguments[0]);
             this.y = parseFloat(arguments[1]);
             this.z = parseFloat(arguments[2]);
         } else {
-            this.x = parseFloat(rhs.x);
-            this.y = parseFloat(rhs.y);
-            this.z = parseFloat(rhs.z);
+            this.x = parseFloat(source.x);
+            this.y = parseFloat(source.y);
+            this.z = parseFloat(source.z);
+        }
+        if (Number.isNaN(this.x)) {
+            this.x = 0;
+        }
+        if (Number.isNaN(this.y)) {
+            this.y = 0;
+        }
+        if (Number.isNaN(this.z)) {
+            this.z = 0;
         }
     }
 
-    /// returns a copy of this vector.
+
+    /**
+     * returns a copy of this vector.
+     * @return {RS.Math.Vector3}
+     */
     clone() {
         return new Vector3(this);
     }
 
-    /// Transforms this vector by applying the provided matrix.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @return Vector3 this
+    /**
+     * Transforms this vector by multiplying the provided matrix on
+     * the right hand side.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @return {RS.Math.Vector3} this
+     */
     transform(matrix) {
         let vec = this.clone();
 
@@ -73,12 +111,19 @@ class Vector3 {
         return this;
     }
 
-    /// Transforms this vector by applying the given matrix and copies
-    /// the result into the out vector.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @param out Vector3 Vector to write to
-    /// @return Vector3 the result
+    /**
+     * Transforms this vector by multiplying the provided matrix on
+     * the right hand side and copies the result into the out vector.
+     * This vector is not modified.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @param {RS.Math.Vector3=} out - The vector to receive the result. If not provided
+     * a new vector is created.
+     * @return {RS.Math.Vector3} the transformed vector.
+     */
     transform_to(matrix, out) {
+        if (out === undefined || out === null) {
+            out = new Vector3();
+        }
         out.x =     this.x * matrix.xx +
                     this.y * matrix.yx +
                     this.z * matrix.zx;
@@ -94,9 +139,12 @@ class Vector3 {
         return out;
     }
 
-    /// Transforms this vector by the transpose of the matrix passed in.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @return Vector3 this
+    /**
+     * Transforms this vector by multiplying the transpose of the provided matrix on
+     * the right hand side.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @return {RS.Math.Vector3} this
+     */
     transform_transpose(matrix) {
         let vec = this.clone();
 
@@ -115,13 +163,19 @@ class Vector3 {
         return this;
     }
 
-
-    /// Transforms this vector by the transpose of the matrix passed in and copies
-    /// the result into the out vector.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @param out Vector3 Vector to write to
-    /// @return Vector3 out
+    /**
+     * Transforms this vector by multiplying the transpose of the provided matrix on
+     * the right hand side and copies the result into the out vector.
+     * This vector is not modified.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @param {RS.Math.Vector3=} out - The vector to receive the result. If not provided
+     * a new vector is created.
+     * @return {RS.Math.Vector3} the transformed vector.
+     */
     transform_transpose_to(matrix, out) {
+        if (out === undefined || out === null) {
+            out = new Vector3();
+        }
         out.x =     this.x * matrix.xx +
                     this.y * matrix.xy +
                     this.z * matrix.xz;
@@ -137,101 +191,67 @@ class Vector3 {
         return out;
     }
 
-    /// Rotates this vector by applying the provided matrix.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @return Vector3 this
+    /**
+     * Rotates this vector by multiplying the provided matrix on
+     * the right hand side.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @return {RS.Math.Vector3} this
+     */
     rotate(matrix) {
-        let vec = this.clone();
-
-        this.x =     vec.x * matrix.xx +
-                    vec.y * matrix.yx +
-                    vec.z * matrix.zx;
-
-        this.y =     vec.x * matrix.xy +
-                    vec.y * matrix.yy +
-                    vec.z * matrix.zy;
-
-        this.z =     vec.x * matrix.xz +
-                    vec.y * matrix.yz +
-                    vec.z * matrix.zz;
-
-        return this;
+        return this.transform(matrix);
     }
 
 
-    /// Rotates this vector by the transpose of the provided matrix.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @return Vector3 this
+    /**
+     * Rotates this vector by multiplying the transpose of the provided matrix on
+     * the right hand side.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @return {RS.Math.Vector3} this
+     */
     rotate_transpose(matrix) {
-        let vec = this.clone();
-
-        this.x =     vec.x * matrix.xx +
-                    vec.y * matrix.xy +
-                    vec.z * matrix.xz;
-
-        this.y =     vec.x * matrix.yx +
-                    vec.y * matrix.yy +
-                    vec.z * matrix.yz;
-
-        this.z =     vec.x * matrix.zx +
-                    vec.y * matrix.zy +
-                    vec.z * matrix.zz;
-
-        return this;
+        return this.transform_transpose(matrix);
     }
 
-    /// Rotates this vector by applying the provided matrix.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @param out Vector3 Vector to write to
-    /// @return Vector3 out
+    /**
+     * Rotates this vector by multiplying the provided matrix on
+     * the right hand side and copies the result into the out vector.
+     * This vector is not modified.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @param {RS.Math.Vector3=} out - The vector to receive the result. If not provided
+     * a new vector is created.
+     * @return {RS.Math.Vector3} the transformed vector.
+     */
     rotate_to(matrix,out) {
-        out.x =     vec.x * matrix.xx +
-                    vec.y * matrix.yx +
-                    vec.z * matrix.zx;
-
-        out.y =     vec.x * matrix.xy +
-                    vec.y * matrix.yy +
-                    vec.z * matrix.zy;
-
-        out.z =     vec.x * matrix.xz +
-                    vec.y * matrix.yz +
-                    vec.z * matrix.zz;
-
-        return out;
+        return this.transform_to(matrix,out);
     }
 
-
-    /// Rotates this vector by the transpose of the provided matrix.
-    /// @param matrix Matrix4x4 The matrix to apply.
-    /// @param out Vector3 Vector to write to
-    /// @return Vector3 this
+    /**
+     * Rotates this vector by multiplying the transpose of the provided matrix on
+     * the right hand side and copies the result into the out vector.
+     * This vector is not modified.
+     * @param {RS.Math.Matrix4x4} matrix - The matrix to transform the vector by.
+     * @param {RS.Math.Vector3=} out - The vector to receive the result. If not provided
+     * a new vector is created.
+     * @return {RS.Math.Vector3} the transformed vector.
+     */
     rotate_transpose_to(matrix,out) {
-        out.x =     vec.x * matrix.xx +
-                    vec.y * matrix.xy +
-                    vec.z * matrix.xz;
-
-        out.y =     vec.x * matrix.yx +
-                    vec.y * matrix.yy +
-                    vec.z * matrix.yz;
-
-        out.z =     vec.x * matrix.zx +
-                    vec.y * matrix.zy +
-                    vec.z * matrix.zz;
-
-        return out;
+        return this.transform_transpose_to(matrix,out);
     }
 
-    /// Returns the dot product between this vector and rhs.
-    /// @param rhs Vector3
-    /// @return Number
+    /**
+     * Returns the dot product between this vector and another.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector.
+     * @return {Number} the dot product
+     */
     dot(rhs) {
         return (this.x*rhs.x + this.y*rhs.y + this.z*rhs.z);
     }
 
-
-    /// Returns the cross product between this vector and rhs.
-    /// @param rhs Vector3
-    /// @return Vector3
+    /**
+     * Returns the cross product between this vector and another.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector.
+     * @return {RS.Math.Vector3} the cross product
+     */
     cross(rhs) {
         let cp = new Vector3();
 
@@ -241,19 +261,22 @@ class Vector3 {
         return cp;
     }
 
-
-    /// Returns the length of this vector.
-    /// @return Number
+    /**
+     * Returns the length of this vector.
+     * @return {Number} the length
+     */
     length() {
         let lsq = this.dot(this);
         return Math.sqrt(lsq);
     }
 
 
-    /// Returns the distance between the point specified by this
-    /// vector and rhs.
-    /// @param rhs Vector3
-    /// @return Number
+    /**
+     * Returns the distance between the point specified by this
+     * vector and another
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector.
+     * @return {Number} the distance
+     */
     distance(rhs) {
         let x = rhs.x - this.x;
         let y = rhs.y - this.y;
@@ -263,8 +286,10 @@ class Vector3 {
     }
 
 
-    /// Normalizes this vector.
-    /// @return Vector3 this
+    /**
+     * Normalizes this vector.
+     * @return {RS.Math.Vector3} this
+     */
     normalize() {
         let len = this.length();
 
@@ -277,10 +302,15 @@ class Vector3 {
     }
 
 
-    /// Scales this vector.
-    ///
-    /// @param scale Number Scale the scalar to apply.
-    /// @return Vector3 this
+    /**
+     * Uniformly scales this vector.
+     * @param {Number} scale the scaling factor
+     * @return {RS.Math.Vector3} this
+     * @example
+     * const vec = new RS.Math.Vector3(1,2,3);
+     * vec.scale(2);
+     * // vec is now {x:2,y:4,z:6}
+     */
     scale(scale) {
         this.x *= scale;
         this.y *= scale;
@@ -288,10 +318,16 @@ class Vector3 {
         return this;
     }
 
-    /// Adds rhs to this vector and stores the result in
-    /// this vector.
-    /// @param rhs Vector3 the vector to add.
-    /// @return Vector3 this
+
+    /**
+     * Adds another vector to this vector.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector
+     * @return {RS.Math.Vector3} this
+     * @example
+     * const vec = new RS.Math.Vector3(1,2,3);
+     * vec.add(new RS.Math.Vector3(7,-3,0));
+     * // vec is now {x:8,y:-1,z:3}
+     */
     add(rhs) {
         this.x += rhs.x;
         this.y += rhs.y;
@@ -299,12 +335,15 @@ class Vector3 {
         return this;
     }
 
-
-    /// Subtracts rhs from this vector and stores the result in
-    /// this vector.
-    ///
-    /// @param rhs Vector3 the vector to subtract.
-    /// @return Vector3 this
+    /**
+     * Subtracts another vector from this vector.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector
+     * @return {RS.Math.Vector3} this
+     * @example
+     * const vec = new RS.Math.Vector3(1,2,3);
+     * vec.subtract(new RS.Math.Vector3(7,-3,0));
+     * // vec is now {x:-6,y:5,z:3}
+     */
     subtract(rhs) {
         this.x -= rhs.x;
         this.y -= rhs.y;
@@ -312,11 +351,15 @@ class Vector3 {
         return this;
     }
 
-    /// Multiplies rhs with this vector and stores the result in
-    /// this vector.
-    ///
-    /// @param rhs Vector3 the vector to multiply.
-    /// @return Vector3 this
+    /**
+     * Multiplies another vector with this vector per-component.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector
+     * @return {RS.Math.Vector3} this
+     * @example
+     * const vec = new RS.Math.Vector3(1,2,3);
+     * vec.multiply(new RS.Math.Vector3(7,-3,1));
+     * // vec is now {x:7,y:-6,z:3}
+     */
     multiply(rhs) {
         this.x *= rhs.x;
         this.y *= rhs.y;
@@ -324,11 +367,15 @@ class Vector3 {
         return this;
     }
 
-    /// Divide rhs into this vector and stores the result in
-    /// this vector.
-    ///
-    /// @param rhs Vector3 the vector to multiply.
-    /// @return Vector3 this
+    /**
+     * Divides another vector into this vector per-component.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector
+     * @return {RS.Math.Vector3} this
+     * @example
+     * const vec = new RS.Math.Vector3(1,2,3);
+     * vec.divide(new RS.Math.Vector3(7,-3,1));
+     * // vec is now {x:0.1428,y:-0.6667,z:3}
+     */
     divide(rhs) {
         this.x /= rhs.x;
         this.y /= rhs.y;
@@ -336,9 +383,19 @@ class Vector3 {
         return this;
     }
 
-    /// Returns true if this vector and rhs are colinear.
-    /// @param rhs Vector3
-    /// @return Boolean True if this vector and rhs are colinear
+    /**
+     * Returns whether this vector and another are colinear (point in the same direction.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} rhs the other vector
+     * @return {Boolean} `true` if colinear, `false` if not
+     * @example
+     * const vec = new RS.Math.Vector3(1,2,3);
+     * vec.is_colinear(new RS.Math.Vector3(2,4,6));
+     * // returns true
+     * vec.is_colinear(new RS.Math.Vector3(1,0,0));
+     * // returns false
+     * vec.is_colinear(new RS.Math.Vector3(-2,-4,-6));
+     * // returns false since they point in opposite directions
+     */
     is_colinear(rhs) {
         let vec = this.cross(rhs);
         return (Math.abs(vec.x) < Const.ALMOST_ZERO &&
@@ -347,9 +404,20 @@ class Vector3 {
     }
 
 
-    /// Checks if the vector is the null vector.
-    /// @param tolerance Number Optional. A Number used to approximate the comparison.
-    /// @return Boolean
+    /**
+     * Returns whether this vector is the null vector
+     * @param {Number=} tolerance - if provided then this level of tolerance is used.
+     * @return {Boolean} `true` if null, `false` if not
+     * @example
+     * let vec = new RS.Math.Vector3(0.01,-0.05,0.03);
+     * vec.is_null_vector();
+     * // returns false
+     * vec.is_null_vector(0.1);
+     * // returns true due to tolerance
+     * vec = new RS.Math.Vector3();
+     * vec.is_null_vector();
+     * // returns true
+     */
     is_null_vector(tolerance) {
         if (tolerance === undefined) {
             return this.x === 0 && this.y === 0 && this.z === 0;
@@ -358,22 +426,45 @@ class Vector3 {
         }
     }
 
-    /// Returns true if this vector equals rhs.
-    /// @param rhs Vector3 The vector to compare with.
-    /// @param use_tolerance Boolean if supplied and \c true then use tolerance
-    /// @return Boolean
-    equal(rhs, use_tolerance) {
-        if (use_tolerance) {
-            return this.equal_with_tolerance(rhs);
+    /**
+     * Returns whether this vector is equal to another vector.
+     * @param {RS.Math.Vector3} rhs - the vector to compare to
+     * @param {Number=} tolerance - if provided then this level of tolerance is used.
+     * @return {Boolean} `true` if equal, `false` if not
+     * @example
+     * let vec = new RS.Math.Vector3(0.01,-0.05,0.03);
+     * vec.equal(vec);
+     * // returns true
+     * vec.equal(new RS.Math.Vector3(0.02,-0.05,0.03));
+     * // returns false
+     * vec.equal(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);
+     * // returns true due to tolerance
+     */
+    equal(rhs, tolerance) {
+        if (tolerance) {
+            return this.equal_with_tolerance(rhs,tolerance);
         }
 
         return this.x === rhs.x && this.y === rhs.y && this.z === rhs.z;
     }
 
-    /// Returns true if this vector equals rhs using tolerance
-    /// @param rhs Vector3 The vector to compare with.
-    /// @param tolerance Number The tolerance to use or RS.Math.ALMOST_ZERO if not supplied.
-    /// @return Boolean
+    /**
+     * Returns whether this vector is equal to another vector within a tolerance.
+     * @param {RS.Math.Vector3} rhs - the vector to compare to
+     * @param {Number=} tolerance - if provided then this level of tolerance is used, otherwise
+     * tolerance is `10e-5`
+     * @return {Boolean} `true` if equal, `false` if not
+     * @example
+     * let vec = new RS.Math.Vector3(0.01,-0.05,0.03);
+     * vec.equal_with_tolerance(vec);
+     * // returns true
+     * vec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03));
+     * // returns false
+     * vec.equal_with_tolerance(new RS.Math.Vector3(0.01001,-0.05,0.03));
+     * // returns true due to default tolerance
+     * vec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);
+     * // returns true due to tolerance
+     */
     equal_with_tolerance(rhs, tolerance) {
         if (tolerance === undefined) {
             tolerance = Const.ALMOST_ZERO;
@@ -383,13 +474,13 @@ class Vector3 {
                 Math.abs(this.z - rhs.z) < tolerance);
     }
 
-    /// Returns a string describing this Object.
-    /// @return String A String describing this Object.
+    /**
+     * Returns a string describing this Object.
+     * @return {String} A String describing this Object.
+     */
     toString() {
         return '[x: ' + this.x + ', y: ' + this.y + ', z:' + this.z + ']';
     }
 }
 
 module.exports = Vector3;
-/// @}
-

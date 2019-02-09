@@ -1,6 +1,12 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
+
+/**
+ * @namespace Math
+ * @memberof RS
+ */
+
 ; (function () {
 
     const RS_math = {

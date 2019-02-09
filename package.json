@@ -5,13 +5,16 @@
   "main": "src/index.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "eslint": "eslint.cmd src scripts",
+    "build-doc": "node_modules/.bin/jsdoc -c .jsdoc.conf.js",
+    "eslint": "node_modules/.bin/eslint src scripts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "migenius",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^5.13.0",
     "fs-extra": "^7.0.1",
+    "jsdoc": "^3.5.5",
     "rollup": "^1.1.2",
     "rollup-plugin-cleanup": "^3.1.1",
     "rollup-plugin-commonjs": "^9.2.0",

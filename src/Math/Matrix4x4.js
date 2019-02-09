@@ -1,97 +1,111 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Const = require('./Functions');
 
 /**
- * @file Matrix4x4.js
- * This file defines the com.mi.rs.types.Matrix4x4 class.
- */
-
-/**
- * @ctor
- * Creates a %Matrix4x4 object.
- * @param matrix Object An object with the initial values for the Matrix4x4.
- * Can be either an Array, Object or Matrix4x4.
+ * Class representing a 4x4 Matrix.
+ * @memberof RS.Math
  */
 class Matrix4x4 {
-    /// If \p matrix is not supplied defaults to the identity matrix
-    /// @param matrix Object|Array|Matrix4x4 initial value
+    /**
+     * Creates a new Matrix4x4. Accepts any arguments that
+     * {@link RS.Math.Matrix4x4#set} accepts.
+     * @example
+     * const v = new RS.Math.Matrix4x4();
+     * const v = new RS.Math.Matrix4x4(1,2);
+     * const v = new RS.Math.Matrix4x4([0.2,-0.3]);
+     * const v = new RS.Math.Matrix4x4({x: 0.1, y: 0.53});
+     * @param {(RS.Math.Matrix4x4|Array|Object|...Number)=} initial - initial value.
+     */
     constructor(matrix) {
         if (matrix !== undefined) {
-            Matrix4x4.prototype.set.apply(this,arguments);
+            this.set(...arguments);
         } else {
             this.set_identity();
         }
     }
 
-    /// Sets this matrix from an object. Arguments can be any of:
-    ///
-    /// An array. The array must have 16 elements in the following
-    /// order: [xx,xy,xz,xw,yx,yy,yz,yw,zx,zy,zz,zw,wx,wy,wz,ww] or
-    /// 4 array elements specifying the rows of the array.
-    ///
-    /// An Object. The object must have the interface defined by
-    /// the RealityServer type Float64&lt;4,4&gt; meaning it must have 16
-    /// members of type Number called xx, xy, xz, ..., wy, wz, ww.
-    ///
-    /// 16 Numbers. Specifies the matrix elements in row major order.
-    ///
-    /// 1 Number. Sets the diagonal values on the array, all other elements
-    /// are set to 0.
-    /// @param rhs Object|Array|Matrix4x4 the object to set this from
-    set(rhs) {
-        if (rhs instanceof Array) {
-            if (rhs.length >= 16) {
-                this.xx = rhs[0];
-                this.xy = rhs[1];
-                this.xz = rhs[2];
-                this.xw = rhs[3];
+    /**
+     * Sets this matrix. The source may be of the
+     * following types:
+     * - {@link RS.Math.Matrix4x4}
+     * - an `Array` with 16 or more `Number` members which will set the matrix in row major order.
+     * - an `Array` of 4 or more `Array` members (each of length 4 or more) which will set the rows of the matrix.
+     * - an `Object`.
+     * - a single `Number` which will set the array diagonal to that value.
+     * - 16 or more individual `Numbers` which will set the matrix in row major order.
+     *
+     * In the case of an object being supplied it should have the
+     * members `xx`, `xy`, `xz`, `xw`,`yx`, `yy`, `yz`, `yw`, `zx`, `zy`, `zz`, `zw`, `wx`, `wy`, `wz`, `ww`.
+     * @example
+     * const m = new RS.Math.Matrix4x4();
+     * m.set(1); // sets the identify matrix
+     * // the following are equivalent
+     * m.set([11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]);
+     * m.set(11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44);
+     * m.set([[11, 12, 13, 14],
+     *        [21, 22, 23, 24],
+     *        [31, 32, 33, 34],
+     *        [41, 42, 43, 44]]);
+     * m.set({xx:11, xy:12, xz:13, wz:14,
+     *        yx:21, yy:22, yz:23, yw:24,
+     *        zx:31, zy:32, zz:33, zw:34,
+     *        wx:41, wy:42, wz:43, ww:44});
+     * @param {(RS.Math.Matrix4x4|Array|Object|...Number)} source - the object to set from or a set
+     * of numbers.
+     */
+    set(source) {
+        if (source instanceof Array) {
+            if (source.length >= 16) {
+                this.xx = source[0];
+                this.xy = source[1];
+                this.xz = source[2];
+                this.xw = source[3];
 
-                this.yx = rhs[4];
-                this.yy = rhs[5];
-                this.yz = rhs[6];
-                this.yw = rhs[7];
+                this.yx = source[4];
+                this.yy = source[5];
+                this.yz = source[6];
+                this.yw = source[7];
 
-                this.zx = rhs[8];
-                this.zy = rhs[9];
-                this.zz = rhs[10];
-                this.zw = rhs[11];
+                this.zx = source[8];
+                this.zy = source[9];
+                this.zz = source[10];
+                this.zw = source[11];
 
-                this.wx = rhs[12];
-                this.wy = rhs[13];
-                this.wz = rhs[14];
-                this.ww = rhs[15];
-            } else if (rhs.length === 4 &&
-                        rhs[0] instanceof Array &&
-                        rhs[1] instanceof Array &&
-                        rhs[2] instanceof Array &&
-                        rhs[3] instanceof Array) {
-                this.xx = rhs[0][0];
-                this.xy = rhs[0][1];
-                this.xz = rhs[0][2];
-                this.xw = rhs[0][3];
+                this.wx = source[12];
+                this.wy = source[13];
+                this.wz = source[14];
+                this.ww = source[15];
+            } else if (source.length === 4 &&
+                        source[0] instanceof Array &&
+                        source[1] instanceof Array &&
+                        source[2] instanceof Array &&
+                        source[3] instanceof Array) {
+                this.xx = source[0][0];
+                this.xy = source[0][1];
+                this.xz = source[0][2];
+                this.xw = source[0][3];
 
-                this.yx = rhs[1][0];
-                this.yy = rhs[1][1];
-                this.yz = rhs[1][2];
-                this.yw = rhs[1][3];
+                this.yx = source[1][0];
+                this.yy = source[1][1];
+                this.yz = source[1][2];
+                this.yw = source[1][3];
 
-                this.zx = rhs[2][0];
-                this.zy = rhs[2][1];
-                this.zz = rhs[2][2];
-                this.zw = rhs[2][3];
+                this.zx = source[2][0];
+                this.zy = source[2][1];
+                this.zz = source[2][2];
+                this.zw = source[2][3];
 
-                this.wx = rhs[3][0];
-                this.wy = rhs[3][1];
-                this.wz = rhs[3][2];
-                this.ww = rhs[3][3];
+                this.wx = source[3][0];
+                this.wy = source[3][1];
+                this.wz = source[3][2];
+                this.ww = source[3][3];
             } else {
                 throw new Error('Invalid array arguments.');
             }
-        } else if (!isNaN(rhs)) {
+        } else if (!isNaN(source)) {
             if (arguments.length === 1) {
-                this.xx = this.yy = this.zz = this.ww = rhs;
+                this.xx = this.yy = this.zz = this.ww = source;
                 this.xy = this.xz = this.xw =
                 this.yx = this.yz = this.yw =
                 this.zx = this.zy = this.zw =
@@ -120,30 +134,40 @@ class Matrix4x4 {
                 throw new Error('Invalid # of numeric arguments.');
             }
         } else {
-            this.xx = rhs.xx;
-            this.xy = rhs.xy;
-            this.xz = rhs.xz;
-            this.xw = rhs.xw;
+            this.xx = source.xx;
+            this.xy = source.xy;
+            this.xz = source.xz;
+            this.xw = source.xw;
 
-            this.yx = rhs.yx;
-            this.yy = rhs.yy;
-            this.yz = rhs.yz;
-            this.yw = rhs.yw;
+            this.yx = source.yx;
+            this.yy = source.yy;
+            this.yz = source.yz;
+            this.yw = source.yw;
 
-            this.zx = rhs.zx;
-            this.zy = rhs.zy;
-            this.zz = rhs.zz;
-            this.zw = rhs.zw;
+            this.zx = source.zx;
+            this.zy = source.zy;
+            this.zz = source.zz;
+            this.zw = source.zw;
 
-            this.wx = rhs.wx;
-            this.wy = rhs.wy;
-            this.wz = rhs.wz;
-            this.ww = rhs.ww;
+            this.wx = source.wx;
+            this.wy = source.wy;
+            this.wz = source.wz;
+            this.ww = source.ww;
         }
     }
 
+    /**
+     * Returns a copy of this matrix.
+     * @return {RS.Math.Matrix4x4}
+     */
+    clone() {
+        return new Matrix4x4(this);
+    }
 
-    /// Clear this matrix by setting all elements to 0.
+
+    /**
+     * Clear this matrix by setting all elements to 0.
+    */
     clear() {
         this.xx = this.xy = this.xz = this.xw =
         this.yx = this.yy = this.yz = this.yw =
@@ -152,17 +176,20 @@ class Matrix4x4 {
     }
 
 
-    /// Sets this matrix to the identity matrix.
+    /**
+     * Sets this matrix to the identity matrix.
+    */
     set_identity() {
         this.clear();
         this.xx = this.yy = this.zz = this.ww = 1;
     }
 
 
-    /// Sets this matrix to a rotation matrix.
-    ///
-    /// @param axis Vector4 The vector to rotate around.
-    /// @param angle Number The angle to rotate in radians.
+    /**
+     * Sets this matrix to be  rotation matrix.
+     * @param {(RS.Math.Vector4|RS.Math.Vector3)} axis The vector to rotate around.
+     * @param {Number} angle The angle to rotate around the axis in radians.
+     */
     set_rotation(axis, angle) {
         this.set_identity();
 
@@ -187,11 +214,12 @@ class Matrix4x4 {
     }
 
 
-    /// Sets this matrix to a scaling matrix.
-    ///
-    /// @param x Number The amount to scale in the x axis.
-    /// @param y Number The amount to scale in the y axis.
-    /// @param z Number The amount to scale in the z axis.
+    /**
+     * Sets this matrix to a scaling matrix.
+     * @param {Number} x The amount to scale in the x axis.
+    * @param {Number} y The amount to scale in the y axis.
+    * @param {Number} z The amount to scale in the z axis.
+    */
     set_scaling(x, y, z) {
         this.set_identity();
 
@@ -201,10 +229,13 @@ class Matrix4x4 {
     }
 
 
-    /// Multiples this matrix by \p matrix
-    ///
-    /// @param matrix Matrix4x4 The matrix on the left hand side of the multiplication
-    /// @return Matrix4x4 this
+    /**
+     * Multiples another matrix on the left side of this matrix. Equivalent to
+     * this = `matrix * this`
+     *
+     * @param {RS.Math.Matrix4x4} matrix The matrix on the left hand side of the multiplication
+     * @return {RS.Math.Matrix4x4} this
+     */
     multiply(matrix) {
         let _mat = this.clone();
 
@@ -292,8 +323,10 @@ class Matrix4x4 {
     }
 
 
-    /// Sets this matrix to it's transpose.
-    /// @return Matrix 4x4 this
+    /**
+     * Sets this matrix to it's transpose.
+     * @return {RS.Math.Matrix4x4} this
+     */
     transpose() {
         let _mat = this.clone();
 
@@ -317,9 +350,10 @@ class Matrix4x4 {
     }
 
 
-    /// The matrix determinant.
-    ///
-    /// @return Number The determinant.
+    /**
+     * Returns the determinant of this matrix.
+     * @return {Number}
+     */
     get_determinant() {
         let det = 0;
 
@@ -332,7 +366,14 @@ class Matrix4x4 {
     }
 
 
-    /// @private
+    /**
+     * Returns the determinant of the 3x3 sub matrix created by excluding
+     * row `row` and column `col`.
+     * @param {Number} row the row to exclude
+     * @param {Number} col the column to exclude
+     * @return {Number}
+     * @access private
+     */
     determinant_rc(row, col) {
         let data = new Array(9);
         let current = 0;
@@ -372,15 +413,14 @@ class Matrix4x4 {
         return current;
     }
 
-
-    /// Sets this matrix to its inverse. Throws if the determinant is zero.
-    /// Note that you will likely need to transpose the inverted matrix
-    /// to keep it in row major form which is what  RealityServer expects.
-    /// @return Matrix4x4 this
+    /**
+     * Sets this matrix to it's inverse. Throws if the matrix cannot be inverted.
+     * @return {RS.Math.Matrix4x4} this
+     */
     invert() {
         let det = this.get_determinant();
         if (det === 0) {
-            throw Error('Determinant is 0');
+            throw new Error('Determinant is 0');
         }
         let mat = this.clone();
 
@@ -407,61 +447,52 @@ class Matrix4x4 {
         return this;
     }
 
-
-    /// Returns a copy of this matrix.
-    /// @return Matrix4x4 A clonse of this matrix
-    clone() {
-        return new Matrix4x4(this);
-    }
-
-
-    /// Compares two matrices to see if they are roughly equal. Useful
-    /// when comparing two matrices to see if they are equal in a more
-    /// practical sense than just comparing floating point numbers that
-    /// might be different only because of rounding errors etc.
-    /// @param lhs com::mi::rs::types::Matrix4x4
-    /// @param rhs com::mi::rs::types::Matrix4x4
-    /// @param tolerance Number
-    /// @return Boolean True if lhs and rhs are roughly equal.
-    equal_with_tolerance(lhs, rhs, tolerance) {
+    /**
+     * Returns whether this matrix is equal to another matrix within a tolerance.
+     * @param {RS.Math.Matrix4x4} rhs - the matrix to compare to
+     * @param {Number=} tolerance - if provided then this level of tolerance is used, otherwise
+     * tolerance is `10e-5`
+     * @return {Boolean} `true` if equal, `false` if not
+     */
+    equal_with_tolerance(rhs, tolerance) {
         if (tolerance === undefined) {
             tolerance = Const.ALMOST_ZERO;
         }
 
-        if (Math.abs(lhs.xx - rhs.xx) > tolerance ||
-            Math.abs(lhs.xy - rhs.xy) > tolerance ||
-            Math.abs(lhs.xz - rhs.xz) > tolerance ||
-            Math.abs(lhs.xw - rhs.xw) > tolerance ||
+        if (Math.abs(this.xx - rhs.xx) > tolerance ||
+            Math.abs(this.xy - rhs.xy) > tolerance ||
+            Math.abs(this.xz - rhs.xz) > tolerance ||
+            Math.abs(this.xw - rhs.xw) > tolerance ||
 
-            Math.abs(lhs.yx - rhs.yx) > tolerance ||
-            Math.abs(lhs.yy - rhs.yy) > tolerance ||
-            Math.abs(lhs.yz - rhs.yz) > tolerance ||
-            Math.abs(lhs.yw - rhs.yw) > tolerance ||
+            Math.abs(this.yx - rhs.yx) > tolerance ||
+            Math.abs(this.yy - rhs.yy) > tolerance ||
+            Math.abs(this.yz - rhs.yz) > tolerance ||
+            Math.abs(this.yw - rhs.yw) > tolerance ||
 
-            Math.abs(lhs.zx - rhs.zx) > tolerance ||
-            Math.abs(lhs.zy - rhs.zy) > tolerance ||
-            Math.abs(lhs.zz - rhs.zz) > tolerance ||
-            Math.abs(lhs.zw - rhs.zw) > tolerance ||
+            Math.abs(this.zx - rhs.zx) > tolerance ||
+            Math.abs(this.zy - rhs.zy) > tolerance ||
+            Math.abs(this.zz - rhs.zz) > tolerance ||
+            Math.abs(this.zw - rhs.zw) > tolerance ||
 
-            Math.abs(lhs.wx - rhs.wx) > tolerance ||
-            Math.abs(lhs.wy - rhs.wy) > tolerance ||
-            Math.abs(lhs.wz - rhs.wz) > tolerance ||
-            Math.abs(lhs.ww - rhs.ww) > tolerance) {
+            Math.abs(this.wx - rhs.wx) > tolerance ||
+            Math.abs(this.wy - rhs.wy) > tolerance ||
+            Math.abs(this.wz - rhs.wz) > tolerance ||
+            Math.abs(this.ww - rhs.ww) > tolerance) {
             return false;
         }
 
         return true;
     }
 
-
-    /// Returns true if this matrix and rhs are equal. If use tolerance
-    /// is true then small differences because of for instance rounding
-    /// errors are still regarded as equal.
-    /// @param rhs Matrix4x4
-    /// @param use_tolerance Boolean
-    equal(rhs, use_tolerance) {
-        if (use_tolerance) {
-            return this.equal_with_tolerance(rhs);
+    /**
+     * Returns whether this matrix is equal to another matrix.
+     * @param {RS.Math.Matrix4x4} rhs - the matrix to compare to
+     * @param {Number=} tolerance - if provided then this level of tolerance is used.
+     * @return {Boolean} `true` if equal, `false` if not
+     */
+    equal(rhs, tolerance) {
+        if (tolerance) {
+            return this.equal_with_tolerance(rhs,tolerance);
         }
 
         if (rhs.xx === this.xx && rhs.xy === this.xy && rhs.xz === this.xz && rhs.xw === this.xw &&
@@ -475,11 +506,13 @@ class Matrix4x4 {
     }
 
 
-    /// Sets the translation elements of this matrix while leaving the
-    /// rest of the matrix untouched.
-    /// @param x Number
-    /// @param y Number
-    /// @param z Number
+    /**
+     * Sets the translation elements of this matrix while leaving the
+     * rest of the matrix untouched.
+     * @param {Number} x - The x value
+     * @param {Number} y - The y value
+     * @param {Number} z - The z value
+     */
     set_translation(x, y, z) {
         this.wx = x;
         this.wy = y;
@@ -487,19 +520,23 @@ class Matrix4x4 {
     }
 
 
-    /// Increases the translation elements of this matrix while leaving the
-    /// rest of the matrix untouched.
-    /// @param dx Number
-    /// @param dy Number
-    /// @param dz Number
+    /**
+     * Increases the translation elements of this matrix while leaving the
+     * rest of the matrix untouched.
+     * @param {Number} dx - The x value to add
+     * @param {Number} dy - The y value to add
+     * @param {Number} dz - The z value to add
+     */
     translate(dx, dy, dz) {
         this.wx += dx;
         this.wy += dy;
         this.wz += dz;
     }
 
-    /// Returns a string describing this Object.
-    /// @return String A String describing this Object.
+    /**
+     * Returns a string describing this Object.
+     * @return {String} A String describing this Object.
+     */
     toString() {
         return '[' + this.xx + ', ' + this.xy + ', ' + this.xz + ', ' + this.xw + ', ' +
                      this.yx + ', ' + this.yy + ', ' + this.yz + ', ' + this.yw + ', ' +
