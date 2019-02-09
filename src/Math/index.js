@@ -10,10 +10,10 @@
  * Note that all classes and functions on `RS.Math` are also available directly
  * on `RS`. This is to make acessing the classes easier when exposed as ES6 modules. 
  * @example
- * const {Vector4} import from 'realityserver';
+ * const {Vector4,radians} import from 'realityserver';
  * // as opposed to
  * const {Math as RSMath} import from 'realityserver';
- * const {Vector4} = RSMath;
+ * const {Vector4,radians} = RSMath;
  * @namespace Math
  * @memberof RS
  */
