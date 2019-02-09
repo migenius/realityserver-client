@@ -43,7 +43,7 @@ class CommandQueue {
     // then an additional promise is returned that will resolve when the commands in this
     // queue are about to be displayed in the associated render loop stream.
     // @return Object An object with 2 properties: \c responses an array of Promises
-    // that will resolve with the results of the commands; render: a Promise that 
+    // that will resolve with the results of the commands; render: a Promise that
     // resolves when the results are about to be displayed
     send(wait_for_render=false) {
         this.wait_for_render = wait_for_render;
@@ -834,7 +834,7 @@ class Service {
             return Promise.reject('Web socket not started.');
         }
 
-        const {wait_for_render,resolve_all} = command_queue;
+        const { wait_for_render,resolve_all } = command_queue;
 
         if (command_queue.commands.length === 0) {
             // move along, nothing to see here
@@ -843,13 +843,13 @@ class Service {
         let execute_args;
         const promises = {
             responses: command_queue.response_promises.reduce((result,value) => {
-                    if (value) {
-                        result.push(value.promise);
-                    }
-                    return result;
-                },[]),
+                if (value) {
+                    result.push(value.promise);
+                }
+                return result;
+            },[]),
             render: undefined
-        }
+        };
 
         if (command_queue.state_data.renderLoopName) {
             execute_args = {

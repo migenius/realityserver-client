@@ -1,9 +1,9 @@
-const rollup = require('rollup')
-const fs = require('fs-extra')
-const path = require('path')
+const rollup = require('rollup');
+const fs = require('fs-extra');
+const path = require('path');
 
 // make sure we're in the right folder
-process.chdir(path.resolve(__dirname, '..'))
+process.chdir(path.resolve(__dirname, '..'));
 
 fs.removeSync('lib');
 fs.mkdirSync('lib');
@@ -16,24 +16,24 @@ const pre_rollup_plugins = [
 
 const production_rollup_plugins = [
     require('rollup-plugin-terser').terser({
-      output: {
-        comments: 'all'
-      }
+        output: {
+            comments: 'all'
+        }
     })
 ];
 
 const post_rollup_plugins = [
     require('rollup-plugin-filesize')()
-]
+];
 
 
 function generate_bundled_module(input_file, output_file, format, plugins = []) {
-    console.log(`Generating ${output_file} bundle.`)
+    console.log(`Generating ${output_file} bundle.`);
 
     return rollup
         .rollup({
             input: input_file,
-            plugins: [...pre_rollup_plugins, ...plugins, ...post_rollup_plugins]
+            plugins: [ ...pre_rollup_plugins, ...plugins, ...post_rollup_plugins ]
         })
         .then(bundle =>
             bundle.write({
@@ -44,7 +44,7 @@ function generate_bundled_module(input_file, output_file, format, plugins = []) 
                         '* Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.\n' +
                         '******************************************************************************/'
             })
-        )
+        );
 }
 
 function build() {
@@ -52,22 +52,22 @@ function build() {
         generate_bundled_module(
             path.resolve('src', 'index.js'),
             path.resolve('lib', 'realityserver.js'),
-            {format:'iife',name:'RS'}
+            { format:'iife',name:'RS' }
         ),
 
         generate_bundled_module(
             path.resolve('src', 'index.js'),
             path.resolve('lib', 'realityserver.min.js'),
-            {format:'iife',name:'RS'},
+            { format:'iife',name:'RS' },
             production_rollup_plugins
         )
-    ])
+    ]);
 }
 
 build().catch(e => {
-    console.error(e)
+    console.error(e);
     if (e.frame) {
-        console.error(e.frame)
+        console.error(e.frame);
     }
-    process.exit(1)
-})
+    process.exit(1);
+});
