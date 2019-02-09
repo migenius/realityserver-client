@@ -6,6 +6,10 @@ const Const = require('./Functions');
 /**
  * Class representing a 4D Vector with components x, y, z and w.
  * @memberof RS.Math
+ * @property {Number} x The x component of the vector
+ * @property {Number} y The y component of the vector
+ * @property {Number} z The z component of the vector
+ * @property {Number} w The w component of the vector
  */
 class Vector4 {
     /**

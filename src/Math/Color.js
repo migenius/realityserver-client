@@ -7,6 +7,10 @@ const Spectrum = require('./Spectrum');
 /**
  * Class representing an RGBA Color.
  * @memberof RS.Math
+ * @property {Number} r The red component of the color
+ * @property {Number} g The green component of the color
+ * @property {Number} z The blue component of the color
+ * @property {Number} a The alpha component of the color
  */
 class Color {
     /**

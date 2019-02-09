@@ -6,6 +6,7 @@ const Const = require('./Functions');
 /**
  * Class representing a 3 component color spectrum.
  * @memberof RS.Math
+ * @property {Number[]} c - 3 element `Array` containing the components of the Spectrum
  */
 class Spectrum {
     /**

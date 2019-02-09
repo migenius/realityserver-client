@@ -5,6 +5,22 @@
 /**
  * Class representing a 4x4 Matrix.
  * @memberof RS.Math
+ * @property {Number} xx The xx component of the matrix
+ * @property {Number} xy The xy component of the matrix
+ * @property {Number} xz The xz component of the matrix
+ * @property {Number} xw The xw component of the matrix
+ * @property {Number} yx The yx component of the matrix
+ * @property {Number} yy The yy component of the matrix
+ * @property {Number} yz The yz component of the matrix
+ * @property {Number} yw The yw component of the matrix
+ * @property {Number} zx The zx component of the matrix
+ * @property {Number} zy The zy component of the matrix
+ * @property {Number} zz The zz component of the matrix
+ * @property {Number} zw The zw component of the matrix
+ * @property {Number} wx The wx component of the matrix
+ * @property {Number} wy The wy component of the matrix
+ * @property {Number} wz The wz component of the matrix
+ * @property {Number} ww The ww component of the matrix
  */
 class Matrix4x4 {
     /**
