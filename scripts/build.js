@@ -1,13 +1,11 @@
 const rollup = require('rollup')
-const fs = require('fs')
+const fs = require('fs-extra')
 const path = require('path')
 
 // make sure we're in the right folder
 process.chdir(path.resolve(__dirname, '..'))
 
-try {
-    fs.rmdirSync('lib');
-} catch(e) {};
+fs.removeSync('lib');
 fs.mkdirSync('lib');
 
 const pre_rollup_plugins = [
