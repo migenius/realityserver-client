@@ -1,17 +1,12 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
+const Const = require('./Functions');
 
 /**
  * @file Matrix4x4.js
  * This file defines the com.mi.rs.types.Matrix4x4 class.
  */
-
-/**
- * @class Matrix4x4
- * Matrix 4x4 class.
- */
-const ALMOST_ZERO=10e-5;
 
 /**
  * @ctor
@@ -430,7 +425,7 @@ class Matrix4x4 {
     /// @return Boolean True if lhs and rhs are roughly equal.
     equal_with_tolerance(lhs, rhs, tolerance) {
         if (tolerance === undefined) {
-            tolerance = ALMOST_ZERO;
+            tolerance = Const.ALMOST_ZERO;
         }
 
         if (Math.abs(lhs.xx - rhs.xx) > tolerance ||

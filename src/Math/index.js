@@ -4,9 +4,13 @@
 ; (function () {
 
     const RS_math = {
+        Color: require('./Color'),
         Matrix4x4: require('./Matrix4x4'),
-        Vector4: require('./Vector4'),
+        Spectrum: require('./Spectrum'),
+        Vector2: require('./Vector2'),
+        Vector3: require('./Vector3'),
+        Vector4: require('./Vector4')
     };
 
-    module.exports = RS_math;
+    module.exports = Object.assign(RS_math,require('./Functions'));
 })();
