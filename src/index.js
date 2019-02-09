@@ -6,13 +6,12 @@
     const RealityServer = {
         Command: require('./Command'),
         HTMLImageDisplay: require('./HTMLImageDisplay'),
+        Math: require('./Math/index.js'),
         RenderLoopStateData: require('./RenderLoopStateData'),
         RenderedImageHandler: require('./RenderedImageHandler'),
         Service: require('./Service'),
         StateData: require('./StateData'),
-        Matrix4x4: require('./Math/Matrix4x4'),
-        Vector4: require('./Math/Vector4')
     };
 
-    module.exports = RealityServer;
+    module.exports = Object.assign(RealityServer,RealityServer.Math);
 })();
