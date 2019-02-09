@@ -6,10 +6,6 @@ const Const = require('./Functions');
 /**
  * Class representing a 4D Vector with components x, y, z and w.
  * @memberof RS.Math
- * @property {Number} x The x component of the vector
- * @property {Number} y The y component of the vector
- * @property {Number} z The z component of the vector
- * @property {Number} w The w component of the vector
  */
 class Vector4 {
     /**
@@ -51,9 +47,25 @@ class Vector4 {
      */
     set(source) {
         if (source instanceof Vector4) {
+            /**
+             * The X component of the vector
+             * @member {Number}
+             */
             this.x = source.x;
+            /**
+             * The Y component of the vector
+             * @member {Number}
+             */
             this.y = source.y;
+            /**
+             * The Z component of the vector
+             * @member {Number}
+             */
             this.z = source.z;
+            /**
+             * The W component of the vector
+             * @member {Number}
+             */
             this.w = source.w;
         } else if (source instanceof Array) {
             if (source.length < 3) {

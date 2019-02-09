@@ -7,10 +7,6 @@ const Spectrum = require('./Spectrum');
 /**
  * Class representing an RGBA Color.
  * @memberof RS.Math
- * @property {Number} r The red component of the color
- * @property {Number} g The green component of the color
- * @property {Number} b The blue component of the color
- * @property {Number} a The alpha component of the color
  */
 class Color {
     /**
@@ -50,9 +46,25 @@ class Color {
      */
     set(source) {
         if (source instanceof Color) {
+        	/**
+        	 * The red component of the color
+        	 * @member {Number}
+        	 */
             this.r = source.r;
+            /**
+        	 * The green component of the color
+        	 * @member {Number}
+        	 */
             this.g = source.g;
+            /**
+        	 * The blue component of the color
+        	 * @member {Number}
+        	 */
             this.b = source.b;
+            /**
+        	 * The alpha component of the color
+        	 * @member {Number}
+        	 */
             this.a = source.a;
         } if (source instanceof Spectrum) {
             this.r = source.c[0];

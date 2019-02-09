@@ -49,7 +49,15 @@ class Vector2 {
      */
     set(source) {
         if (source instanceof Vector2) {
+            /**
+             * The X component of the vector
+             * @member {Number}
+             */
             this.x = source.x;
+            /**
+             * The Y component of the vector
+             * @member {Number}
+             */
             this.y = source.y;
         } else if (source instanceof Array) {
             if (source.length < 2) {

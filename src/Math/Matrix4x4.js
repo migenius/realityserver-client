@@ -3,34 +3,23 @@
  *****************************************************************************/
 
 /**
- * Class representing a 4x4 Matrix.
+ * Class representing a row major 4x4 Matrix.
  * @memberof RS.Math
- * @property {Number} xx The xx component of the matrix
- * @property {Number} xy The xy component of the matrix
- * @property {Number} xz The xz component of the matrix
- * @property {Number} xw The xw component of the matrix
- * @property {Number} yx The yx component of the matrix
- * @property {Number} yy The yy component of the matrix
- * @property {Number} yz The yz component of the matrix
- * @property {Number} yw The yw component of the matrix
- * @property {Number} zx The zx component of the matrix
- * @property {Number} zy The zy component of the matrix
- * @property {Number} zz The zz component of the matrix
- * @property {Number} zw The zw component of the matrix
- * @property {Number} wx The wx component of the matrix
- * @property {Number} wy The wy component of the matrix
- * @property {Number} wz The wz component of the matrix
- * @property {Number} ww The ww component of the matrix
+ * @example
+ * let m = new RS.Math.Matrix4x4();
+ * m = new RS.Math.Matrix4x4(11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44);
+ * m = new RS.Math.Matrix4x4([11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]);
+ * m = new RS.Math.Matrix4x4([
+ *                [11, 12, 13, 14],
+ *                [21, 22, 23, 24],
+ *                [31, 32, 33, 34],
+ *                [41, 42, 43, 44]
+ * ]); 
  */
 class Matrix4x4 {
     /**
      * Creates a new Matrix4x4. Accepts any arguments that
      * {@link RS.Math.Matrix4x4#set} accepts.
-     * @example
-     * const v = new RS.Math.Matrix4x4();
-     * const v = new RS.Math.Matrix4x4(1,2);
-     * const v = new RS.Math.Matrix4x4([0.2,-0.3]);
-     * const v = new RS.Math.Matrix4x4({x: 0.1, y: 0.53});
      * @param {(RS.Math.Matrix4x4|Array|Object|...Number)=} initial - initial value.
      */
     constructor(matrix) {
@@ -57,8 +46,8 @@ class Matrix4x4 {
      * const m = new RS.Math.Matrix4x4();
      * m.set(1); // sets the identify matrix
      * // the following are equivalent
-     * m.set([11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]);
      * m.set(11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44);
+     * m.set([11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]);
      * m.set([[11, 12, 13, 14],
      *        [21, 22, 23, 24],
      *        [31, 32, 33, 34],
@@ -73,24 +62,88 @@ class Matrix4x4 {
     set(source) {
         if (source instanceof Array) {
             if (source.length >= 16) {
+                /**
+                 * The xx component of the vector
+                 * @member {Number}
+                 */
                 this.xx = source[0];
+                /**
+                 * The xy component of the vector
+                 * @member {Number}
+                 */
                 this.xy = source[1];
+                /**
+                 * The xz component of the vector
+                 * @member {Number}
+                 */
                 this.xz = source[2];
+                /**
+                 * The xw component of the vector
+                 * @member {Number}
+                 */
                 this.xw = source[3];
 
+                /**
+                 * The yx component of the vector
+                 * @member {Number}
+                 */
                 this.yx = source[4];
+                /**
+                 * The yy component of the vector
+                 * @member {Number}
+                 */
                 this.yy = source[5];
+                /**
+                 * The yz component of the vector
+                 * @member {Number}
+                 */
                 this.yz = source[6];
+                /**
+                 * The yw component of the vector
+                 * @member {Number}
+                 */
                 this.yw = source[7];
 
+                /**
+                 * The zx component of the vector
+                 * @member {Number}
+                 */
                 this.zx = source[8];
+                /**
+                 * The zy component of the vector
+                 * @member {Number}
+                 */
                 this.zy = source[9];
+                /**
+                 * The zz component of the vector
+                 * @member {Number}
+                 */
                 this.zz = source[10];
+                /**
+                 * The zw component of the vector
+                 * @member {Number}
+                 */
                 this.zw = source[11];
 
+                /**
+                 * The wx component of the vector
+                 * @member {Number}
+                 */
                 this.wx = source[12];
+                /**
+                 * The wy component of the vector
+                 * @member {Number}
+                 */
                 this.wy = source[13];
+                /**
+                 * The wz component of the vector
+                 * @member {Number}
+                 */
                 this.wz = source[14];
+                /**
+                 * The ww component of the vector
+                 * @member {Number}
+                 */
                 this.ww = source[15];
             } else if (source.length === 4 &&
                         source[0] instanceof Array &&

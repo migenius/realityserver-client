@@ -50,8 +50,20 @@ class Vector3 {
      */
     set(source) {
         if (source instanceof Vector3) {
+            /**
+             * The X component of the vector
+             * @member {Number}
+             */
             this.x = source.x;
+            /**
+             * The Y component of the vector
+             * @member {Number}
+             */
             this.y = source.y;
+            /**
+             * The Z component of the vector
+             * @member {Number}
+             */
             this.z = source.z;
         } else if (source instanceof Array) {
             if (source.length < 3) {
