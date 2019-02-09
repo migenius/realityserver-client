@@ -301,12 +301,76 @@ class Service {
                     delete scope.response_handlers[response.id];
                 }
             }
+            function process_received_render(message,now) {
+                const result = message.getSint32();
+                // render loop name
+                const render_loop_name = message.getString();
+                const stream_data = scope.streaming_loops[render_loop_name];
+                if (stream_data === undefined) {
+                    // nothing to do, no handler
+                    return;
+                }
+                if (result >= 0) {
+                    // should have an image
+                    const have_image = message.getUint32();
+                    if (have_image === 0) {
+                        // got an image
+                        let img_width = message.getUint32();
+                        let img_height = message.getUint32();
+                        let mime_type = message.getString();
+                        let img_size = message.getUint32();
+                        // and finally the image itself
+                        let image = message.getUint8Array(img_size);
+
+                        // then any statistical data
+                        let have_stats = message.getUint8();
+                        let stats;
+                        if (have_stats) {
+                            stats = message.getTypedValue();
+                        }
+                        if (stream_data.lastRenderTime) {
+                            stats['fps'] = 1 / (now - stream_data.lastRenderTime);
+                        }
+                        stream_data.lastRenderTime = now;
+                        let data = {
+                            result: result,
+                            width: img_width,
+                            height: img_height,
+                            mime_type: mime_type,
+                            image: image,
+                            statistics: stats
+                        };
+                        if (stats.sequence_id > 0) {
+                            while (stream_data.command_promises.length &&
+                              stream_data.command_promises[0].sequence_id <= stats.sequence_id) {
+                                let handler = stream_data.command_promises.shift();
+                                handler.delayed_promise.resolve(data);
+                            }
+                        }
+                        if (!stream_data.pause_count) {
+                            if (stream_data.renderHandler) {
+                                stream_data.renderHandler.imageRendered(data.image, data.mime_type);
+                            }
+                            if (stream_data.onData) {
+                                stream_data.onData(data);
+                            }
+                        }
+                    }
+                } else {
+                    if (!stream_data.pause_count && stream_data.onData) {
+                        stream_data.onData({
+                            result: result
+                        });
+                    }
+                }
+
+            }
             function web_socket_stream(event) {
                 if (event.data instanceof ArrayBuffer) {
                     // Got some binary data, most likely an image, let's see now.
-                    let time_sec = Service.now();
-                    let data = new DataView(event.data);
-                    let message = data.getUint32(0, scope.web_socket_littleendian);
+                    const now = Service.now();
+                    const data = new DataView(event.data);
+                    const message = data.getUint32(0, scope.web_socket_littleendian);
                     if (message === Service.MESSAGE_ID_IMAGE) {
                         // yup, an image
                         let img_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
@@ -317,80 +381,23 @@ class Service {
                             return;
                         }
                         let image_id = img_msg.getUint32();
-                        let result = img_msg.getSint32();
-                        // render loop name
-                        let render_loop_name = img_msg.getString();
-                        if (scope.streaming_loops[render_loop_name] === undefined) {
-                            // nothing to do, no handler
-                            return;
-                        }
 
-                        if (result >= 0) {
-                            // should have an image
-                            let have_image = img_msg.getUint32();
-                            if (have_image === 0) {
-                                // got an image
-                                let img_width = img_msg.getUint32();
-                                let img_height = img_msg.getUint32();
-                                let mime_type = img_msg.getString();
-                                let img_size = img_msg.getUint32();
-                                // and finally the image itself
-                                let image = img_msg.getUint8Array(img_size);
+                        process_received_render(img_msg,now);
 
-                                // then any statistical data
-                                let have_stats = img_msg.getUint8();
-                                let stats;
-                                if (have_stats) {
-                                    stats = img_msg.getTypedValue();
-                                }
-                                if (scope.streaming_loops[render_loop_name].lastRenderTime) {
-                                    stats['fps'] = 1 / (time_sec - scope.streaming_loops[render_loop_name].lastRenderTime);
-                                }
-                                scope.streaming_loops[render_loop_name].lastRenderTime = time_sec;
-                                let data = {
-                                    result: result,
-                                    width: img_width,
-                                    height: img_height,
-                                    mime_type: mime_type,
-                                    image: image,
-                                    statistics: stats
-                                };
-                                if (stats.sequence_id > 0) {
-                                    while (scope.streaming_loops[render_loop_name].command_promises.length &&
-                                      scope.streaming_loops[render_loop_name].command_promises[0].sequence_id <= stats.sequence_id) {
-                                        let handler = scope.streaming_loops[render_loop_name].command_promises.shift();
-                                        handler.delayed_promise.resolve(data);
-                                    }
-                                }
-                                if (!scope.streaming_loops[render_loop_name].pause_count) {
-                                    if (scope.streaming_loops[render_loop_name].renderHandler) {
-                                        scope.streaming_loops[render_loop_name].renderHandler.imageRendered(data.image, data.mime_type);
-                                    }
-                                    if (scope.streaming_loops[render_loop_name].onData) {
-                                        scope.streaming_loops[render_loop_name].onData(data);
-                                    }
-                                }
-                            }
-                        } else {
-                            if (!scope.streaming_loops[render_loop_name].pause_count && scope.streaming_loops[render_loop_name].onData) {
-                                scope.streaming_loops[render_loop_name].onData({
-                                    result: result
-                                });
-                            }
-                        }
-                        // send ack
+                        // send image ack
                         let buffer = new ArrayBuffer(16);
                         let response = new DataView(buffer);
-                        response.setUint32(0, Service.MESSAGE_ID_IMAGE_ACK, scope.web_socket_littleendian); // image ack
+                        response.setUint32(0, Service.MESSAGE_ID_IMAGE_ACK, scope.web_socket_littleendian);
                         response.setUint32(4, image_id, scope.web_socket_littleendian); // image id
-                        response.setFloat64(8, time_sec, scope.web_socket_littleendian);
+                        response.setFloat64(8, now, scope.web_socket_littleendian);
                         scope.web_socket.send(buffer);
                     } else if (message === Service.MESSAGE_ID_TIME_REQUEST) {
                         // time request
                         let buffer = new ArrayBuffer(12);
+                        // send time response
                         let response = new DataView(buffer);
-                        response.setUint32(0, Service.MESSAGE_ID_TIME_RESPONSE, scope.web_socket_littleendian); // time response
-                        response.setFloat64(4, time_sec, scope.web_socket_littleendian);
+                        response.setUint32(0, Service.MESSAGE_ID_TIME_RESPONSE, scope.web_socket_littleendian);
+                        response.setFloat64(4, now, scope.web_socket_littleendian);
                         scope.web_socket.send(buffer);
                     } else if (message === Service.MESSAGE_ID_RESPONSE) {
                         let response_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
@@ -445,7 +452,7 @@ class Service {
                 scope.web_socket.onerror = undefined;
                 // expecting a handshake message
                 if (event.data instanceof ArrayBuffer) {
-                    let time_sec = Service.now();
+                    let now = Service.now();
                     if (event.data.byteLength !== 40) {
                         scope.web_socket.close();
                         reject('Invalid handshake header size');
@@ -479,7 +486,7 @@ class Service {
                         }
                         response.setUint32(8, protocol_version, scope.web_socket_littleendian);
                         response.setUint32(12, 0, scope.web_socket_littleendian);
-                        response.setFloat64(16, time_sec, scope.web_socket_littleendian);
+                        response.setFloat64(16, now, scope.web_socket_littleendian);
                         for (let i = 0; i < 16; ++i) {
                             response.setUint8(i + 24, data.getUint8(i + 24), scope.web_socket_littleendian);
                         }
@@ -735,8 +742,9 @@ class Service {
    *     },
    *     camera_instance : {
    *       name: String - The camera isntance name to set (required if camera_instance supplied)
-   *       transform: Object - The camera instance transform to set in the same format as Float64<4,4>. (optional)
-   *       attributes: Object - Attributes to set on the camera instance, format is the same as on the camera. (optional)
+   *       transform: RS.Math.Matrix4x4 - The camera instance transform to set in the same format as  (optional)
+   *       attributes: Object - Attributes to set on the camera instance,
+   *                              format is the same as on the camera. (optional)
    *     }
    * }
    * @endcode
@@ -802,7 +810,9 @@ class Service {
    * the last value of the iterable.
    */
     execute_command(command,want_response=false,wait_for_render=false,state=undefined) {
-        return new CommandQueue(this,state || this.defaultStateData).queue(command,want_response).execute(wait_for_render);
+        return new CommandQueue(this,state || this.defaultStateData)
+            .queue(command,want_response)
+            .execute(wait_for_render);
     }
 
     /**
@@ -819,7 +829,9 @@ class Service {
    * the last value of the iterable.
    */
     send_command(command,want_response=false,wait_for_render=false,state=undefined) {
-        return new CommandQueue(this,state || this.defaultStateData).queue(command,want_response).send(wait_for_render);
+        return new CommandQueue(this,state || this.defaultStateData)
+            .queue(command,want_response)
+            .send(wait_for_render);
     }
     // if wait_for_render is true but we are not currently streaming that loop then its promise will
     // resolve immediately
@@ -874,7 +886,7 @@ class Service {
             }
         } else {
             if (wait_for_render) {
-                return Promise.reject('A command wants a render handler but commands are not executing on a render loop');
+                return Promise.reject('Commands wants a render handler but are not executing on a render loop');
             }
             execute_args = {
                 commands: command_queue.state_data.stateCommands ?
@@ -1033,7 +1045,8 @@ class Service {
    * Characters to use in random strings.
    */
     static get uidArr() {
-        return [ '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z' ];
+        return [ '0','1','2','3','4','5','6','7','8','9',
+            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z' ];
     };
 
     /**
