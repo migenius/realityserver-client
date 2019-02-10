@@ -48,7 +48,8 @@ class CommandQueue {
      * will resolve when an image containing the results of these commands is about to be provided.
      * @return {Object} An object with 2 properties:
      * - `responses` an `Array` of `Promises` that will resolve with the responses of the commands.
-     * - `render`: a `Promise` that resolves when the results are about to be displayed.
+     * - `render`: a `Promise` that resolves to a {@link RS.Service~Rendered_image} when the first image
+     * that contains the results of these commands is available.
     */
     send(wait_for_render=false) {
         this.wait_for_render = wait_for_render;
@@ -58,12 +59,13 @@ class CommandQueue {
 
     /**
      * Sends the command queue for execution and returns a promise that will resolve
-     * to an iterable containing the respones of all commands whose `want_response`
+     * to an iterable containing the responses of all commands whose `want_response`
      * argument was `true`. If `wait_for_render` is `true` then the last iterable
-     * will contain the render data for the rendered image that contains the results
-     * of the commands.
+     * will contain the first rendered image that contains the results of the command
+     * as a {@link RS.Service~Rendered_image}.
      * @param {Boolean} [wait_for_render=false] - If `true` then the last iterable will
-     * contain the rendered image that contains the results of these commands.
+     * be the first rendered image (as a {@link RS.Service~Rendered_image}) that contains the results
+     * of these commands.
     */
     execute(wait_for_render=false) {
         this.wait_for_render = wait_for_render;

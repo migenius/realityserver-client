@@ -512,7 +512,7 @@ class Service {
      * @param {String} render_loop.name - the name of the render loop to stream.
      * @param {String=} render_loop.image_format - the streamed image format.
      * @param {String=} render_loop.quality - the streamed image quality.
-     * @param {Function} callback - A function to be called every time an image is received, this will receive the image
+     * @param {RS.Service~Render_callback} callback - A function to be called every time an image is received, this will receive the image
      * and rendering statistics.
      * @return {Promise} A promise that resolves when the stream has started.
      */
@@ -552,6 +552,26 @@ class Service {
             });
         });
     }
+
+    /**
+     * The result of an image render.
+     * @typedef {Object} RS.Service~Rendered_image
+     * @property {Number} result - The render result, `0` for success, `1` for converged,
+     * `-1` cancelled render, negative values indicate errors.
+     * @property {Number} width - The image width.
+     * @property {Number} height - The image height.
+     * @property {Uint8Array} image - The rendered image
+     * @property {String} mime_type - The mime type of the rendered image.
+     * @property {Object} statistics - Rendering statistics.
+     */
+
+
+    /**
+     * This callback is called whenever a render is recieved from a render loop.
+     * @callback RS.Service~Render_callback
+     * @param {RS.Service~Rendered_image} image - The received image
+     */
+
 
     /**
      * Sets parameters on a streaming render loop.
@@ -775,8 +795,8 @@ class Service {
      * contain up to 2 results
      * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
      * - if `wait_for_render` is `true` and the state executes the command on a render loop then
-     * the promise will resolve when the command results are about to appear in a render, the resolved value
-     * will be the render data.
+     * the promise will resolve to a {@link RS.Service~Rendered_image} when the command results are about
+     * to appear in a render
      * @param {RS.Command} command - The command to execute.
      * @param {Boolean=} want_response - If `true` then the returned promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to `undefined`.
@@ -798,8 +818,8 @@ class Service {
      * @param {Boolean=} want_response - If `true` then the `reponses` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
      * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
-     * the `render` promise resolves just before the command results appear in a render, the resolved value
-     * will be the render data.
+     * the `render` promise resolves to a {@link RS.Service~Rendered_image} just before the command results
+     * appear in a render.
      * @param {(StateData|RenderLoopStateData)=} state - If provided then this is used as the state to execute the
      * command. If not then the default service state is used.
      * @return {Object} An object with 2 properties:
