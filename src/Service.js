@@ -782,12 +782,15 @@ class Service {
     /**
      * Returns a {@link RS.Command_queue} that can be used to queue up a series of commands to
      * be executed.
-     * @param {(State_data|Render_loop_state_data)=} state if provided then this is used as the state for
+     * @param {Object=} options
+     * @param {Boolean=} options.wait_for_render - If `true` then when this queue is executed it will also
+     * generate a `Promise` that will resolve then the command results are available in a rendered image.
+     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state for
      * executing the commands. If not then the default service state is used.
-     * @return {RS.Command_queue}
+     * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
-    queue_commands(state=null) {
-        return new Command_queue(this,state || this.default_state_data);
+    queue_commands({wait_for_render=false,state=null}={}) {
+        return new Command_queue(this,wait_for_render,state || this.default_state_data);
     }
 
     /**
@@ -798,16 +801,17 @@ class Service {
      * the promise will resolve to a {@link RS.Service~Rendered_image} when the command results are about
      * to appear in a render
      * @param {RS.Command} command - The command to execute.
-     * @param {Boolean=} want_response - If `true` then the returned promise resolves to the response of the
+     * @param {Object=} options
+     * @param {Boolean=} options.want_response - If `true` then the returned promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to `undefined`.
-     * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
+     * @param {Boolean=} options.wait_for_render - If `true`, and the state executes the command on a render loop then
      * a promise is returned that resolves just before the command results appear in a render.
-     * @param {(State_data|Render_loop_state_data)=} state - If provided then this is used as the state to execute the
+     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to execute the
      * command. If not then the default service state is used.
      * @return {Promise} A promise that resolves to an iterable.
      */
-    execute_command(command,want_response=false,wait_for_render=false,state=null) {
-        return new Command_queue(this,state || this.default_state_data)
+    execute_command(command,{want_response=false,wait_for_render=false,state=null}={}) {
+        return new Command_queue(this,wait_for_render,state || this.default_state_data)
             .queue(command,want_response)
             .execute(wait_for_render);
     }
@@ -815,19 +819,20 @@ class Service {
     /**
      * Sends a single command and returns an `Object` containing promises that will resolve with the results.
      * @param {RS.Command} command - The command to execute.
-     * @param {Boolean=} want_response - If `true` then the `reponses` promise resolves to the response of the
+     * @param {Object=} options
+     * @param {Boolean=} options.want_response - If `true` then the `reponses` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
-     * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
+     * @param {Boolean=} options.wait_for_render - If `true`, and the state executes the command on a render loop then
      * the `render` promise resolves to a {@link RS.Service~Rendered_image} just before the command results
      * appear in a render.
-     * @param {(State_data|Render_loop_state_data)=} state - If provided then this is used as the state to execute the
+     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to execute the
      * command. If not then the default service state is used.
      * @return {Object} An object with 2 properties:
      * - `responses` a `Promise` that will resolve with the response of the command.
      * - `render`: a `Promise` that resolves when the result is about to be displayed.
      */
-    send_command(command,want_response=false,wait_for_render=false,state=null) {
-        return new Command_queue(this,state || this.default_state_data)
+    send_command(command,{want_response=false,wait_for_render=false,state=null}={}) {
+        return new Command_queue(this,wait_for_render,state || this.default_state_data)
             .queue(command,want_response)
             .send(wait_for_render);
     }
