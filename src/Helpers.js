@@ -165,7 +165,7 @@ class Helpers {
      *      };
      *  }
      */
-    static HTML_image_display(image,url_creator,callback) {
+    static html_image_display(image,url_creator,callback) {
         const bind_to = {
             image
         };
