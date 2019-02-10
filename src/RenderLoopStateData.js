@@ -9,7 +9,7 @@
  * the service and will cause commands to be executed on the given
  * render loop. The state data can be specified when adding
  * commands directly to the service, or when creating a {@link RS.CommandQueue}.
- * A default state data can also  be set on the service itself {@link RS.Service#defaultStateData}.
+ * A default state data can also  be set on the service itself {@link RS.Service#default_state_data}.
  * This state will then be used for all
  * commands where explicit state data has not been specified.
  *
