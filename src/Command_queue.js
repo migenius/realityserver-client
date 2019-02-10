@@ -14,7 +14,7 @@ class Command_queue {
     /**
      * Creates a command queue
      * @param {RS.Service} service - The service
-     * @param {Boolean} wait_for_render - If `true` then a `Promise` will be generated when the 
+     * @param {Boolean} wait_for_render - If `true` then a `Promise` will be generated when the
      * results of these commands are available in a rendered image.
      * @param {RS.State_data|RS.Render_loop_state_data} state_data - The state to execute in
      * @hideconstructor
@@ -44,7 +44,7 @@ class Command_queue {
 
     /**
      * Sends the command queue for execution and returns promises that will resolve
-     * to the results of the command. If the queue was created with `wait_for_render` 
+     * to the results of the command. If the queue was created with `wait_for_render`
      * set to `true` (see {@link RS.Service#queue_commands}) then an additional promise
      * is returned that will resolve when the commands in this queue are about to be
      * displayed in the associated render loop stream.
@@ -61,7 +61,7 @@ class Command_queue {
     /**
      * Sends the command queue for execution and returns a promise that will resolve
      * to an iterable containing the responses of all commands whose `want_response`
-     * argument was `true`. If the queue was created with `wait_for_render` 
+     * argument was `true`. If the queue was created with `wait_for_render`
      * set to `true` (see {@link RS.Service#queue_commands}) then the last iterable
      * will contain the first rendered image that contains the results of the command
      * as a {@link RS.Service~Rendered_image}.

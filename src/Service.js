@@ -789,7 +789,7 @@ class Service {
      * executing the commands. If not then the default service state is used.
      * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
-    queue_commands({wait_for_render=false,state=null}={}) {
+    queue_commands({ wait_for_render=false,state=null }={}) {
         return new Command_queue(this,wait_for_render,state || this.default_state_data);
     }
 
@@ -806,11 +806,11 @@ class Service {
      * command. If `false` then the promise resolves immediately to `undefined`.
      * @param {Boolean=} options.wait_for_render - If `true`, and the state executes the command on a render loop then
      * a promise is returned that resolves just before the command results appear in a render.
-     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to execute the
-     * command. If not then the default service state is used.
+     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to
+     * execute the command. If not then the default service state is used.
      * @return {Promise} A promise that resolves to an iterable.
      */
-    execute_command(command,{want_response=false,wait_for_render=false,state=null}={}) {
+    execute_command(command,{ want_response=false,wait_for_render=false,state=null }={}) {
         return new Command_queue(this,wait_for_render,state || this.default_state_data)
             .queue(command,want_response)
             .execute(wait_for_render);
@@ -825,13 +825,13 @@ class Service {
      * @param {Boolean=} options.wait_for_render - If `true`, and the state executes the command on a render loop then
      * the `render` promise resolves to a {@link RS.Service~Rendered_image} just before the command results
      * appear in a render.
-     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to execute the
-     * command. If not then the default service state is used.
+     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to
+     * execute the command. If not then the default service state is used.
      * @return {Object} An object with 2 properties:
      * - `responses` a `Promise` that will resolve with the response of the command.
      * - `render`: a `Promise` that resolves when the result is about to be displayed.
      */
-    send_command(command,{want_response=false,wait_for_render=false,state=null}={}) {
+    send_command(command,{ want_response=false,wait_for_render=false,state=null }={}) {
         return new Command_queue(this,wait_for_render,state || this.default_state_data)
             .queue(command,want_response)
             .send(wait_for_render);
