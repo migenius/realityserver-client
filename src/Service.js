@@ -512,8 +512,8 @@ class Service {
      * @param {String} render_loop.name - the name of the render loop to stream.
      * @param {String=} render_loop.image_format - the streamed image format.
      * @param {String=} render_loop.quality - the streamed image quality.
-     * @param {RS.Service~Render_callback} callback - A function to be called every time an image is received, this will receive the image
-     * and rendering statistics.
+     * @param {RS.Service~Render_callback} callback - A function to be called every time an image is received, this will
+     * receive the image and rendering statistics.
      * @return {Promise} A promise that resolves when the stream has started.
      */
     stream(render_loop, callback) {
