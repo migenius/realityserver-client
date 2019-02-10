@@ -23,7 +23,7 @@ class Response {
 
         this._result = server_response.result;
 
-        this.is_error = (!!server_response.error && server_response.error.code !== 0);
+        this._is_error = (!!server_response.error && server_response.error.code !== 0);
 
         if (this._is_error === false) {
             this._error = null;
