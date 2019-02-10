@@ -3,7 +3,7 @@
  *****************************************************************************/
 const Utf8 = require('./Utf8.js');
 
-class WebSocketMessageWriter {
+class Web_socket_message_writer {
     /**
    * @private Helper for writing binary messages
    * @ctor
@@ -344,43 +344,43 @@ class WebSocketMessageWriter {
                     if (value < 0) {
                         // negative
                         if (value < -2147483648) {
-                            type_byte = WebSocketMessageWriter.typenames['Sint64'];
+                            type_byte = Web_socket_message_writer.typenames['Sint64'];
                         } else {
-                            type_byte = WebSocketMessageWriter.typenames['Sint32'];
+                            type_byte = Web_socket_message_writer.typenames['Sint32'];
                         }
                     } else {
                         // positive
                         if (value > 4294967295) {
-                            type_byte = WebSocketMessageWriter.typenames['Uint64'];
+                            type_byte = Web_socket_message_writer.typenames['Uint64'];
                         } else {
-                            type_byte = WebSocketMessageWriter.typenames['Uint32'];
+                            type_byte = Web_socket_message_writer.typenames['Uint32'];
                         }
                     }
                 } else {
-                    type_byte = WebSocketMessageWriter.typenames['Float64'];
+                    type_byte = Web_socket_message_writer.typenames['Float64'];
                 }
             } else if (value === true) {
-                type_byte = WebSocketMessageWriter.typenames['True'];
+                type_byte = Web_socket_message_writer.typenames['True'];
             } else if (value === false) {
-                type_byte = WebSocketMessageWriter.typenames['False'];
+                type_byte = Web_socket_message_writer.typenames['False'];
             } else if (value === null) {
-                type_byte = WebSocketMessageWriter.typenames['Null'];
+                type_byte = Web_socket_message_writer.typenames['Null'];
             } else if (value.constructor === String) {
-                type_byte = WebSocketMessageWriter.typenames['String'];
+                type_byte = Web_socket_message_writer.typenames['String'];
             } else if (Array.isArray(value)) {
-                type_byte = WebSocketMessageWriter.typenames['Array'];
+                type_byte = Web_socket_message_writer.typenames['Array'];
             } else if (value instanceof ArrayBuffer) {
-                type_byte = WebSocketMessageWriter.typenames['Binary'];
+                type_byte = Web_socket_message_writer.typenames['Binary'];
                 value = {
                     data: value
                 };
             } else if (typeof value != 'object') {
                 throw 'Invalid type';
             } else {
-                type_byte = WebSocketMessageWriter.typenames['Map'];
+                type_byte = Web_socket_message_writer.typenames['Map'];
             }
         } else {
-            type_byte = WebSocketMessageWriter.typenames[type];
+            type_byte = Web_socket_message_writer.typenames[type];
             if (type_byte === undefined) {
                 throw 'Unknown type ' + type;
             }
@@ -445,7 +445,7 @@ class WebSocketMessageWriter {
                   value.pixel_format === undefined || !Array.isArray(value.layers)) {
                 throw 'Supplied canvas does not appear to be a canvas';
             }
-            if (WebSocketMessageWriter.bytes_per_component[value.pixel_format] === undefined) {
+            if (Web_socket_message_writer.bytes_per_component[value.pixel_format] === undefined) {
                 throw 'Unsupported canvas pixel format ' + value.pixel_format;
             }
             this.pushUint32(value.num_layers);
@@ -456,16 +456,16 @@ class WebSocketMessageWriter {
             this.pushUint32(value.resolution_x);
             this.pushUint32(value.resolution_y);
             this.pushString(value.pixel_format);
-            this.pushUint32(WebSocketMessageWriter.bytes_per_component[value.pixel_format]);
-            this.pushUint32(WebSocketMessageWriter.components_per_pixel[value.pixel_format]);
+            this.pushUint32(Web_socket_message_writer.bytes_per_component[value.pixel_format]);
+            this.pushUint32(Web_socket_message_writer.components_per_pixel[value.pixel_format]);
             if (value.gamma !== undefined) {
                 this.pushFloat32(value.gamma);
             } else {
                 this.pushFloat32(2.2);
             }
             let expected_length = value.resolution_x * value.resolution_y *
-                                    WebSocketMessageWriter.bytes_per_component[value.pixel_format] *
-                                    WebSocketMessageWriter.components_per_pixel[value.pixel_format];
+                                    Web_socket_message_writer.bytes_per_component[value.pixel_format] *
+                                    Web_socket_message_writer.components_per_pixel[value.pixel_format];
             for (let l=0;l<value.num_layers;l++) {
                 if (value.layers[i].buffer.byteLength !== expected_length) {
                     throw 'Canvas layer ' + i + ' incorrect size. Is ' + value.layers[i].buffer.byteLength +
@@ -480,4 +480,4 @@ class WebSocketMessageWriter {
     }
 }
 
-module.exports = WebSocketMessageWriter;
+module.exports = Web_socket_message_writer;

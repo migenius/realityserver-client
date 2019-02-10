@@ -3,7 +3,7 @@
  *****************************************************************************/
 const Utf8 = require('./Utf8.js');
 
-class WebSocketMessageReader {
+class Web_socket_message_reader {
     /**
    * @private Helper for reading binary messages
    * @ctor
@@ -251,4 +251,4 @@ class WebSocketMessageReader {
 }
 
 
-module.exports = WebSocketMessageReader;
+module.exports = Web_socket_message_reader;

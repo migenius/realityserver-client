@@ -1,8 +1,8 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const WebSocketMessageReader = require('./Utils/WebSocketMessageReader');
-const WebSocketMessageWriter = require('./Utils/WebSocketMessageWriter');
+const Web_socket_message_reader = require('./Utils/Web_socket_message_reader');
+const Web_socket_message_writer = require('./Utils/Web_socket_message_writer');
 const Delayed_promise = require('./Utils/Delayed_promise');
 const Command_queue = require('./Command_queue');
 const State_data = require('./State_data');
@@ -324,7 +324,7 @@ class Service {
                     const message = data.getUint32(0, scope.web_socket_littleendian);
                     if (message === Service.MESSAGE_ID_IMAGE) {
                         // yup, an image
-                        let img_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
+                        let img_msg = new Web_socket_message_reader(data, 4, scope.web_socket_littleendian);
                         let header_size = img_msg.getUint32();
                         if (header_size !== 16) {
                             // not good
@@ -350,7 +350,7 @@ class Service {
                         response.setFloat64(4, now, scope.web_socket_littleendian);
                         scope.web_socket.send(buffer);
                     } else if (message === Service.MESSAGE_ID_RESPONSE) {
-                        let response_msg = new WebSocketMessageReader(data, 4, scope.web_socket_littleendian);
+                        let response_msg = new Web_socket_message_reader(data, 4, scope.web_socket_littleendian);
                         let id = response_msg.getTypedValue();
                         let response = response_msg.getTypedValue();
                         response.id = id;
@@ -487,7 +487,7 @@ class Service {
         };
 
         if (this.binary_commands && this.protocol_version > 1) {
-            let buffer = new WebSocketMessageWriter(this.web_socket_littleendian);
+            let buffer = new Web_socket_message_writer(this.web_socket_littleendian);
             buffer.pushUint32(Service.MESSAGE_ID_COMMAND);
             buffer.pushTypedValue(payload);
             buffer = buffer.finalise();
