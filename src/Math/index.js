@@ -8,7 +8,7 @@
  * `RS.Math`.
  *
  * Note that all classes and functions on `RS.Math` are also available directly
- * on `RS`. This is to make acessing the classes easier when exposed as ES6 modules. 
+ * on `RS`. This is to make acessing the classes easier when exposed as ES6 modules.
  * @example
  * const {Vector4,radians} import from 'realityserver';
  * // as opposed to

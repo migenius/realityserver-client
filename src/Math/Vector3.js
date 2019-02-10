@@ -10,7 +10,7 @@ const Const = require('./Functions');
  * let v = new RS.Math.Vector3();
  * v = new RS.Math.Vector3(1,2,3);
  * v = new RS.Math.Vector3([0.2,-0.3,0.5]);
- * v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2}); 
+ * v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2});
  */
 class Vector3 {
     /**

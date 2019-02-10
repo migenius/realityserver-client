@@ -10,7 +10,7 @@
 
     const RealityServer = {
         Command: require('./Command'),
-        HTMLImageDisplay: require('./HTMLImageDisplay'),
+        Helpers: require('./Helpers'),
         Math: require('./Math/index.js'),
         RenderLoopStateData: require('./RenderLoopStateData'),
         Service: require('./Service'),

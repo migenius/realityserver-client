@@ -52,25 +52,25 @@ class Color {
      */
     set(source) {
         if (source instanceof Color) {
-        	/**
-        	 * The red component of the color
-        	 * @member {Number}
-        	 */
+            /**
+             * The red component of the color
+             * @member {Number}
+             */
             this.r = source.r;
             /**
-        	 * The green component of the color
-        	 * @member {Number}
-        	 */
+             * The green component of the color
+             * @member {Number}
+             */
             this.g = source.g;
             /**
-        	 * The blue component of the color
-        	 * @member {Number}
-        	 */
+             * The blue component of the color
+             * @member {Number}
+             */
             this.b = source.b;
             /**
-        	 * The alpha component of the color
-        	 * @member {Number}
-        	 */
+             * The alpha component of the color
+             * @member {Number}
+             */
             this.a = source.a;
         } if (source instanceof Spectrum) {
             this.r = source.c[0];

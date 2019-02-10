@@ -3,58 +3,54 @@
  *****************************************************************************/
 
 /**
- * @file Command.js
- * This file defines the Command class.
- */
-
-/**
- * @class Command
- * The %Command class that wraps the information needed to execute a
- * command.
- */
-
-/**
- * @ctor
- * Creates a %Command object.
- * @param name String The name of the NWS command.
- * @param params Object An associative array containing the command
+ * The Command class that wraps the information needed to execute a
+ * command. It consists of the command and and object containing it's
  * parameters.
+ *
+ * Commands are executed either directly on the Service via
+ * {@link RS.Service#send_command}, {@link RS.Service#execute_command} or
+ * in a {@link RS.CommandQueue} obtained from {@link RS.Service#queue_commands}.
+ * @memberof RS
+ * @example
+ * let c = new Command('import_scene',
+ *              {
+ *                  scene_name:'meyemii',
+ *                  block:true,
+ *                  filename: 'scenes/meyemii.mi'
+ *              });
+ * c = new Command('render',
+ *              {
+ *                  scene_name:'meyemii',
+ *                  renderer:'iray',
+ *                  format: 'png',
+ *                  render_context_options: {
+ *                      scheduler_mode: {
+ *                          value: 'batch',
+ *                          type: 'String'
+ *                      }
+ *                  }
+ *              });
  */
 class Command {
-    constructor(name, params) {
+    /**
+     * Creates a new Command. Takes a `name` and a set of `parameters`. Typically
+     * once constructed commands are not modified.
+     * @param {String} name - the command name to execute.
+     * @param {Object} parameters - the command parameters.
+     */
+    constructor(name, parameters) {
+        /**
+         * The command name
+         * @member {String}
+         */
         this.name = name;
-        this.params = params;
-        this.isCancelled = false;
+        /**
+         * The command parameters. Object keys are the parameter names
+         * and values are their values.
+         * @member {Object}
+         */
+        this.params = parameters;
     }
-
-    /**
-     * @public String
-     * [read-only] The name of the RealityServer command.
-     */
-    //name;
-
-    /**
-     * @public Object
-     * [read-only] Command parameters specified as an associative array.
-     */
-    //params;
-
-    /**
-     * @public Boolean
-     * [read-only] This property is set to true if the
-     * command has been cancelled, in which case it will simply be
-     * skipped by the service.
-     * <p>
-     * This property is set to true by the implementing class if the
-     * command has been cancelled, in which case it will simply be
-     * skipped by the service. Note that commands are normally processed
-     * immediately after being added by a process commands callback at
-     * which point this property does not have any effect. Most command
-     * implementations should just return false, but there are special
-     * cases, like render commands or other commands that return
-     * binary data, where this mechanism can be of use.
-     */
-    //isCancelled;
 }
 
 module.exports = Command;

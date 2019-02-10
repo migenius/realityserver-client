@@ -3,79 +3,90 @@
  *****************************************************************************/
 
 /**
- * @file Response.js
- * This file defines the Response class.
- */
-
-/**
- * @class Response
- * Defines the interface of a command response object. This interface
- * is used by RSService in calls to command response handlers. it
+ * Defines the interface of a command response object. Instances of this class
+ * are provided as the resolved values to {@link RS.Command}s. This
  * gives access to all the data available in a response to a
  * RealityServer command.
- */
-
-/**
- * @ctor
- * Creates an %Response object.
- * @param command Command The %command object that triggered this response.
- * @param serverResponse Object The response object as sent by the server.
+ * *NOTE:* Users do not create `Responses` directly.
+ * @memberof RS
  */
 class Response {
-    constructor(command, serverResponse) {
-        this.command = command;
-        this.serverResponse = serverResponse;
+    /**
+     * Creates a Response object.
+     * @hideconstructor
+     * @param {RS.Command} command The command that triggered this response.
+     * @param {Object} server_response  The response object as sent by the server.
+     */
+    constructor(command, server_response) {
+        this._command = command;
+        this._server_response = server_response;
 
-        this.result = serverResponse.result;
+        this._result = server_response.result;
 
-        this.isErrorResponse = (!!serverResponse.error && serverResponse.error.code !== 0);
+        this.is_error = (!!server_response.error && server_response.error.code !== 0);
 
-        if (this.isErrorResponse === false) {
-            this.error = null;
+        if (this._is_error === false) {
+            this._error = null;
         } else {
-            this.error = serverResponse.error;
+            this._error = server_response.error;
         }
 
     }
 
     /**
-     * @public com::mi::rs::Command
-     * Returns the command this is the response to.
+     * The command this is the response to.
+     * @type {RS.Command}
+     * @readonly
      */
-    //command;
+    get command() {
+        return this._command;
+    }
 
     /**
-     * @public Object.
-     * The result data structure that was returned by the RealityServer
-     * command. The result will be null if the command experienced an
+     * The result data that was returned by the RealityServer
+     * command. The result will be `null` if the command experienced an
      * error. Commands not returning a value will have an empty object
      * as result.
+     * @type {*}
+     * @readonly
      */
-    //result;
+    get result() {
+        return this._result;
+    }
 
     /**
-     * @public Boolean.
-     * Convenience property that is true if this is an error response.
-     * In this case Response.result will be null and Response.error
-     * be set to an object containing more information
-     * about the error.
+     * Contains information about the error, or `null` if no error occured. If
+     * the error is defined, it will always have a string `message` property
+     * with a short description about the error, and a `code` integer property
+     * that identifies the error. There may be an additional `data` property with
+     * more information.
+     * @type {Object}
+     * @readonly
      */
-    //isErrorResponse;
+    get error() {
+        return this._error;
+    }
 
     /**
-     * @public Object.
-     * Contains information about the error, or null if no error occured. If
-     * the error is defined, it will always have a string "message" property
-     * with a short description about the error, and a "code" integer property
-     * that identifies the error.
+     * Convenience property that is `true` if this is an error response.
+     * In this case {@link RS.Response#result} will be null and {@link RS.Response#error}
+     * be set to an object containing more information about the error.
+     * @type {Boolean}
+     * @readonly
      */
-    //error;
+    get is_error() {
+        return this._is_error;
+    }
 
     /**
-     * @private Object
      * The raw response object returned by the server.
+     * @type {Object}
+     * @readonly
+     * @access private
      */
-    //serverResponse;
+    get serverResponse() {
+        return this._server_response;
+    }
 }
 
 module.exports = Response;

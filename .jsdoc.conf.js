@@ -1,11 +1,12 @@
 'use strict';
 
 module.exports = {
+
   "plugins": ["plugins/markdown"],
   "recurseDepth": 10,
   "source": {
-    "include": [ "src/index.js", "src/Math" ],
-    "exclude": "src/Utils",
+    "include": [ "src" ],
+    "exclude": [ "src/Utils" ],
     "includePattern": ".+\\.js(doc|x)?$",
     "excludePattern": "(^|\\/|\\\\)_"
   },
@@ -18,6 +19,7 @@ module.exports = {
     ]
   },
   "templates": {
+    "applicationName": "RealityServer",
     "cleverLinks": false,
     "monospaceLinks": false
   },

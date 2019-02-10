@@ -10,6 +10,10 @@ const Response = require('./Response');
 
 let sequence_id=0;
 
+/**
+ * Works out the most accurate way to get the current time in seconds.
+ * @access private
+ */
 const now_function = function(){
     try {
         if (window && window.performance && performance.now) {
@@ -32,6 +36,13 @@ const now_function = function(){
     };
 }();
 
+
+/**
+ * The WebSocket implementation to use. By default this will try and get one from `window`.
+ * If not found then the user must set this via {@link RS.Service#websocket} or provide
+ * a websocket implementation to {@link RS.Service#connect}
+ * @access private
+ */
 let Websocket_impl = function() {
     try {
         return window ? window.WebSocket : undefined;
@@ -39,82 +50,65 @@ let Websocket_impl = function() {
     return undefined;
 }();
 
-/**
- * @file Service.js
- * This file contains the Service class.
- */
 
 /**
- * @class Service
- * The Service class provides the same functionality as
- * the RSService except it operates over a Web Socket connection
- * rather than HTTP. It is essetially a drop in replaceent for
- * RSService and additionaly provides streaming of rendered
+ * The Service class provides a WebSocket connection to RealityServer that
+ * allows the user to execute commands as well as stream rendered
  * images from a render loop. This allows for push based image
  * updates rather than the polling system required in HTTP.
- * <p>This documentation should be read in conjuction with the
- * RSService documentations which provides an overall description
- * of the service functionality.</p>
- */
-
-/**
- * @ctor
- * Creates a Service object that can stream images from a
- * render loop. Throws if web sockets are not supported by the browser.
+ * @memberof RS
  */
 class Service {
-    constructor(defaultStateData) {
-        if (!defaultStateData) {
-            this.defaultStateData = new StateData();
+    /**
+     * Creates the service class.
+     * @param {(RS.StateData|RS.RenderLoopStateData)} [default_state_data] the default state data to use
+     */
+    constructor(default_state_data=null) {
+        if (!default_state_data) {
+            this._default_state_data = new StateData();
         } else {
-            this.defaultStateData = defaultStateData;
+            this._default_state_data = default_state_data;
         }
 
         this.binary_commands = true;
-
-        this.m_general_error_handler = this.on_default_general_error;
     }
 
     /**
-   * @public StateData|RenderLoopStateData
-   * The default state data for this Service instance. If no state
-   * data is specified in the addCommand and addCallback methods,
-   * then this is the state data that will be used. If this is set
-   * to an instance of RenderLoopStateData then all commands
-   * will be executed on the render loop. It is the user's responsibility
-   * to ensure that the render loop exists in this case.
-   */
-    //defaultStateData = undefined;
+    * The default state data for this Service instance. If no state
+    * data is specified when providing commands
+    * then this is the state data that will be used. If this is set
+    * to an instance of {@link RS.RenderLoopStateData} then all commands
+    * will be executed on the render loop. In this case it is the user's responsibility
+    * to ensure that the render loop exists.
+    * @type {(StateData|RenderLoopStateData)}
+    */
+    get default_state_data() {
+        return this._default_state_data;
+    }
+
+    set default_state_data(value) {
+        this._default_state_data = value;
+    }
 
     /**
-   * @public String
+   *
    * Returns the name of the current connector. The connector
    * encapsulates the on-the-wire protocol used to process
-   * commands. Currently one connector is available:<p>
-   * "WS" - Commands are processed using WebSocket requests.<br>
+   * commands. Currently one connector is available
+   * `WS` which indicates that commands are processed using WebSocket requests.
+   * @type {String}
+   * @readonly
    */
-    get connectorName() {
+    get connector_name() {
         return 'WS';
     }
 
     /**
-   * @static Service
-   * By default calls to user callbacks are wrapped in try/catch
-   * blocks and if they error the appropriate error handler is
-   * called. Disabling this can be useful during development as
-   * when there is an error in a callback handler, the stack is lost.
-   * Set this to true to unwrap the handler calls.
-   */
-    static get catchHandlers() {
-        return true;
-    };
-
-    /**
-   * @private
-   * @static Service
-   * Command sequence id used to identify when the results of a
-   * command appear in a render.
-   */
+     * Command sequence id used to identify when the results of a
+     * command appear in a render.
+     * @access private
+     * @static Service
+     */
     static get sequence_id() {
         return sequence_id;
     }
@@ -123,76 +117,87 @@ class Service {
         sequence_id = value;
     }
 
-    /** static Service
-   * Sets the WebSocket implementation to use. This must implement the
-   * W3C WebSocket API specification
-   */
+    /**
+     * The WebSocket implementation to use. This will default to `window.WebSocket` if
+     * available. Otherwise the constructor of a [W3C WebSocket API](https://www.w3.org/TR/websockets/)
+     * implementation must be set on this member, or an instance of such an object provided when
+     * calling {@link RS.Service#connect}.
+     * @type {WebSocket}
+     */
+    static get websocket() {
+        return Websocket_impl;
+    }
+
     static set websocket(value) {
         Websocket_impl = value;
     }
 
     /**
-   * @static Service
-   * Returns whether the service is supported or not. Web sockets are required and must
-   * be accessible either through window.WebSocket or by setting Service.websocket to the
-   * constructor of a W3C compliant web socket implementation.
-   */
-    static supported() {
+     * Returns whether the service is supported or not. Web sockets are required and must
+     * be accessible either through `window.WebSocket` or by setting {@link RS.Service.websocket}
+     * @return {Boolean}
+     */
+    static get supported() {
         return !!Websocket_impl;
     }
 
     /**
-   * @static Service
-   * Returns a timestamp in seconds
-   */
+     * Returns a timestamp in seconds
+     * @return {Number}
+     * @access private
+     */
     static now() {
         return now_function();
     };
-    // The strange construct above is so the documentation system picks up the now
-    // function. Don't ask, just accept that there's an anonymous function that returns
-    // the actual function to use and move on.
 
-
-    /*
-   * Protocol message IDs
-  */
+    /**
+     * Protocol message IDs
+     * @access private
+    */
     static get MESSAGE_ID_IMAGE() {
-        return              0x01;
+        return 0x01;
     };
     static get MESSAGE_ID_IMAGE_ACK() {
-        return          0x02;
+        return 0x02;
     };
     static get MESSAGE_ID_TIME_REQUEST() {
-        return       0x03;
+        return 0x03;
     };
     static get MESSAGE_ID_TIME_RESPONSE() {
-        return      0x04;
+        return 0x04;
     };
     static get MESSAGE_ID_COMMAND() {
-        return            0x05;
+        return 0x05;
     };
     static get MESSAGE_ID_RESPONSE() {
-        return           0x06;
+        return  0x06;
     };
     static get MESSAGE_ID_PREFER_STRING() {
-        return      0x07;
+        return 0x07;
     };
 
     /**
-   * Connects to a web socket server and performs initial handshake to ensure
-   * streaming functionality is available.
-   * @param url String The web service URL to connect to. Typically of the form
-   * ws[s]://HOST::PORT/render_loop_stream/
-   * @param extra_constructor_args Array Extra list of arguments to be passed to the websocket constructor
-   * after the protocols parameter.
-   * @return a promise that resolves when connected
-   */
-    connect( url, extra_constructor_args ) {
+     * Connects to RealityServer and performs the initial handshake to ensure
+     * streaming functionality is available. Returns a `Promise` that resolves when connected. The promise
+     * will reject in the following circumstances:
+     * - Websockets are not supported
+     * - Creation of the WebSocket instance fails.
+     * - The RealityServer connection fails.
+     * - Invalid RealityServer handshake.
+     * - The connected RealityServer does not support the required WebSocket protocol version.
+     * @param {String|Object} url If a string then the web service URL to connect to. Typically of the form
+     * `ws[s]://HOST::PORT/render_loop_stream/`. If not a string then must be an object that implements the
+     * [W3C WebSocket API](https://www.w3.org/TR/websockets/) interface.
+     * @param {Array=} extra_constructor_args Extra list of arguments to be passed to the WebSocket constructor
+     * after the protocols parameter.
+     * @return {Promise} A promise that resolves when the WebSocket is connected.
+     */
+    connect(url, extra_constructor_args=null) {
         return new Promise((resolve, reject) => {
             // if url is a string then make a websocket and connect. otherwise we assume it's already
             // an instance of a W3C complient web socket implementation.
             if (url !== undefined && url !== null && url.constructor === String) {
-                if (!Service.supported()) {
+                if (!Service.supported) {
                     reject('Websockets not supported.');
                     return;
                 }
@@ -227,6 +232,8 @@ class Service {
             };
             this.web_socket.onclose = event => {
                 event;
+                this.protocol_state = 'prestart';
+                this.web_socket = undefined;
                 /*
               let code = event.code;
               let reason = event.reason;
@@ -321,7 +328,6 @@ class Service {
                         let header_size = img_msg.getUint32();
                         if (header_size !== 16) {
                             // not good
-                            scope.on_general_error('Invalid image message size.');
                             return;
                         }
                         let image_id = img_msg.getUint32();
@@ -374,7 +380,7 @@ class Service {
                     } else {
                         // check that the protcol version is acceptable
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                        if (protocol_version < 1 || protocol_version > 2) {
+                        if (protocol_version < 2 || protocol_version > 2) {
                             // unsupported protocol, can't go on
                             scope.web_socket.close();
                             reject('Sever protocol version not supported');
@@ -383,6 +389,11 @@ class Service {
                             scope.protocol_version = protocol_version;
                             scope.protocol_state = 'started';
                             scope.web_socket.onmessage = web_socket_stream;
+
+                            // if in debug mode then set debug on the server.
+                            if (!this.binary_commands) {
+                                this.binary_commands = false;
+                            }
                             resolve();
                         }
                     }
@@ -446,19 +457,23 @@ class Service {
         });
     }
 
+    /**
+     * Closes the WebSocket connection
+     */
     close() {
         this.web_socket.close();
         this.web_socket = undefined;
     }
 
     /**
-   * @private
-   * Sends a command over the websocket connection
-   * @param command String The command to send
-   * @param args Object The commands arguments
-   * @param handler Function The function to call with the command's results
-   * @param scope Object scope in which to call handler
-   */
+     * Sends a command over the websocket connection. Note that this is a websocket
+     * protocol command, not a RealityServer command.
+     * @access private
+     * @param {String} command - The command to send
+     * @param {Object} args - The commands arguments
+     * @param {Function} handler - The function to call with the command's results
+     * @param {Object} scope - scope in which to call handler
+     */
     send_ws_command(command, args, handler, scope) {
         let command_id = handler !== undefined ? this.command_id : undefined;
         if (command_id !== undefined) {
@@ -483,18 +498,25 @@ class Service {
     }
 
     /**
-   * Begins streaming images from a render loop over the web socket connection. A single web socket connection
-   * can stream from multiple render loops simultaneously however a given render loop can only be streamed once
-   * over a given web socket.
-   * @param renderLoop String|Object If a string then the name of the render loop to stream. If an Object
-   * then must contain a 'render_loop_name' property with the name of the render loop to stream. Other supported
-   * properties are 'image_format' (String) to specify the streamed image format and 'quality' (String) to control
-   * the image quality
-   * @param onData Function If supplied then this is called every time an image is returned and receives the image
-   * and rendering statistics.
-   * @return a promise that resolves when the stream has started
-   */
-    stream(renderLoop, onData) {
+     * Begins streaming images from a render loop over the web socket connection. A single web socket connection
+     * can stream from multiple render loops simultaneously however a given render loop can only be streamed once
+     * over a given web socket. Returns a promise that resolves when the stream has started. The promise will
+     * reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - no callback is provided, there is no point in streaming a render loop if there is no callback to process it.
+     * - staring the stream failed, usually this occurs if the render loop cannot be found or invalid streaming
+     * data is provided.
+     * @param {String|Object} render_loop If a `String` then the name of the render loop to stream. Provide an
+     * object to specify additional streaming data.
+     * @param {String} render_loop.name - the name of the render loop to stream.
+     * @param {String=} render_loop.image_format - the streamed image format.
+     * @param {String=} render_loop.quality - the streamed image quality.
+     * @param {Function} callback - A function to be called every time an image is received, this will receive the image
+     * and rendering statistics.
+     * @return {Promise} A promise that resolves when the stream has started.
+     */
+    stream(render_loop, callback) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
                 reject('Web socket not connected.');
@@ -504,20 +526,24 @@ class Service {
                 reject('Web socket not started.');
                 return;
             }
+            if (!callback) {
+                reject('No callback provided.');
+                return;
+            }
 
-            if (typeof renderLoop === 'string' || renderLoop instanceof String) {
-                renderLoop = {
-                    render_loop_name : renderLoop
+            if (typeof render_loop === 'string' || render_loop instanceof String) {
+                render_loop = {
+                    render_loop_name : render_loop
                 };
             }
 
             // always use the handler since it makes no sense to start a stream without something to deal with it
-            this.send_ws_command('start_stream',renderLoop,response => {
+            this.send_ws_command('start_stream',render_loop,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
-                    this.streaming_loops[renderLoop.render_loop_name] = {
-                        onData: onData,
+                    this.streaming_loops[render_loop.render_loop_name] = {
+                        onData: callback,
                         command_promises: [],
                         pause_count: 0
                     };
@@ -528,12 +554,15 @@ class Service {
     }
 
     /**
-   * Sets parameters on a stream.
-   * @param parameters Object The parameter to set. Must contain a 'render_loop_name' property with the name of
-   * the render loop to set parameters for. Supported parameters are 'image_format' (String) to specify the
-   * streamed image format and 'quality' (String) to control the image quality
-   * @return a promise that resolves with the set parameter response
-   */
+     * Sets parameters on a streaming render loop.
+     * @param {Object} parameters The parameter to set. `name` is required, all other properties are
+     * set on the stream. Supported properties include:
+     * @param {String} parameters.name - the name of the render loop to set streaming parameters on.
+     * @param {String=} parameters.image_format - the streamed image format.
+     * @param {String=} parameters.quality - the streamed image quality.
+     * @return {Promise} A promise that resolves with the set parameter response or rejects with
+     * the error message.
+     */
     set_stream_parameters(parameters) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
@@ -554,12 +583,14 @@ class Service {
             });
         });
     }
+
     /**
-   * Stops streaming from a render loop
-   * @param renderLoop String The name of the render loop to stop streaming.
-   * @return a promise that resolves when the stream is stopped
-   */
-    stop_stream(renderLoop) {
+     * Stops streaming from a render loop.
+     * @param {String} render_loop The name of the render loop to stop streaming.
+     * @return {Promise} A promise that resolves when the stream is stopped or rejects
+     * on error.
+     */
+    stop_stream(render_loop) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
                 reject('Web socket not connected.');
@@ -570,17 +601,17 @@ class Service {
                 return;
             }
 
-            if (typeof renderLoop === 'string' || renderLoop instanceof String) {
-                renderLoop = {
-                    render_loop_name : renderLoop
+            if (typeof render_loop === 'string' || render_loop instanceof String) {
+                render_loop = {
+                    render_loop_name : render_loop
                 };
             }
 
-            this.send_ws_command('stop_stream',renderLoop,response => {
+            this.send_ws_command('stop_stream',render_loop,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
-                    delete this.streaming_loops[renderLoop.render_loop_name];
+                    delete this.streaming_loops[render_loop.render_loop_name];
                     resolve(response.result);
                 }
             });
@@ -588,112 +619,113 @@ class Service {
     }
 
     /**
-   * Pauses display of images from a render loop. Note the images are still transmitted from
-   * the server, they are just not dispayed. Pause calls are counted so you need to call resume_display
-   *
-   * @param renderLoop String The name of the render loop to pause display for.
-   * @return the pause count, IE: the number of times resume_display will need to be called to
-   * start displaying images again. Returns -1 if web socket isn't started or \p renderLoop cannot
-   * be found.
-   */
-    pause_display(renderLoop) {
-        if (!this.streaming_loops[renderLoop]) {
+     * Pauses calling the callback associated with the render loop. Note the images are still transmitted from
+     * the server, the callback is just not called. Pause calls are counted so you need to call
+     * {@link RS.Service#resume_display} the same number of times as pause_display before calling begins again.
+     * @param {String} render_loop The name of the render loop to pause display for.
+     * @return {Number The pause count, IE: the number of times resume_display will need to be called to
+     * start displaying images again. Returns `-1` if web socket isn't started or `render_loop` cannot
+     * be found.
+     */
+    pause_display(render_loop) {
+        if (!this.streaming_loops[render_loop]) {
             return -1;
         }
 
-        return ++this.streaming_loops[renderLoop].pause_count;
+        return ++this.streaming_loops[render_loop].pause_count;
     }
 
     /**
-   * Resumes display of images from a paused render loop if the pause count has reduced to \c 0.
-   *
-   * @param renderLoop String The name of the render loop to resume display for.
-   * @param force Boolean If \c true then forces display to resume regardless of the pause count.
-   * @return the pause count, IE: the number of times resume_display will need to be called to
-   * start displaying images again. Returns -1 if web socket isn't started or \p renderLoop cannot
-   * be found.
-   */
-    resume_display(renderLoop,force) {
-        if (!this.streaming_loops[renderLoop]) {
+     * Resumes calling the callback associated with the paused render loop if the pause count has reduced to `0`.
+     *
+     * @param {String} render_loop The name of the render loop to resume display for.
+     * @param {Boolean=} force  If `true` then forces display to resume regardless of the pause count.
+     * @return {Number} The pause count, IE: the number of times resume_display will need to be called to
+     * start calling callbacks again. Returns `-1` if web socket isn't started or `render_loop` cannot
+     * be found.
+     */
+    resume_display(render_loop,force=false) {
+        if (!this.streaming_loops[render_loop]) {
             return -1;
         }
 
-        if (this.streaming_loops[renderLoop].pause_count > 0) {
-            if (force) {
-                this.streaming_loops[renderLoop].pause_count = 0;
+        if (this.streaming_loops[render_loop].pause_count > 0) {
+            if (!!force) {
+                this.streaming_loops[render_loop].pause_count = 0;
             } else {
-                this.streaming_loops[renderLoop].pause_count--;
+                this.streaming_loops[render_loop].pause_count--;
             }
         }
 
-        return this.streaming_loops[renderLoop].pause_count;
+        return this.streaming_loops[render_loop].pause_count;
     }
 
     /**
-   * Returns the pause count for the given render loop.
-   *
-   * @param renderLoop String The name of the render loop to resume display for.
-   * @return the pause count. When evaluated in a truthy way will be \c true if
-   * paused and ]c false if not
-   */
-    is_display_paused(renderLoop) {
-        if (!this.streaming_loops[renderLoop]) {
+     * Returns the pause count for the given render loop.
+     *
+     * @param {String} render_loop The name of the render loop to get the pause count for.
+     * @return {(Number|Boolean)} The pause count, or `false` if the render loop is not streaming.
+     * When evaluated in a truthy way will be `true` if paused and `false` if not
+     */
+    is_display_paused(render_loop) {
+        if (!this.streaming_loops[render_loop]) {
             return false;
         }
 
-        return this.streaming_loops[renderLoop].pause_count;
+        return this.streaming_loops[render_loop].pause_count;
     }
 
     /**
-   * Returns \c true if we are currently streaming the given render loop.
-   * @param renderLoop String The name of the render loop to check.
-   */
-    streaming(renderLoop) {
-        return !!this.streaming_loops[renderLoop];
+     * Returns `true` if we are currently streaming the given render loop.
+     * @param {String} render_loop The name of the render loop to check.
+     * @return {Boolean} `true` if streaming, `false` if not or unknown.
+     */
+    streaming(render_loop) {
+        return !!this.streaming_loops[render_loop];
     }
 
     /**
-   * Updates the camera. The \p data parameter specifies the camera data to set and is
-   * defined as follows:
-   * @code
-   * {
-   *     camera : {
-   *       name: String - the camera name to set (required if camera supplied)
-   *       aperture: Number - The aperture width of the camera. (optional)
-   *       aspect: Number - The aspect ratio of the camera. (optional)
-   *       clip_max: Number - The yon clipping distance. (optional)
-   *       clip_min: Number - The hither clipping distance. (optional)
-   *       focal: Number - The focal length to set. (optional)
-   *       frame_time: Number - The frame time of the camera, in seconds. (optional)
-   *       offset_x: Number - The horizontal plane shift. (optional)
-   *       offset_y: Number - The vertical plane shift. (optional)
-   *       orthographic: Boolean - If the camera is orthographic or not. (optional)
-   *       resolution_x: Number - The width of the camera. (optional)
-   *       resolution_y: Number - The height of the camera. (optional)
-   *       window_xh: Number - The right edge of the render sub-window in raster space. (optional)
-   *       window_xl: Number - The left edge of the render sub-window in raster space. (optional)
-   *       window_yh: Number - The top edge of the render sub-window in raster space. (optional)
-   *       window_yl: Number - The bottom edge of the render sub-window in raster space. (optional)
-   *       attributes: { Object - attributes to set on the camera. (optional)
-   *           attribute_name: { Keys are the attribute names to set.
-   *               type: String - The Iray typename of the attribute.
-   *               value: Varies - The value of the attribute.
-   *           }
-   *       }
-   *     },
-   *     camera_instance : {
-   *       name: String - The camera isntance name to set (required if camera_instance supplied)
-   *       transform: RS.Math.Matrix4x4 - The camera instance transform to set in the same format as  (optional)
-   *       attributes: Object - Attributes to set on the camera instance,
-   *                              format is the same as on the camera. (optional)
-   *     }
-   * }
-   * @endcode
-   * @param renderLoop String The name of the render loop to change the camera on.
-   * @param data Object object specifying the camera to update. Supported format is:
-   * @return a promise that resolves with the result
-   */
-    update_camera(renderLoop, data) {
+     * Utility function to update the camera on a given render loop.
+     *
+     * The returned promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - no data is provided.
+     * - updating the camera infomration failed
+     * @endcode
+     * @param {String} render_loop The name of the render loop to change the camera on.
+     * @param {Object} data Object specifying the camera to update. Supported format is:
+     * @param {Object=} data.camera Properties to update on the camera
+     * @param {String} data.camera.name The name of the camera to update
+     * @param {Number=} data.camera.aperture - The aperture width of the camera.
+     * @param {Number=} data.camera.aspect - The aspect ratio of the camera.
+     * @param {Number=} data.camera.clip_max - The yon clipping distance.
+     * @param {Number=} data.camera.clip_min - The hither clipping distance.
+     * @param {Number=} data.camera.focal - The focal length to set.
+     * @param {Number=} data.camera.frame_time - The frame time of the camera, in seconds.
+     * @param {Number=} data.camera.offset_x - The horizontal plane shift.
+     * @param {Number=} data.camera.offset_y - The vertical plane shift.
+     * @param {Number=} data.camera.orthographicn - If the camera is orthographic or not.
+     * @param {Number=} data.camera.resolution_x - The width of the camera.
+     * @param {Number=} data.camera.resolution_y - The height of the camera.
+     * @param {Number=} data.camera.window_xh - The right edge of the render sub-window in raster space.
+     * @param {Number=} data.camera.window_xl - The left edge of the render sub-window in raster space.
+     * @param {Number=} data.camera.window_yh - The top edge of the render sub-window in raster space.
+     * @param {Number=} data.camera.window_yl - The bottom edge of the render sub-window in raster space.
+     * @param {Object=} data.camera.attributes - Arbitrary attributes to set on the camera. Property names are
+     * the attribute names to set. Each property value should be an object containing the following:
+     * @param {*} data.camera.attributes.value - The attribute value to set.
+     * @param {String} data.camera.attributes.type - The type of the attribute to set.
+     * @param {Object=} data.camera_instance Properties to update on the camera instance.
+     * @param {String} data.camera_instance.name The name of the camera instance to update.
+     * @param {RS.Math.Matrix4x4=} data.camera_instance.transform - The camera instance transform to set
+     * @param {Object=} data.camera_instance.attributes - Arbitrary attributes to set on the camera instance. Property
+     * names are the attribute names to set. Each property value should be an object containing the following:
+     * @param {*} data.camera_instance.attributes.value - The attribute value to set.
+     * @param {String} data.camera_instance.attributes.type - The type of the attribute to set.
+     * @return {Promise} A promise that resolves with the result of the camera update.
+     */
+    update_camera(render_loop, data) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
                 reject('Web socket not connected.');
@@ -709,15 +741,15 @@ class Service {
                 return;
             }
 
-            if (typeof renderLoop === 'string' || renderLoop instanceof String) {
-                renderLoop = {
-                    render_loop_name : renderLoop
+            if (typeof render_loop === 'string' || render_loop instanceof String) {
+                render_loop = {
+                    render_loop_name : render_loop
                 };
             }
-            renderLoop.camera = data.camera;
-            renderLoop.camera_instance = data.camera_instance;
+            render_loop.camera = data.camera;
+            render_loop.camera_instance = data.camera_instance;
 
-            this.send_ws_command('set_camera',renderLoop,response => {
+            this.send_ws_command('set_camera',render_loop,response => {
                 if (response.error) {
                     reject(response.error.message);
                 } else {
@@ -728,54 +760,65 @@ class Service {
     }
 
     /**
-   * Returns a CommandQueue that can be used to queue up a series of commands to
-   * be executed.
-   * @param state if provided then this is used as the state for executing the commands.
-   * If not then the default service state is used.
-   */
+     * Returns a {@link RS.CommandQueue} that can be used to queue up a series of commands to
+     * be executed.
+     * @param {(StateData|RenderLoopStateData)=} state if provided then this is used as the state for
+     * executing the commands. If not then the default service state is used.
+     * @return {RS.CommandQueue}
+     */
     queue_commands(state=null) {
-        return new CommandQueue(this,state || this.defaultStateData);
+        return new CommandQueue(this,state || this.default_state_data);
     }
 
     /**
-   * Executes a single command and returns a promise.
-   * @param command the command to execute
-   * @param want_response if \c true then the returned promise resolves to the response of the
-   * command. If \c false then the promise resolves immediately to undefined.
-   * @param wait_for_render if \c true, and the state executes the command on a render loop then
-   * a promise is returned that resolves just before the command results appear in a render.
-   * @param state if provided then this is used as the state to execute the command.
-   * If not then the default service state is used.
-   * @return a promise that resolves to an iterable. If a response is requested then it resolves
-   * into the first value of the iterable. If \p wait_for_render is \c true then that resolves into
-   * the last value of the iterable.
-   */
-    execute_command(command,want_response=false,wait_for_render=false,state=undefined) {
-        return new CommandQueue(this,state || this.defaultStateData)
+     * Executes a single command and returns a promise that resolves to an iterable. The iterable will
+     * contain up to 2 results
+     * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
+     * - if `wait_for_render` is `true` and the state executes the command on a render loop then
+     * the promise will resolve when the command results are about to appear in a render, the resolved value
+     * will be the render data.
+     * @param {RS.Command} command - The command to execute.
+     * @param {Boolean=} want_response - If `true` then the returned promise resolves to the response of the
+     * command. If `false` then the promise resolves immediately to `undefined`.
+     * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
+     * a promise is returned that resolves just before the command results appear in a render.
+     * @param {(StateData|RenderLoopStateData)=} state - If provided then this is used as the state to execute the
+     * command. If not then the default service state is used.
+     * @return {Promise} A promise that resolves to an iterable.
+     */
+    execute_command(command,want_response=false,wait_for_render=false,state=null) {
+        return new CommandQueue(this,state || this.default_state_data)
             .queue(command,want_response)
             .execute(wait_for_render);
     }
 
     /**
-   * Sends a single command and returns promies that will resolve with the results.
-   * @param command the command to execute
-   * @param want_response if \c true then the returned promise resolves to the response of the
-   * command. If \c false then the promise resolves immediately to undefined.
-   * @param wait_for_render if \c true, and the state executes the command on a render loop then
-   * a promise is returned that resolves just before the command results appear in a render.
-   * @param state if provided then this is used as the state to execute the command.
-   * If not then the default service state is used.
-   * @return a promise that resolves to an iterable. If a response is requested then it resolves
-   * into the first value of the iterable. If \p wait_for_render is \c true then that resolves into
-   * the last value of the iterable.
-   */
-    send_command(command,want_response=false,wait_for_render=false,state=undefined) {
-        return new CommandQueue(this,state || this.defaultStateData)
+     * Sends a single command and returns an `Object` containing promises that will resolve with the results.
+     * @param {RS.Command} command - The command to execute.
+     * @param {Boolean=} want_response - If `true` then the `reponses` promise resolves to the response of the
+     * command. If `false` then the promise resolves immediately to undefined.
+     * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
+     * the `render` promise resolves just before the command results appear in a render, the resolved value
+     * will be the render data.
+     * @param {(StateData|RenderLoopStateData)=} state - If provided then this is used as the state to execute the
+     * command. If not then the default service state is used.
+     * @return {Object} An object with 2 properties:
+     * - `responses` a `Promise` that will resolve with the response of the command.
+     * - `render`: a `Promise` that resolves when the result is about to be displayed.
+     */
+    send_command(command,want_response=false,wait_for_render=false,state=null) {
+        return new CommandQueue(this,state || this.default_state_data)
             .queue(command,want_response)
             .send(wait_for_render);
     }
-    // if wait_for_render is true but we are not currently streaming that loop then its promise will
-    // resolve immediately
+
+    /**
+     * Sends a command queue
+     * @access private
+     * @param {RS.CommandQueue} command_queue - The command queue to send
+     * @return {Promise|Object} a promise or object depending on whether resolve_all is set on the
+     * command queue.
+     */
     send_command_queue(command_queue) {
         if (!command_queue) {
             return Promise.reject('No command queue provided');
@@ -804,11 +847,11 @@ class Service {
             render: undefined
         };
 
-        if (command_queue.state_data.renderLoopName) {
+        if (command_queue.state_data.render_loop_name) {
             execute_args = {
                 commands: command_queue.commands,
-                render_loop_name: command_queue.state_data.renderLoopName,
-                continue_on_error: command_queue.state_data.continueOnError,
+                render_loop_name: command_queue.state_data.render_loop_name,
+                continue_on_error: command_queue.state_data.continue_on_error,
                 cancel: command_queue.state_data.cancel,
             };
             if (wait_for_render) {
@@ -830,8 +873,8 @@ class Service {
                 return Promise.reject('Commands wants a render handler but are not executing on a render loop');
             }
             execute_args = {
-                commands: command_queue.state_data.stateCommands ?
-                    command_queue.state_data.stateCommands.concat(command_queue.commands) :
+                commands: command_queue.state_data.state_commands ?
+                    command_queue.state_data.state_commands.concat(command_queue.commands) :
                     command_queue.commands,
                 url: command_queue.state_data.path,
                 state_arguments: command_queue.state_data.parameters
@@ -840,7 +883,7 @@ class Service {
 
         function resolve_responses(response) {
             // state data commands will have results as well so we need to compensate for them
-            let response_offset = this.state_data.stateCommands ? this.state_data.stateCommands.length : 0;
+            let response_offset = this.state_data.state_commands ? this.state_data.state_commands.length : 0;
             for (let i=response_offset;i<response.result.length;++i) {
                 let cmd_idx = i - response_offset;
                 if (this.response_promises[cmd_idx]) {
@@ -866,46 +909,44 @@ class Service {
     }
 
     /**
-   * Set debug mode for commands. When set commands and responses are sent in string
-   * mode (where possible) for easier debugging over the websocket connection.
-   * @param enable Boolean Set to true to enable debug mode, false (the default) to disable.
-   */
-    debug_commands(enable) {
-        if (!this.web_socket) {
-            this.on_general_error('Web socket not connected.');
-            return;
-        }
-        if (this.protocol_version < 2) {
-            throw 'Command execution not supported on the server.';
-        }
-        if (this.protocol_state !== 'started') {
-            this.on_general_error('Web socket not started.');
-            return;
-        }
-
-        // send debug message
-        let buffer = new ArrayBuffer(8);
-        let message = new DataView(buffer);
-
+     * Whether debug mode is used for the WebSocket protocol. When `true` commands and responses are sent in string
+     * mode (where possible) for easier debugging over the WebSocket connection. Defaults to `false`.
+     * @type {Boolean}
+     */
+    set debug_commands(enable) {
         this.binary_commands = !enable;
+        if (this.web_socket && this.protocol_state !== 'started') {
+            // send debug message
+            let buffer = new ArrayBuffer(8);
+            let message = new DataView(buffer);
 
-        message.setUint32(0,Service.MESSAGE_ID_PREFER_STRING,this.web_socket_littleendian);
-        message.setUint32(4,!!enable ? 1 : 0,this.web_socket_littleendian);
-        this.web_socket.send(buffer);
+            message.setUint32(0,Service.MESSAGE_ID_PREFER_STRING,this.web_socket_littleendian);
+            message.setUint32(4,!!enable ? 1 : 0,this.web_socket_littleendian);
+            this.web_socket.send(buffer);
+        }
+    }
+
+    get debug_commands() {
+        return !this.binary_commands;
     }
 
     /**
-   * Sets the max transfer rate for this stream. Manually setting a maximum rate will be enforced on
-   * the server side so a stream will not generate more than the given amount of bandwidth. Automatic rate
-   * control will attempt to fill the available bandwidth, but not flood the connection. Note that even if
-   * a manual rate is set flood control will still be enabled so setting a max rate larger than the available
-   * bandwidth will not overwhelm the connection. Rate control is implemented using frame dropping rather than adjusting
-   * image compression settings.
-   * @param maxRate Number The maximum rate in bytes per second. Set to 0 to use automatic rate
-   * control (the default) or -1 to disable rate control entirely.
-   * @return a promise that resolves when the max rate has been set.
-   */
-    set_max_rate(maxRate) {
+     * Sets the maximum transfer rate for this stream. Manually setting a maximum rate will be enforced on
+     * the server side so a stream will not generate more than the given amount of bandwidth. Automatic rate
+     * control will attempt to fill the available bandwidth, but not flood the connection. Note that even if
+     * a manual rate is set flood control will still be enabled so setting a max rate larger than the available
+     * bandwidth will not overwhelm the connection. Rate control is implemented using frame dropping rather
+     * than adjusting image compression settings.
+     *
+     * The returned promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - Setting the max rate failed.
+     * @param {Number} max_rate - The maximum rate in bytes per second. Set to `0` to use automatic rate
+     * control (the default) or `-1` to disable rate control entirely.
+     * @return {Promise} A promise that resolves when the max rate has been set.
+     */
+    set_max_rate(max_rate) {
         return new Promise((resolve, reject) => {
             if (!this.web_socket) {
                 reject('Web socket not connected.');
@@ -916,12 +957,12 @@ class Service {
                 return;
             }
 
-            if (!maxRate) {
-                maxRate = 0;
+            if (!max_rate) {
+                max_rate = 0;
             }
 
             let args = {
-                rate: maxRate
+                rate: max_rate
             };
 
             this.send_ws_command('set_transfer_rate',args,response => {
@@ -934,223 +975,6 @@ class Service {
             );
         });
     }
-
-
-    /**
-   * Sets the general error handler.
-   * This is called by both response and callback error handlers by default.
-   *
-   * If the handler is not a function the general error handler will be set to the default handler.
-   *
-   * @param handler Function Handler function to deal with all errors.
-   */
-    set_general_error_handler(handler) {
-        if (typeof handler !== 'function') {
-            handler = this.on_default_general_error;
-        }
-        this.m_general_error_handler = handler;
-    }
-    /**
-   * Returns the general error handler function.
-   *
-   * @return Function Handler function that deals with all errors.
-   */
-    get_general_error_handler() {
-        if (typeof this.m_general_error_handler === 'function') {
-            return this.m_general_error_handler;
-        }
-        return this.on_default_general_error;
-    }
-
-    /**
-   * @private Default general error function.
-   */
-    on_default_general_error(error) {
-        let errorMsg = JSON.stringify(error);
-        console.error(errorMsg);
-    }
-
-    /**
-   * @private Calls the general error function handler.
-   */
-    on_general_error(error) {
-        if (typeof this.m_general_error_handler === 'function') {
-            this.m_general_error_handler(error);
-        } else {
-            this.default_error_handler(error);
-        }
-    }
-
-    /**
-   * @private String
-   * Characters to use in random strings.
-   */
-    static get uidArr() {
-        return [ '0','1','2','3','4','5','6','7','8','9',
-            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z' ];
-    };
-
-    /**
-   * @static com::mi::rs::RSService
-   * Creates a random string of the given lenght using characters 0-9 and a-z.
-   * @param length Number
-   * @return String
-   */
-    static createRandomString(length) {
-        let charsArr = this.uidArr;
-
-        let id = '';
-        let len = charsArr.length;
-        for (let i=0; i<length; i++) {
-            let n = Math.floor((Math.random()*len));
-            id += charsArr[n];
-        }
-
-        return id;
-    }
 };
 
-/*
-  function testwriter()
-  {
-      let w = new WebSocketMessageWriter(true);
-      let numbers = [
-          2,
-          -4,
-          1034,
-          -2040,
-          1232434,
-          -4532500,
-          239548594383949,
-          233,
-          233,
-          239548594383949,
-          -2395485943834,
-          -1,
-          0,
-          3.1415,
-          -1232.432254
-      ];
-      let j=0;
-      w.pushTypedValue(numbers[j++],'Uint8');
-      w.pushTypedValue(numbers[j++],'Sint8');
-      w.pushTypedValue(numbers[j++],'Uint16');
-      w.pushTypedValue(numbers[j++],'Sint16');
-      w.pushTypedValue(numbers[j++],'Uint32');
-      w.pushTypedValue(numbers[j++],'Sint32');
-      w.pushTypedValue(numbers[j++],'Uint64');
-      w.pushTypedValue(numbers[j++],'Uint64');
-      w.pushTypedValue(numbers[j++],'Sint64');
-      w.pushTypedValue(numbers[j++],'Sint64');
-      w.pushTypedValue(numbers[j++],'Sint64');
-      w.pushTypedValue(numbers[j++],'Sint64');
-      w.pushTypedValue(numbers[j++],'Sint64');
-      w.pushTypedValue(numbers[j++],'Float32');
-      w.pushTypedValue(numbers[j++],'Float64');
-
-      j=0;
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      w.pushTypedValue(numbers[j++]);
-      let strings = [
-          'Bender is great!',
-          'Foo © bar 𝌆 baz ☃ qux 🎿 𪘀 諭  🧟'
-      ]
-      for (j=0;j<strings.length;j++) {
-          w.pushTypedValue(strings[j]);
-      }
-
-      let obj = {
-          t: true,
-          f: false,
-          n: null,
-          numbers: numbers,
-          string_obj: {
-              string1: strings[0],
-              string2: strings[1]
-          },
-          vec: {
-              x: 1.0,
-              y:-2.0,
-              z:1.5423
-          }
-      }
-      w.pushTypedValue(obj);
-
-      let data = w.finalise();
-
-      let r = new WebSocketMessageReader(new DataView(data),0,true);
-
-      let results = [];
-      for (let i=0;i<numbers.length;++i) {
-          results.push(r.getTypedValue());
-      }
-
-      function check(a,b,i) {
-          if (i !== undefined) {
-              if (a === b) {
-                  console.log(i + ': ' + a + ' ' + b + ' true');
-              } else {
-                  console.warn(i + ': ' + a + ' ' + b + ' false');
-              }
-          } else {
-              if (a === b) {
-                  console.log(a + ' ' + b + ' true');
-              } else {
-                  console.warn(a + ' ' + b + ' false');
-              }
-          }
-      }
-
-      for (let i=0;i<numbers.length;++i) {
-          check(numbers[i],results[i],i);
-      }
-      results = [];
-      // second set
-      for (let i=0;i<numbers.length;++i) {
-          results.push(r.getTypedValue());
-      }
-
-      for (let i=0;i<numbers.length;++i) {
-          check(numbers[i],results[i],i);
-      }
-
-      let result_strings = [];
-      for (j=0;j<strings.length;j++) {
-          result_strings.push(r.getTypedValue());
-      }
-
-      for (let i=0;i<strings.length;++i) {
-          check(strings[i],result_strings[i],i);
-      }
-
-      // the object
-      let new_obj = r.getTypedValue();
-      check(obj.t,new_obj.t);
-      check(obj.f,new_obj.f);
-      check(obj.n,new_obj.n);
-
-      for (let i=0;i<numbers.length;++i) {
-          check(numbers[i],new_obj.numbers[i],i);
-      }
-
-      check(strings[0],new_obj.string_obj.string1);
-      check(strings[1],new_obj.string_obj.string2);
-      check(obj.vec.x,new_obj.vec.x);
-      check(obj.vec.y,new_obj.vec.y);
-      check(obj.vec.z,new_obj.vec.z);
-  }
-  */
 module.exports = Service;

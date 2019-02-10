@@ -3,82 +3,88 @@
  *****************************************************************************/
 
 /**
- * @file Command.js
- * This file defines the com.mi.rs.RenderLoopStateData class.
- */
-
-/**
- * @class com.mi.rs.RenderLoopStateData
  * This interface encapsulates the data that is to used when executing
- * commands on render loops via a WebSocketStreamer.
- * This can be used in place of a regular com.mi.rs.StateData on a
- * WebSocketStreamer and will cause commands to be executed on the given
+ * commands on render loops.
+ * This can be used in place of a regular {@link RS.StateData} on the
+ * the service and will cause commands to be executed on the given
  * render loop. The state data can be specified when adding
- * commands directly to the streamer, or when regstering a process
- * commands callback. All commands added in a specific callback
- * will operate in the same state. A default state data can also
- * be set on the streamer itself. This state will then be used for all
- * commands where an explicit state data has not been specified.
+ * commands directly to the service, or when creating a {@link RS.CommandQueue}.
+ * A default state data can also  be set on the service itself {@link RS.Service#defaultStateData}.
+ * This state will then be used for all
+ * commands where explicit state data has not been specified.
  *
- * <p><b>Note: The RenderLoopStateData class
+ * When RenderLoopStateData state is used RealityServer will defer command
+ * execution to occur between renders on the specified render loop. This ensures
+ * that there will be no transactional overlap which can occur with regular command
+ * execution and can cause data loss. Additionally, it is possible to identify which
+ * particular rendered image contains the changes made by any given set of commands.
+ *
+ * Note: The RenderLoopStateData class
  * is designed to be constant. It is not safe to change any members of
  * a RenderLoopStateData object after it has been created, instead a new RenderLoopStateData
- * instance must be created and used if the state data needs to change.</b>
- * </p>
- */
-
-/**
- * @ctor
- * Creates a %RenderLoopStateData object.
- *
- * @param renderLoopName String the name of the render loop to execute on
- * @param cancel Number Controls whether rendering should be cancelled to
- *   execute the commands sooner. Pass 0 to cancel, and if possible
- *   continues rendering without restarting progression. Pass 1 to
- *   cancel faster at the expense of always needing to restart. Any
- *   other value will not cancel rendering.
- * @param continueOnError Boolean Controls error handling when an error occurs.
- *   If true then sub-commands will continue to be processed, if false
- *   processing will end at the first error and any subsequent commands
- *   will be aborted and get error resposes. Defaults to false.
+ * instance must be created and used if the state data needs to change.
+ * @memberof RS
  */
 class RenderLoopStateData {
-    constructor(renderLoopName, cancel, continueOnError) {
-        this.renderLoopName = renderLoopName;
-        this.cancel = cancel;
-        this.continueOnError = continueOnError;
 
-        if (!this.renderLoopName) {
-            throw 'Must provide renderLoopName';
-        }
-        if (this.cancel !== 0 && this.cancel !== 1) {
-            this.cancel = -1;
-        }
-        if (this.continueOnError === null || this.continueOnError === undefined) {
-            this.continueOnError = true;
-        }
-        this.continueOnError = !!this.continueOnError;
+    /**
+     * Creates a RenderLoopStateData instance.
+     *
+     * @param {String} render_loop_name - The name of the render loop to execute on
+     * @param {Number=} cancel - Controls whether rendering should be cancelled to
+     *   execute the commands sooner. Pass `0` to cancel, and if possible
+     *   continues rendering without restarting progression. Pass `1` to
+     *   cancel faster at the expense of always needing to restart. Any
+     *   other value will not cancel rendering.
+     * @param {Boolean=} continue_on_error Controls error handling when an error occurs.
+     *   If `true` then sub-commands will continue to be processed, if `false`
+     *   processing will end at the first error and any subsequent commands
+     *   will be aborted and get error resposes. Defaults to false.
+     */
+    constructor(render_loop_name, cancel=undefined, continue_on_error=true) {
 
-    //    alert("created " + this);
+        this._render_loop_name = render_loop_name;
+        this._cancel = cancel;
+        this._continue_on_error = continue_on_error;
+
+        if (!this._render_loop_name) {
+            throw 'Must provide render_loop_name';
+        }
+        if (this._cancel !== 0 && this._cancel !== 1) {
+            this._cancel = -1;
+        }
+        if (this._continue_on_error === null || this._continue_on_error === undefined) {
+            this._continue_on_error = true;
+        }
+        this._continue_on_error = !!this._continue_on_error;
+    }
+    /**
+     * The name of the render loop to execute on.
+     * @type {String}
+     * @readonly
+     */
+    get render_loop_name() {
+        return this._render_loop_name;
     }
 
     /**
-     * @public String
-     * [read-only] The name of the render loop to execute on.
+     * The cancel level.
+     * @type {String}
+     * @readonly
      */
-    //renderLoopName;
+    get cancel() {
+        return this._cancel;
+    }
 
     /**
-     * @public Object
-     * [read-only] The cancel level.
+     * Whether to continue on error.
+     * @type {String}
+     * @readonly
      */
-    //cancel;
+    get continue_on_error() {
+        return this._continue_on_error;
+    }
 
-    /**
-     * @public Array
-     * [read-only] wheter to continue on error.
-     */
-    //continueOnError;
 }
 
 module.exports = RenderLoopStateData;
