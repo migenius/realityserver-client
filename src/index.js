@@ -12,9 +12,9 @@
         Command: require('./Command'),
         Helpers: require('./Helpers'),
         Math: require('./Math/index.js'),
-        RenderLoopStateData: require('./RenderLoopStateData'),
+        Render_loop_state_data: require('./Render_loop_state_data'),
         Service: require('./Service'),
-        StateData: require('./StateData'),
+        State_data: require('./State_data'),
     };
 
     module.exports = Object.assign(RealityServer,RealityServer.Math);

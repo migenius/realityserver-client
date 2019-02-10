@@ -5,7 +5,7 @@
 /**
  * This interface encapsulates the data that is to used when executing
  * commands on render loops.
- * This can be used in place of a regular {@link RS.StateData} on the
+ * This can be used in place of a regular {@link RS.State_data} on the
  * the service and will cause commands to be executed on the given
  * render loop. The state data can be specified when adding
  * commands directly to the service, or when creating a {@link RS.CommandQueue}.
@@ -13,22 +13,22 @@
  * This state will then be used for all
  * commands where explicit state data has not been specified.
  *
- * When RenderLoopStateData state is used RealityServer will defer command
+ * When Render_loop_state_data state is used RealityServer will defer command
  * execution to occur between renders on the specified render loop. This ensures
  * that there will be no transactional overlap which can occur with regular command
  * execution and can cause data loss. Additionally, it is possible to identify which
  * particular rendered image contains the changes made by any given set of commands.
  *
- * Note: The RenderLoopStateData class
+ * Note: The Render_loop_state_data class
  * is designed to be constant. It is not safe to change any members of
- * a RenderLoopStateData object after it has been created, instead a new RenderLoopStateData
+ * a Render_loop_state_data object after it has been created, instead a new Render_loop_state_data
  * instance must be created and used if the state data needs to change.
  * @memberof RS
  */
-class RenderLoopStateData {
+class Render_loop_state_data {
 
     /**
-     * Creates a RenderLoopStateData instance.
+     * Creates a Render_loop_state_data instance.
      *
      * @param {String} render_loop_name - The name of the render loop to execute on
      * @param {Number=} cancel - Controls whether rendering should be cancelled to
@@ -87,4 +87,4 @@ class RenderLoopStateData {
 
 }
 
-module.exports = RenderLoopStateData;
+module.exports = Render_loop_state_data;

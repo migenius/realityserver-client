@@ -3,9 +3,9 @@
  *****************************************************************************/
 const WebSocketMessageReader = require('./Utils/WebSocketMessageReader');
 const WebSocketMessageWriter = require('./Utils/WebSocketMessageWriter');
-const DelayedPromise = require('./Utils/DelayedPromise');
-const CommandQueue = require('./CommandQueue');
-const StateData = require('./StateData');
+const Delayed_promise = require('./Utils/Delayed_promise');
+const Command_queue = require('./Command_queue');
+const State_data = require('./State_data');
 const Response = require('./Response');
 
 let sequence_id=0;
@@ -61,11 +61,11 @@ let Websocket_impl = function() {
 class Service {
     /**
      * Creates the service class.
-     * @param {(RS.StateData|RS.RenderLoopStateData)} [default_state_data] the default state data to use
+     * @param {(RS.State_data|RS.Render_loop_state_data)} [default_state_data] the default state data to use
      */
     constructor(default_state_data=null) {
         if (!default_state_data) {
-            this._default_state_data = new StateData();
+            this._default_state_data = new State_data();
         } else {
             this._default_state_data = default_state_data;
         }
@@ -77,10 +77,10 @@ class Service {
     * The default state data for this Service instance. If no state
     * data is specified when providing commands
     * then this is the state data that will be used. If this is set
-    * to an instance of {@link RS.RenderLoopStateData} then all commands
+    * to an instance of {@link RS.Render_loop_state_data} then all commands
     * will be executed on the render loop. In this case it is the user's responsibility
     * to ensure that the render loop exists.
-    * @type {(StateData|RenderLoopStateData)}
+    * @type {(State_data|Render_loop_state_data)}
     */
     get default_state_data() {
         return this._default_state_data;
@@ -780,14 +780,14 @@ class Service {
     }
 
     /**
-     * Returns a {@link RS.CommandQueue} that can be used to queue up a series of commands to
+     * Returns a {@link RS.Command_queue} that can be used to queue up a series of commands to
      * be executed.
-     * @param {(StateData|RenderLoopStateData)=} state if provided then this is used as the state for
+     * @param {(State_data|Render_loop_state_data)=} state if provided then this is used as the state for
      * executing the commands. If not then the default service state is used.
-     * @return {RS.CommandQueue}
+     * @return {RS.Command_queue}
      */
     queue_commands(state=null) {
-        return new CommandQueue(this,state || this.default_state_data);
+        return new Command_queue(this,state || this.default_state_data);
     }
 
     /**
@@ -802,12 +802,12 @@ class Service {
      * command. If `false` then the promise resolves immediately to `undefined`.
      * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
      * a promise is returned that resolves just before the command results appear in a render.
-     * @param {(StateData|RenderLoopStateData)=} state - If provided then this is used as the state to execute the
+     * @param {(State_data|Render_loop_state_data)=} state - If provided then this is used as the state to execute the
      * command. If not then the default service state is used.
      * @return {Promise} A promise that resolves to an iterable.
      */
     execute_command(command,want_response=false,wait_for_render=false,state=null) {
-        return new CommandQueue(this,state || this.default_state_data)
+        return new Command_queue(this,state || this.default_state_data)
             .queue(command,want_response)
             .execute(wait_for_render);
     }
@@ -820,14 +820,14 @@ class Service {
      * @param {Boolean=} wait_for_render - If `true`, and the state executes the command on a render loop then
      * the `render` promise resolves to a {@link RS.Service~Rendered_image} just before the command results
      * appear in a render.
-     * @param {(StateData|RenderLoopStateData)=} state - If provided then this is used as the state to execute the
+     * @param {(State_data|Render_loop_state_data)=} state - If provided then this is used as the state to execute the
      * command. If not then the default service state is used.
      * @return {Object} An object with 2 properties:
      * - `responses` a `Promise` that will resolve with the response of the command.
      * - `render`: a `Promise` that resolves when the result is about to be displayed.
      */
     send_command(command,want_response=false,wait_for_render=false,state=null) {
-        return new CommandQueue(this,state || this.default_state_data)
+        return new Command_queue(this,state || this.default_state_data)
             .queue(command,want_response)
             .send(wait_for_render);
     }
@@ -835,7 +835,7 @@ class Service {
     /**
      * Sends a command queue
      * @access private
-     * @param {RS.CommandQueue} command_queue - The command queue to send
+     * @param {RS.Command_queue} command_queue - The command queue to send
      * @return {Promise|Object} a promise or object depending on whether resolve_all is set on the
      * command queue.
      */
@@ -877,7 +877,7 @@ class Service {
             if (wait_for_render) {
                 let stream = this.streaming_loops[execute_args.render_loop_name];
                 if (stream) {
-                    const promise = new DelayedPromise();
+                    const promise = new Delayed_promise();
                     execute_args.sequence_id = ++Service.sequence_id;
                     stream.command_promises.push({
                         sequence_id: execute_args.sequence_id,

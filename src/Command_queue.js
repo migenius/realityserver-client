@@ -1,20 +1,20 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const DelayedPromise = require('./Utils/DelayedPromise');
+const Delayed_promise = require('./Utils/Delayed_promise');
 
 /**
- * The CommandQueue class queues up an array of commands to be executed
+ * The Command_queue class queues up an array of commands to be executed
  * as a batch.
  *
- * *NOTE:* Users do not create `CommandQueues` directly but by calling {@link RS.Service#queue_commands}.
+ * *NOTE:* Users do not create `Command_queues` directly but by calling {@link RS.Service#queue_commands}.
  * @memberof RS
  */
-class CommandQueue {
+class Command_queue {
     /**
      * Creates a command queue
      * @param {RS.Service} service - the service
-     * @param {RS.StateData|RS.RenderLoopStateData} state_data - the state to execute in
+     * @param {RS.State_data|RS.Render_loop_state_data} state_data - the state to execute in
      * @hideconstructor
      */
     constructor(service,state_data) {
@@ -34,7 +34,7 @@ class CommandQueue {
         if (want_response) {
             let response_promises = this.response_promises;
             response_promises.length = this.commands.length;
-            response_promises[response_promises.length-1] = new DelayedPromise();
+            response_promises[response_promises.length-1] = new Delayed_promise();
         }
         return this;
     }
@@ -74,4 +74,4 @@ class CommandQueue {
     }
 }
 
-module.exports = CommandQueue;
+module.exports = Command_queue;

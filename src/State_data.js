@@ -11,20 +11,20 @@
  * This state will then be used for all
  * commands where explicit state data has not been specified.
  *
- * Note: The StateData class
+ * Note: The State_data class
  * is designed to be constant. It is not safe to change any members of
- * a StateData object after it has been created, instead a new StateData
+ * a State_data object after it has been created, instead a new State_data
  * instance must be created and used if the state data needs to change.
  *
  * Note: WebSocket state current only support state commands. The path and
  * parameters will have no effect.
  * @memberof RS
  */
-class StateData {
+class State_data {
 
     /**
      * @ctor
-     * Creates a %StateData object.
+     * Creates a %State_data object.
      *
      * @param {String} path - The state data path.
      * @param {Object} parameters - The state data parameters.
@@ -74,4 +74,4 @@ class StateData {
     }
 }
 
-module.exports = StateData;
+module.exports = State_data;

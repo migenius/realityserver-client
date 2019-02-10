@@ -152,7 +152,7 @@ class Helpers {
      *                  image_format: 'jpg',
      *                  quality: '100'
      *              },
-     *              RS.Helpers.HTMLImageDisplay(image,(data) => {
+     *              RS.Helpers.HTML_image_display(image,(data) => {
      *                  if (data.result < 0) {
      *                      console.error(`Render error: ${data.result}`)
      *                      return; // error on render
@@ -165,7 +165,7 @@ class Helpers {
      *      };
      *  }
      */
-    static HTMLImageDisplay(image,url_creator,callback) {
+    static HTML_image_display(image,url_creator,callback) {
         const bind_to = {
             image
         };
