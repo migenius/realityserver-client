@@ -15,7 +15,6 @@
     "eslint": "node_modules/.bin/eslint src scripts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "migenius",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^5.13.0",
