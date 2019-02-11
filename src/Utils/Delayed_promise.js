@@ -4,7 +4,7 @@
 
 /// A Promise wrapper that exposes a promise and allows it be resolved or
 /// rejected later
-class DelayedPromise {
+class Delayed_promise {
     constructor() {
         this._promise = new Promise((resolve,reject) => {
             this._resolve = resolve;
@@ -25,4 +25,4 @@ class DelayedPromise {
     }
 }
 
-module.exports = DelayedPromise;
+module.exports = Delayed_promise;
