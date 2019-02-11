@@ -34,5 +34,6 @@
   "files": [
     "lib",
     "src"
-  ]
+  ],
+  "author": "Brendan Hack"
 }
