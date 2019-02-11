@@ -21,5 +21,8 @@
     "rollup-plugin-filesize": "^6.0.1",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-terser": "^4.0.4"
+  },
+  "engines": {
+    "node": ">=8.2.1"
   }
 }
