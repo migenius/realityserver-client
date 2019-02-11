@@ -5,8 +5,7 @@ const path = require('path');
 // make sure we're in the right folder
 process.chdir(path.resolve(__dirname, '..'));
 
-fs.removeSync('lib');
-fs.mkdirSync('lib');
+fs.removeSync('./lib');
 
 const pre_rollup_plugins = [
     require('rollup-plugin-node-resolve')(),
@@ -27,38 +26,50 @@ const post_rollup_plugins = [
 ];
 
 
-function generate_bundled_module(input_file, output_file, format, plugins = []) {
-    console.log(`Generating ${output_file} bundle.`);
+function generate_bundled_module(input_file, root_path, basename, formats, plugins = []) {
+    console.log(`Generating ${basename} bundle.`);
 
     return rollup
         .rollup({
             input: input_file,
             plugins: [ ...pre_rollup_plugins, ...plugins, ...post_rollup_plugins ]
         })
-        .then(bundle =>
-            bundle.write({
-                file: output_file,
-                format:format.format,
-                name: format.name,
-                banner: '/******************************************************************************\n' +
-                        '* Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.\n' +
-                        '******************************************************************************/'
-            })
-        );
+        .then(bundle => {
+            return Promise.all(
+                formats.map(format => {
+                    return bundle.write({
+                        file: path.join(root_path,format.format,basename),
+                        format:format.format,
+                        name: format.name,
+                        sourcemap: true,
+                        banner: '/******************************************************************************\n' +
+                                '* Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.\n' +
+                                '******************************************************************************/'
+                    });
+                })
+            );
+        });
 }
 
 function build() {
     return Promise.all([
         generate_bundled_module(
             path.resolve('src', 'index.js'),
-            path.resolve('lib', 'realityserver.js'),
-            { format:'iife',name:'RS' }
+            path.resolve('lib'),
+            'realityserver.js',
+            [
+                { format:'esm',name:'RS' },
+                { format:'umd',name:'RS' }
+            ]
         ),
-
         generate_bundled_module(
             path.resolve('src', 'index.js'),
-            path.resolve('lib', 'realityserver.min.js'),
-            { format:'iife',name:'RS' },
+            path.resolve('lib'),
+            'realityserver.min.js',
+            [
+                { format:'esm',name:'RS' },
+                { format:'umd',name:'RS' }
+            ],
             production_rollup_plugins
         )
     ]);

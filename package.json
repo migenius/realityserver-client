@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "Official RealityServer JavaScript client",
   "main": "src/index.js",
+  "browser": "lib/umd/realityserver.js",
+  "umd:main": "lib/umd/realityserver.js",
+  "module": "lib/esm/realityserver.js",
+  "jsnext:main": "lib/esm/realityserver.js",
+  "react-native": "lib/esm/realityserver.js",
+  "unpkg": "lib/umd/realityserver.min.js",
   "scripts": {
     "build": "node scripts/build.js",
     "build-doc": "node_modules/.bin/jsdoc -c .jsdoc.conf.js",
@@ -24,5 +30,9 @@
   },
   "engines": {
     "node": ">=8.2.1"
-  }
+  },
+  "files": [
+    "lib",
+    "src"
+  ]
 }
