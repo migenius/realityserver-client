@@ -801,12 +801,17 @@ class Service {
     }
 
     /**
-     * Executes a single command and returns a promise that resolves to an iterable. The iterable will
+     * Executes a single command and returns a `Promise` that resolves to an iterable. The iterable will
      * contain up to 2 results
      * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
      * - if `wait_for_render` is `true` and the state executes the command on a render loop then
-     * the promise will resolve to a {@link RS.Service~Rendered_image} when the command results are about
-     * to appear in a render
+     * the last iterable will be a {@link RS.Service~Rendered_image} containing the first rendered image that
+     * contains the result of the command.
+     *
+     * The promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - `wait_for_render` is `true` but the state is not executing on a render loop.
      * @param {RS.Command} command - The command to execute.
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the returned promise resolves to the response of the
@@ -815,7 +820,7 @@ class Service {
      * a promise is returned that resolves just before the command results appear in a render.
      * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to
      * execute the command. If not then the default service state is used.
-     * @return {Promise} A promise that resolves to an iterable.
+     * @return {Promise} A `Promise` that resolves to an iterable.
      */
     execute_command(command,{ want_response=false,wait_for_render=false,state=null }={}) {
         return new Command_queue(this,wait_for_render,state || this.default_state_data)
@@ -824,7 +829,12 @@ class Service {
     }
 
     /**
-     * Sends a single command and returns an `Object` containing promises that will resolve with the results.
+     * Sends a single command and returns an `Array` of `Promises` that will resolve with the responses.
+     * The array will contain up to 2 `Promises`.
+     * - if `want_response` is `true` then the first `Promise` will resolve to the {@link RS.Response} of the command.
+     * - if `wait_for_render` is `true` and the state executes the command on a render loop then
+     * the last `Promise` will resolve to a {@link RS.Service~Rendered_image} when the first rendered image that
+     * contains the results of the commands is generated.
      * @param {RS.Command} command - The command to execute.
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the `reponses` promise resolves to the response of the
@@ -834,9 +844,11 @@ class Service {
      * appear in a render.
      * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to
      * execute the command. If not then the default service state is used.
-     * @return {Object} An object with 2 properties:
-     * - `responses` a `Promise` that will resolve with the response of the command.
-     * - `render`: a `Promise` that resolves when the result is about to be displayed.
+     * @return {Promise[]} An `Array` of `Promises`. These promises will not reject.
+     * @throws {RS.Error} This call will throw an error in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - `wait_for_render` is `true` but the state is not executing on a render loop.
      */
     send_command(command,{ want_response=false,wait_for_render=false,state=null }={}) {
         return new Command_queue(this,wait_for_render,state || this.default_state_data)
@@ -852,36 +864,40 @@ class Service {
      * command queue.
      */
     send_command_queue(command_queue) {
+        const { wait_for_render,resolve_all } = command_queue;
+
+        function throw_or_reject(arg) {
+            if (resolve_all) {
+                return Promise.reject(arg);
+            }
+            throw arg;
+        }
         if (!command_queue) {
-            return Promise.reject(new RS_error('No command queue provided'));
+            return throw_or_reject(new RS_error('No command queue provided'));
         }
         if (!this.web_socket) {
-            return Promise.reject(new RS_error('Web socket not connected.'));
+            return throw_or_reject(new RS_error('Web socket not connected.'));
         }
         if (this.protocol_state !== 'started') {
-            return Promise.reject(new RS_error('Web socket not started.'));
+            return throw_or_reject(new RS_error('Web socket not started.'));
         }
-
-        const { wait_for_render,resolve_all } = command_queue;
 
         if (command_queue.commands.length === 0) {
             // move along, nothing to see here
-            return Promise.all(Promise.resolve());
+            return resolve_all ? Promise.all() : [];
         }
         let execute_args;
-        const promises = {
-            responses: command_queue.response_promises.reduce((result,value) => {
-                if (value) {
-                    result.push(value.promise);
+
+        const commands = command_queue.commands.map(c => c.command);
+        const promises = command_queue.commands.reduce((result,{response_promise}) => {
+                if (response_promise) {
+                    result.push(response_promise.promise);
                 }
                 return result;
-            },[]),
-            render: undefined
-        };
-
+            },[]);
         if (command_queue.state_data.render_loop_name) {
             execute_args = {
-                commands: command_queue.commands,
+                commands,
                 render_loop_name: command_queue.state_data.render_loop_name,
                 continue_on_error: command_queue.state_data.continue_on_error,
                 cancel: command_queue.state_data.cancel,
@@ -895,50 +911,44 @@ class Service {
                         sequence_id: execute_args.sequence_id,
                         delayed_promise: promise
                     });
-                    promises.render = promise.promise;
+                    promises.push(promise.promise);
                 } else {
-                    promises.render = Promise.resolve();
+                    promises.push(Promise.resolve());
                 }
             }
         } else {
             if (wait_for_render) {
-                return Promise.reject(new RS_error('Commands want to wait for a rendered image but ' +
+                return throw_or_reject(new RS_error('Commands want to wait for a rendered image but ' +
                                                     'are not executing on a render loop'));
             }
             execute_args = {
                 commands: command_queue.state_data.state_commands ?
-                    command_queue.state_data.state_commands.concat(command_queue.commands) :
-                    command_queue.commands,
+                    command_queue.state_data.state_commands.concat(commands) :
+                    commands,
                 url: command_queue.state_data.path,
                 state_arguments: command_queue.state_data.parameters
             };
         }
 
         function resolve_responses(response) {
+            // this is the command queue
             // state data commands will have results as well so we need to compensate for them
             let response_offset = this.state_data.state_commands ? this.state_data.state_commands.length : 0;
             for (let i=response_offset;i<response.result.length;++i) {
                 let cmd_idx = i - response_offset;
-                if (this.response_promises[cmd_idx]) {
-                    this.response_promises[cmd_idx].resolve(new Response(this.commands[cmd_idx], response.result[i]));
+                if (this.commands[cmd_idx].response_promise) {
+                    this.commands[cmd_idx].response_promise.resolve(new Response(this.commands[cmd_idx].command, response.result[i]));
                 }
             }
         }
 
-        if (promises.responses.length) {
+        if ((wait_for_render && promises.length > 1) || promises.length) {
             // we want responses
             this.send_ws_command('execute',execute_args,resolve_responses,command_queue);
         } else {
             this.send_ws_command('execute',execute_args);
         }
-        if (resolve_all) {
-            if (promises.render) {
-                promises.responses.push(promises.render);
-            }
-            return Promise.all(promises.responses);
-        } else {
-            return promises;
-        }
+        return resolve_all ? Promise.all(promises) : promises;
     }
 
     /**

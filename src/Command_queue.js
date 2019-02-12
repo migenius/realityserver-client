@@ -24,7 +24,6 @@ class Command_queue {
         this.wait_for_render = wait_for_render;
         this.state_data = state_data;
         this.commands = [];
-        this.response_promises = [];
     }
 
     /**
@@ -33,40 +32,45 @@ class Command_queue {
      * @param {Boolean} [want_response=false] - Whether we want a response from this command or not
      */
     queue(command,want_response=false) {
-        this.commands.push(command);
-        if (want_response) {
-            let response_promises = this.response_promises;
-            response_promises.length = this.commands.length;
-            response_promises[response_promises.length-1] = new Delayed_promise();
-        }
+
+        this.commands.push({
+            command,
+            response_promise: want_response ? new Delayed_promise() : undefined
+        });
         return this;
     }
 
     /**
-     * Sends the command queue for execution and returns promises that will resolve
-     * to the results of the command. If the queue was created with `wait_for_render`
-     * set to `true` (see {@link RS.Service#queue_commands}) then an additional promise
-     * is returned that will resolve when the commands in this queue are about to be
-     * displayed in the associated render loop stream.
-     * @return {Object} An object with 2 properties:
-     * - `responses` an `Array` of `Promises` that will resolve with the responses of the commands.
-     * - `render`: a `Promise` that resolves to a {@link RS.Service~Rendered_image} when the first image
-     * that contains the results of these commands is available.
-    */
+     * Sends the command queue for execution and returns an array of promises that will resolve
+     * to the responses of all commands whose `want_response`
+     * argument was `true`. If the queue was created with `wait_for_render`
+     * set to `true` (see {@link RS.Service#queue_commands}) then there will be an additional
+     * Promise at the end of the array that will resolve with a {@link RS.Service~Rendered_image}
+     * when the first rendered image that contains the results of the commands is generated.
+     * @return {Promise[]} An `Array` of `Promises`.
+     * @throws {RS.Error} This call will throw an error in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - `wait_for_render` is `true` but the state is not executing on a render loop.
+     */
     send() {
         this.resolve_all = false;
         return this.service.send_command_queue(this);
     }
 
     /**
-     * Sends the command queue for execution and returns a promise that will resolve
-     * to an iterable containing the responses of all commands whose `want_response`
+     * Sends the command queue for execution and returns a `Promise` that will resolve
+     * to an iterable containing the {@link RS.Response}s of all commands whose `want_response`
      * argument was `true`. If the queue was created with `wait_for_render`
      * set to `true` (see {@link RS.Service#queue_commands}) then the last iterable
-     * will contain the first rendered image that contains the results of the command
+     * will contain the first rendered image that contains the results of the commands.
      * as a {@link RS.Service~Rendered_image}.
+     * The promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - `wait_for_render` is `true` but the state is not executing on a render loop.
      * @return {Promise}
-    */
+     */
     execute() {
         this.resolve_all = true;
         return this.service.send_command_queue(this);
