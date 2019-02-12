@@ -7,6 +7,7 @@ const Delayed_promise = require('./Utils/Delayed_promise');
 const Command_queue = require('./Command_queue');
 const State_data = require('./State_data');
 const Response = require('./Response');
+const RS_error = require('./Error');
 
 let sequence_id=0;
 
@@ -198,7 +199,7 @@ class Service {
             // an instance of a W3C complient web socket implementation.
             if (url !== undefined && url !== null && url.constructor === String) {
                 if (!Service.supported) {
-                    reject('Websockets not supported.');
+                    reject(new RS_error('Websockets not supported.'));
                     return;
                 }
                 try {
@@ -211,7 +212,7 @@ class Service {
                         this.web_socket = new Websocket_impl(url);
                     }
                 } catch (e) {
-                    reject(e);
+                    reject(e instanceof Error ? e : new RealityServerError(e));
                     return;
                 }
             } else {
@@ -242,7 +243,7 @@ class Service {
               */
             };
             this.web_socket.onerror = err => {
-                reject(err);
+                reject(new RS_error('WebSocket connection error.'));
             };
 
             function process_response(response) {
@@ -377,13 +378,17 @@ class Service {
                     if (hs_header !== 'RSWSRLIS') {
                         // not good
                         scope.web_socket.close();
+                        reject(new RS_error('Unexpected handshake header, ' +
+                                            'does not appear to be a RealityServer connection.'));
                     } else {
                         // check that the protcol version is acceptable
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
                         if (protocol_version < 2 || protocol_version > 2) {
                             // unsupported protocol, can't go on
                             scope.web_socket.close();
-                            reject('Sever protocol version not supported');
+                            reject(new RS_error(protocol_version < 2 ?
+                                'RealityServer version unsupported, upgrade your RealityServer.' :
+                                'RealityServer WebSocket protocol version not supported.'));
                         } else {
                             // all good, we support this, enter started mode
                             scope.protocol_version = protocol_version;
@@ -399,7 +404,7 @@ class Service {
                     }
                 } else {
                     scope.web_socket.close();
-                    reject('unexpected data during handshake');
+                    reject(new RS_error('unexpected data during handshake'));
                 }
             }
             function web_socket_prestart(event) {
@@ -410,7 +415,7 @@ class Service {
                     let now = Service.now();
                     if (event.data.byteLength !== 40) {
                         scope.web_socket.close();
-                        reject('Invalid handshake header size');
+                        reject(new RS_error('Invalid handshake header size'));
                         return;
                     }
                     let data = new DataView(event.data);
@@ -422,16 +427,16 @@ class Service {
                     if (hs_header !== 'RSWSRLIS') {
                         // not good
                         scope.web_socket.close();
-                        reject('Invalid handshake header');
+                        reject(new RS_error('Invalid handshake header, ' +
+                                            'does not appear to be a RealityServer connection.'));
                     } else {
                         scope.web_socket_littleendian = data.getUint8(8) === 1 ? true : false;
                         const protocol_version = data.getUint32(12, scope.web_socket_littleendian);
-                        if (protocol_version < 1 || protocol_version > 2) {
+                        if (protocol_version < 2 || protocol_version > 2) {
                             // unsupported protocol, let's ask for what we know
                             protocol_version = 2;
                         }
                         // get server time
-                        //let server_time = data.getFloat64(16, scope.web_socket_littleendian);
                         scope.protocol_state = 'handshaking';
 
                         let buffer = new ArrayBuffer(40);
@@ -450,7 +455,8 @@ class Service {
                     }
                 } else {
                     this.web_socket.close();
-                    reject('unexpected data during handshake');
+                    reject(new RS_error('Unexpected data during handshake, ' +
+                                            'does not appear to be a RealityServer connection.'));
                 }
             }
             this.web_socket.onmessage = web_socket_prestart;
@@ -519,15 +525,15 @@ class Service {
     stream(render_loop, callback) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
-                reject('Web socket not connected.');
+                reject(new RS_error('Web socket not connected.'));
                 return;
             }
             if (this.protocol_state !== 'started') {
-                reject('Web socket not started.');
+                reject(new RS_error('Web socket not started.'));
                 return;
             }
             if (!callback) {
-                reject('No callback provided.');
+                reject(new RS_error('No callback provided.'));
                 return;
             }
 
@@ -540,7 +546,7 @@ class Service {
             // always use the handler since it makes no sense to start a stream without something to deal with it
             this.send_ws_command('start_stream',render_loop,response => {
                 if (response.error) {
-                    reject(response.error.message);
+                    reject(new RS_error(response.error.message));
                 } else {
                     this.streaming_loops[render_loop.render_loop_name] = {
                         onData: callback,
@@ -586,17 +592,17 @@ class Service {
     set_stream_parameters(parameters) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
-                reject('Web socket not connected.');
+                reject(new RS_error('Web socket not connected.'));
                 return;
             }
             if (this.protocol_state !== 'started') {
-                reject('Web socket not started.');
+                reject(new RS_error('Web socket not started.'));
                 return;
             }
 
             this.send_ws_command('set_stream_parameters',parameters, response => {
                 if (response.error) {
-                    reject(response.error.message);
+                    reject(new RS_error(response.error.message));
                 } else {
                     resolve(response.result);
                 }
@@ -613,11 +619,11 @@ class Service {
     stop_stream(render_loop) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
-                reject('Web socket not connected.');
+                reject(new RS_error('Web socket not connected.'));
                 return;
             }
             if (this.protocol_state !== 'started') {
-                reject('Web socket not started.');
+                reject(new RS_error('Web socket not started.'));
                 return;
             }
 
@@ -629,7 +635,7 @@ class Service {
 
             this.send_ws_command('stop_stream',render_loop,response => {
                 if (response.error) {
-                    reject(response.error.message);
+                    reject(new RS_error(response.error.message));
                 } else {
                     delete this.streaming_loops[render_loop.render_loop_name];
                     resolve(response.result);
@@ -748,16 +754,16 @@ class Service {
     update_camera(render_loop, data) {
         return new Promise((resolve,reject) => {
             if (!this.web_socket) {
-                reject('Web socket not connected.');
+                reject(new RS_error('Web socket not connected.'));
                 return;
             }
             if (this.protocol_state !== 'started') {
-                reject('Web socket not started.');
+                reject(new RS_error('Web socket not started.'));
                 return;
             }
 
             if (!data) {
-                reject('No data object provided.');
+                reject(new RS_error('No data object provided.'));
                 return;
             }
 
@@ -771,7 +777,7 @@ class Service {
 
             this.send_ws_command('set_camera',render_loop,response => {
                 if (response.error) {
-                    reject(response.error.message);
+                    reject(new RS_error(response.error.message));
                 } else {
                     resolve(response.result);
                 }
@@ -846,13 +852,13 @@ class Service {
      */
     send_command_queue(command_queue) {
         if (!command_queue) {
-            return Promise.reject('No command queue provided');
+            return Promise.reject(new RS_error('No command queue provided'));
         }
         if (!this.web_socket) {
-            return Promise.reject('Web socket not connected.');
+            return Promise.reject(new RS_error('Web socket not connected.'));
         }
         if (this.protocol_state !== 'started') {
-            return Promise.reject('Web socket not started.');
+            return Promise.reject(new RS_error('Web socket not started.'));
         }
 
         const { wait_for_render,resolve_all } = command_queue;
@@ -895,7 +901,8 @@ class Service {
             }
         } else {
             if (wait_for_render) {
-                return Promise.reject('Commands wants a render handler but are not executing on a render loop');
+                return Promise.reject(new RS_error('Commands want to wait for a rendered image but ' +
+                                                    'are not executing on a render loop'));
             }
             execute_args = {
                 commands: command_queue.state_data.state_commands ?
@@ -974,11 +981,11 @@ class Service {
     set_max_rate(max_rate) {
         return new Promise((resolve, reject) => {
             if (!this.web_socket) {
-                reject('Web socket not connected.');
+                reject(new RS_error('Web socket not connected.'));
                 return;
             }
             if (this.protocol_state !== 'started') {
-                reject('Web socket not started.');
+                reject(new RS_error('Web socket not started.'));
                 return;
             }
 
@@ -992,7 +999,7 @@ class Service {
 
             this.send_ws_command('set_transfer_rate',args,response => {
                 if (response.error) {
-                    reject(response.error.message);
+                    reject(new RS_error(response.error.message));
                 } else {
                     resolve(response.result);
                 }
