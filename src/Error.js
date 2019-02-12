@@ -4,7 +4,7 @@
 
 /**
  * The RealityServer Error class. All rejected promises will receive an instance
- * of this class. Can be identified using either `instanceof RS.Error` or 
+ * of this class. Can be identified using either `instanceof RS.Error` or
  * the `name` property which will be `RealityServerError`;
  * @alias Error
  * @memberof RS.
@@ -37,7 +37,7 @@ class RealityServerError extends Error {
      */
     constructor() {
         super(...arguments);
-        this.name = 'RealityServerError'
+        this.name = 'RealityServerError';
     }
 }
 

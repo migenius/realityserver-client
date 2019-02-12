@@ -243,6 +243,7 @@ class Service {
               */
             };
             this.web_socket.onerror = err => {
+                err;
                 reject(new RS_error('WebSocket connection error.'));
             };
 
