@@ -1,5 +1,5 @@
 {
-  "name": "realityserver",
+  "name": "realityserver-client",
   "version": "1.0.0",
   "description": "Official RealityServer JavaScript client",
   "main": "src/index.js",
