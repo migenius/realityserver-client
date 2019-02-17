@@ -187,7 +187,7 @@ class Service {
      * - Invalid RealityServer handshake.
      * - The connected RealityServer does not support the required WebSocket protocol version.
      * @param {String|Object} url If a string then the web service URL to connect to. Typically of the form
-     * `ws[s]://HOST::PORT/render_loop_stream/`. If not a string then must be an object that implements the
+     * `ws[s]://HOST::PORT/service/`. If not a string then must be an object that implements the
      * [W3C WebSocket API](https://www.w3.org/TR/websockets/) interface.
      * @param {Array=} extra_constructor_args Extra list of arguments to be passed to the WebSocket constructor
      * after the protocols parameter.
@@ -257,6 +257,13 @@ class Service {
                     delete scope.response_handlers[response.id];
                 }
             }
+            function call_on_data(stream_data,data) {
+                if (!stream_data.pause_count) {
+                    if (stream_data.onData) {
+                        stream_data.onData(data);
+                    }
+                }
+            }
             function process_received_render(message,now) {
                 const result = message.getSint32();
                 // render loop name
@@ -290,23 +297,32 @@ class Service {
                         stream_data.lastRenderTime = now;
                         const data = {
                             result: result,
-                            width: img_width,
+                            width: img_width,   
                             height: img_height,
                             mime_type: mime_type,
                             image: image,
                             statistics: stats
                         };
+                        // Process any command promises that are resolved by this render.
+                        const command_promises = [];
                         if (stats.sequence_id > 0) {
                             while (stream_data.command_promises.length &&
                               stream_data.command_promises[0].sequence_id <= stats.sequence_id) {
                                 const handler = stream_data.command_promises.shift();
                                 handler.delayed_promise.resolve(data);
+                                command_promises.push(handler.promise);
                             }
                         }
-                        if (!stream_data.pause_count) {
-                            if (stream_data.onData) {
-                                stream_data.onData(data);
-                            }
+                        // Any command promises resolved above will not have their resolve 
+                        // functions called until the next tick. So if there are any we
+                        // must wait until they are complete before calling the streams
+                        // callback to given them a chance to unpause the stream.
+                        if (command_promises.length) {
+                            Promise.all(command_promises).then(() => {
+                                call_on_data(stream_data,data);
+                            });
+                        } else {
+                            call_on_data(stream_data,data);
                         }
                     }
                 } else {
@@ -490,7 +506,7 @@ class Service {
         let payload = {
             command: command,
             arguments: args,
-            id : command_id
+            id: command_id
         };
 
         if (this.binary_commands && this.protocol_version > 1) {
@@ -540,7 +556,7 @@ class Service {
 
             if (typeof render_loop === 'string' || render_loop instanceof String) {
                 render_loop = {
-                    render_loop_name : render_loop
+                    render_loop_name: render_loop
                 };
             }
 
@@ -630,7 +646,7 @@ class Service {
 
             if (typeof render_loop === 'string' || render_loop instanceof String) {
                 render_loop = {
-                    render_loop_name : render_loop
+                    render_loop_name: render_loop
                 };
             }
 
@@ -650,7 +666,7 @@ class Service {
      * the server, the callback is just not called. Pause calls are counted so you need to call
      * {@link RS.Service#resume_display} the same number of times as pause_display before calling begins again.
      * @param {String} render_loop The name of the render loop to pause display for.
-     * @return {Number The pause count, IE: the number of times resume_display will need to be called to
+     * @return {Number} The pause count, IE: the number of times resume_display will need to be called to
      * start displaying images again. Returns `-1` if web socket isn't started or `render_loop` cannot
      * be found.
      */
@@ -712,13 +728,18 @@ class Service {
     }
 
     /**
+     * TODO: passing a cancel level
      * Utility function to update the camera on a given render loop.
+     *
+     * While it is possible to simply use individual commands to update the
+     * camera this method is more efficient as changes will be collated on the
+     * server and applied as a single update between render calls.
      *
      * The returned promise will reject in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
      * - no data is provided.
-     * - updating the camera infomration failed
+     * - updating the camera information failed
      * @endcode
      * @param {String} render_loop The name of the render loop to change the camera on.
      * @param {Object} data Object specifying the camera to update. Supported format is:
@@ -770,7 +791,7 @@ class Service {
 
             if (typeof render_loop === 'string' || render_loop instanceof String) {
                 render_loop = {
-                    render_loop_name : render_loop
+                    render_loop_name: render_loop
                 };
             }
             render_loop.camera = data.camera;
@@ -889,12 +910,12 @@ class Service {
         let execute_args;
 
         const commands = command_queue.commands.map(c => c.command);
-        const promises = command_queue.commands.reduce((result,{response_promise}) => {
-                if (response_promise) {
-                    result.push(response_promise.promise);
-                }
-                return result;
-            },[]);
+        const promises = command_queue.commands.reduce((result,{ response_promise }) => {
+            if (response_promise) {
+                result.push(response_promise.promise);
+            }
+            return result;
+        },[]);
         if (command_queue.state_data.render_loop_name) {
             execute_args = {
                 commands,
@@ -937,7 +958,8 @@ class Service {
             for (let i=response_offset;i<response.result.length;++i) {
                 let cmd_idx = i - response_offset;
                 if (this.commands[cmd_idx].response_promise) {
-                    this.commands[cmd_idx].response_promise.resolve(new Response(this.commands[cmd_idx].command, response.result[i]));
+                    this.commands[cmd_idx].response_promise.resolve(
+                        new Response(this.commands[cmd_idx].command, response.result[i]));
                 }
             }
         }
