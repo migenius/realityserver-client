@@ -8,6 +8,7 @@ process.chdir(path.resolve(__dirname, '..'));
 fs.removeSync('./lib');
 
 const pre_rollup_plugins = [
+    require('rollup-plugin-node-builtins')(),
     require('rollup-plugin-node-resolve')(),
     require('rollup-plugin-commonjs')(),
     require('rollup-plugin-cleanup')()
@@ -39,7 +40,7 @@ function generate_bundled_module(input_file, root_path, basename, formats, plugi
                 formats.map(format => {
                     return bundle.write({
                         file: path.join(root_path,format.format,basename),
-                        format:format.format,
+                        format: format.format,
                         name: format.name,
                         sourcemap: true,
                         banner: '/******************************************************************************\n' +
@@ -58,8 +59,8 @@ function build() {
             path.resolve('lib'),
             'realityserver.js',
             [
-                { format:'esm',name:'RS' },
-                { format:'umd',name:'RS' }
+                { format: 'esm',name: 'RS' },
+                { format: 'umd',name: 'RS' }
             ]
         ),
         generate_bundled_module(
@@ -67,18 +68,25 @@ function build() {
             path.resolve('lib'),
             'realityserver.min.js',
             [
-                { format:'esm',name:'RS' },
-                { format:'umd',name:'RS' }
+                { format: 'esm',name: 'RS' },
+                { format: 'umd',name: 'RS' }
             ],
             production_rollup_plugins
         )
     ]);
 }
 
-build().catch(e => {
-    console.error(e);
-    if (e.frame) {
-        console.error(e.frame);
-    }
-    process.exit(1);
-});
+build()
+    .then(() => {
+        /*
+        return fs.copy(
+            path.resolve('lib','umd','realityserver.js'),
+            path.resolve('static','docs','lib','realityserver.js'));*/
+    })
+    .catch(e => {
+        console.error(e);
+        if (e.frame) {
+            console.error(e.frame);
+        }
+        process.exit(1);
+    });

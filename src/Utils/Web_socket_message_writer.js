@@ -263,63 +263,63 @@ class Web_socket_message_writer {
     static get typenames() {
         return {
             'Boolean': 0x01,
-            'Uint8':   0x02,
-            'Sint8':   0x03,
-            'Uint16':  0x04,
-            'Sint16':  0x05,
-            'Uint32':  0x06,
-            'Sint32':  0x07,
+            'Uint8': 0x02,
+            'Sint8': 0x03,
+            'Uint16': 0x04,
+            'Sint16': 0x05,
+            'Uint32': 0x06,
+            'Sint32': 0x07,
             'Float32': 0x08,
             'Float64': 0x09,
-            'String':  0x0a,
-            'Map':     0x0b,
-            'Array':   0x0c,
-            'Null':    0x0d,
-            'True':    0x0e,
-            'False':   0x0f,
-            'Void':    0x10,
-            'Uint64':  0x11,
-            'Sint64':  0x12,
-            'Binary':  0x13,
-            'Canvas':  0x14
+            'String': 0x0a,
+            'Map': 0x0b,
+            'Array': 0x0c,
+            'Null': 0x0d,
+            'True': 0x0e,
+            'False': 0x0f,
+            'Void': 0x10,
+            'Uint64': 0x11,
+            'Sint64': 0x12,
+            'Binary': 0x13,
+            'Canvas': 0x14
         };
     }
 
     static get bytes_per_component() {
         return {
-            'Sint8':      1,
-            'Sint32':     4,
-            'Float32':    4,
+            'Sint8': 1,
+            'Sint32': 4,
+            'Float32': 4,
             'Float32<2>': 4,
             'Float32<3>': 4,
             'Float32<4>': 4,
-            'Rgb':        1,
-            'Rgba':       1,
-            'Rgbe':       1,
-            'Rgbea':      1,
-            'Rgb_16':     2,
-            'Rgba_16':    2,
-            'Rgb_fp':     4,
-            'Color':      4
+            'Rgb': 1,
+            'Rgba': 1,
+            'Rgbe': 1,
+            'Rgbea': 1,
+            'Rgb_16': 2,
+            'Rgba_16': 2,
+            'Rgb_fp': 4,
+            'Color': 4
         };
     };
 
     static get components_per_pixel() {
         return {
-            'Sint8':      1,
-            'Sint32':     1,
-            'Float32':    1,
+            'Sint8': 1,
+            'Sint32': 1,
+            'Float32': 1,
             'Float32<2>': 2,
             'Float32<3>': 3,
             'Float32<4>': 4,
-            'Rgb':        3,
-            'Rgba':       4,
-            'Rgbe':       4,
-            'Rgbea':      5,
-            'Rgb_16':     3,
-            'Rgba_16':    4,
-            'Rgb_fp':     3,
-            'Color':      4
+            'Rgb': 3,
+            'Rgba': 4,
+            'Rgbe': 4,
+            'Rgbea': 5,
+            'Rgb_16': 3,
+            'Rgba_16': 4,
+            'Rgb_fp': 3,
+            'Color': 4
         };
     };
 
