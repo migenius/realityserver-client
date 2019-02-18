@@ -539,51 +539,13 @@ class Service extends EventEmitter {
     }
 
     /**
-     * Begins streaming images from a render loop over the web socket connection. A single web socket connection
+     * Creates a stream that can be used to receive rendered images from a render loop. A single web socket connection
      * can stream from multiple render loops simultaneously however a given render loop can only be streamed once
-     * over a given web socket. Returns a promise that resolves to a {@link RS.Stream} when the stream has started.
-     * The promise will reject in the following circumstances:
-     * - there is no WebSocket connection.
-     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
-     * - staring the stream failed, usually this occurs if the render loop cannot be found or invalid streaming
-     * data is provided.
-     * @param {String|Object} render_loop If a `String` then the name of the render loop to stream. Provide an
-     * object to specify additional streaming data.
-     * @param {String} render_loop.name - the name of the render loop to stream.
-     * @param {String=} render_loop.image_format - the streamed image format.
-     * @param {String=} render_loop.quality - the streamed image quality.
-     * @return {Promise} A promise that resolves to {@link RS.Stream} when the stream has started.
-     * @fires RS.Service#image
+     * over a given web socket. Returns a {@link RS.Stream} which can then have a stream started on it.
+     * @return {RS.Stream} A stream instance
      */
-    stream(render_loop) {
-        return new Promise((resolve,reject) => {
-            if (!this.web_socket) {
-                reject(new RS_error('Web socket not connected.'));
-                return;
-            }
-            if (this.protocol_state !== 'started') {
-                reject(new RS_error('Web socket not started.'));
-                return;
-            }
-
-            if (typeof render_loop === 'string' || render_loop instanceof String) {
-                render_loop = {
-                    render_loop_name: render_loop
-                };
-            }
-
-            // always use the handler since it makes no sense to start a stream without something to deal with it
-            this.send_ws_command('start_stream',render_loop,response => {
-                if (response.error) {
-                    reject(new RS_error(response.error.message));
-                } else {
-                    const stream = new Stream(this,render_loop.render_loop_name);
-                    this.streams[render_loop.render_loop_name] = stream;
-
-                    resolve(stream);
-                }
-            });
-        });
+    create_stream() {
+        return new Stream(this);
     }
 
     /**
@@ -621,6 +583,16 @@ class Service extends EventEmitter {
         return true;
     }
 
+
+    /**
+     * Adds a stream to the service
+     * @param {RS.Stream} stream The stream to add.
+     * @access private
+     */
+    add_stream(stream) {
+        this.streams[stream.render_loop_name] = stream;
+    }
+
     /**
      * Removes a stream from the service
      * @param {String} render_loop_name The name of the render loop to remove.
@@ -632,11 +604,11 @@ class Service extends EventEmitter {
 
     /**
      * Returns `true` if we are currently streaming the given render loop.
-     * @param {String} render_loop The name of the render loop to check.
+     * @param {String} render_loop_name The name of the render loop to check.
      * @return {Boolean} `true` if streaming, `false` if not or unknown.
      */
-    streaming(render_loop) {
-        return !!this.streams[render_loop];
+    streaming(render_loop_name) {
+        return !!this.streams[render_loop_name];
     }
 
     /**

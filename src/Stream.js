@@ -23,17 +23,18 @@ class Stream extends EventEmitter {
      * @param {RS.Service} the service
      * @hideconstructor
      */
-    constructor(service, render_loop_name) {
+    constructor(service) {
         super();
         this.service = service;
         this.command_promises = [];
         this.pause_count = 0;
-        this._render_loop_name = render_loop_name;
+        this._render_loop_name = undefined;
     }
 
     /**
      *
-     * The name of the render loop this stream is providing images from.
+     * The name of the render loop this stream is providing images from. Is
+     * \c undefined if the stream has not yet been started.
      * @type {String}
      * @readonly
      */
@@ -53,6 +54,60 @@ class Stream extends EventEmitter {
     }
 
     /**
+     * Whether this loop is streaming or not.
+     * @type {Boolean}
+     */
+    get streaming() {
+        return this.render_loop_name && this.service.streaming(this.render_loop_name);
+    }
+
+
+    /**
+     * Starts streaming images from a render loop on this stream. Note that a stream can only
+     * stream images from one render loop at a time. Returns a promise that resolves when the stream has started.
+     * The promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - if the given render loop is already being streamed by this service.
+     * - starting the stream failed, usually this occurs if the render loop cannot be found or invalid streaming
+     * data is provided.
+     * @param {String|Object} render_loop If a `String` then the name of the render loop to stream. Provide an
+     * object to specify additional streaming data.
+     * @param {String} render_loop.render_loop_name - the name of the render loop to stream.
+     * @param {String=} render_loop.image_format - the streamed image format.
+     * @param {String=} render_loop.quality - the streamed image quality.
+     * @return {Promise} A promise that resolves when the stream has started.
+     * @fires RS.Service#image
+     */
+    start(render_loop) {
+        return new Promise((resolve,reject) => {
+            if (!this.service.validate(reject)) {
+                return;
+            }
+            if (this.streaming) {
+                reject(new RS_error('Render loop is already streaming.'));
+            }
+
+            if (typeof render_loop === 'string' || render_loop instanceof String) {
+                render_loop = {
+                    render_loop_name: render_loop
+                };
+            }
+
+            this.service.send_ws_command('start_stream',render_loop,response => {
+                if (response.error) {
+                    reject(new RS_error(response.error.message));
+                } else {
+                    this._render_loop_name = render_loop.render_loop_name;
+                    this.service.add_stream(this);
+
+                    resolve();
+                }
+            });
+        });
+    }
+
+    /**
      * Stops streaming from a render loop.
      * @return {Promise} A promise that resolves when the stream is stopped or rejects
      * on error.
@@ -62,7 +117,9 @@ class Stream extends EventEmitter {
             if (!this.service.validate(reject)) {
                 return;
             }
-
+            if (!this.streaming) {
+                reject(new RS_error('Not streaming.'));
+            }
             this.service.send_ws_command('stop_stream',{ render_loop_name: this.render_loop_name },response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
@@ -75,7 +132,7 @@ class Stream extends EventEmitter {
     }
 
     /**
-     * Pauses emiting {@link RS.Service#Event:image} events for this stream. Note the images are still transmitted from
+     * Pauses emiting {@link RS.Service#event:image} events for this stream. Note the images are still transmitted from
      * the server, the callback is just not called. Pause calls are counted so you need to call
      * {@link RS.Stream#resume} the same number of times as pause before events are emitted begins again.
      * @return {Number} The pause count, IE: the number of times resume will need to be called to
@@ -86,7 +143,7 @@ class Stream extends EventEmitter {
     }
 
     /**
-     * Resumes emiting {@link RS.Service#Event:image} events for this stream if the pause count has reduced to `0`.
+     * Resumes emiting {@link RS.Service#event:image} events for this stream if the pause count has reduced to `0`.
      *
      * @param {Boolean=} force  If `true` then forces display to resume regardless of the pause count.
      * @return {Number} The pause count, IE: the number of times resume will need to be called to
@@ -105,7 +162,12 @@ class Stream extends EventEmitter {
     }
 
     /**
-     * Sets parameters on a stream.
+     * Sets parameters on a stream. Returns a promise that resolves with the parameters have been set.
+     * The returned promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - this stream is not yet streaming
+     * - updating the parameters failed
      * @param {Object} parameters The parameter to set. Supported parameters include:
      * @param {String=} parameters.image_format - the streamed image format.
      * @param {String=} parameters.quality - the streamed image quality.
@@ -116,6 +178,9 @@ class Stream extends EventEmitter {
         return new Promise((resolve,reject) => {
             if (!this.service.validate(reject)) {
                 return;
+            }
+            if (!this.streaming) {
+                reject(new RS_error('Not streaming.'));
             }
             const args = Object.assign(
                 {
@@ -144,6 +209,7 @@ class Stream extends EventEmitter {
      * The returned promise will reject in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - this stream is not yet streaming
      * - no data is provided.
      * - updating the camera information failed
      * @endcode
@@ -182,6 +248,9 @@ class Stream extends EventEmitter {
         return new Promise((resolve,reject) => {
             if (!this.service.validate(reject)) {
                 return;
+            }
+            if (!this.streaming) {
+                reject(new RS_error('Not streaming.'));
             }
 
             if (!data) {
