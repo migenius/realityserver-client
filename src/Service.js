@@ -65,7 +65,7 @@ let Websocket_impl = function() {
 class Service extends EventEmitter {
     /**
      * Creates the service class.
-     * @param {(RS.State_data|RS.Render_loop_state_data)} [default_state_data] the default state data to use
+     * @param {RS.State_data=} default_state_data the default state data to use
      */
     constructor(default_state_data=null) {
         super();
@@ -81,11 +81,8 @@ class Service extends EventEmitter {
     /**
     * The default state data for this Service instance. If no state
     * data is specified when providing commands
-    * then this is the state data that will be used. If this is set
-    * to an instance of {@link RS.Render_loop_state_data} then all commands
-    * will be executed on the render loop. In this case it is the user's responsibility
-    * to ensure that the render loop exists.
-    * @type {(State_data|Render_loop_state_data)}
+    * then this is the state data that will be used.
+    * @type {State_data}
     */
     get default_state_data() {
         return this._default_state_data;
@@ -615,70 +612,55 @@ class Service extends EventEmitter {
      * Returns a {@link RS.Command_queue} that can be used to queue up a series of commands to
      * be executed.
      * @param {Object=} options
-     * @param {Boolean=} options.wait_for_render - If `true` then when this queue is executed it will also
-     * generate a `Promise` that will resolve then the command results are available in a rendered image.
-     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state for
+     * @param {State_data=} options.state - If provided then this is used as the state for
      * executing the commands. If not then the default service state is used.
      * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
-    queue_commands({ wait_for_render=false,state=null }={}) {
-        return new Command_queue(this,wait_for_render,state || this.default_state_data);
+    queue_commands({ state=null }={}) {
+        return new Command_queue(this,false,state || this.default_state_data);
     }
 
     /**
      * Executes a single command and returns a `Promise` that resolves to an iterable. The iterable will
-     * contain up to 2 results
-     * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
-     * - if `wait_for_render` is `true` and the state executes the command on a render loop then
-     * the last iterable will be a {@link RS.Service~Rendered_image} containing the first rendered image that
-     * contains the result of the command.
+     * contain a single result which will be the {@link RS.Response} of the command.
      *
      * The promise will reject in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
-     * - `wait_for_render` is `true` but the state is not executing on a render loop.
      * @param {RS.Command} command - The command to execute.
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the returned promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to `undefined`.
-     * @param {Boolean=} options.wait_for_render - If `true`, and the state executes the command on a render loop then
-     * a promise is returned that resolves just before the command results appear in a render.
-     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to
+     * @param {State_data=} options.state - If provided then this is used as the state to
      * execute the command. If not then the default service state is used.
      * @return {Promise} A `Promise` that resolves to an iterable.
      */
-    execute_command(command,{ want_response=false,wait_for_render=false,state=null }={}) {
-        return new Command_queue(this,wait_for_render,state || this.default_state_data)
+    execute_command(command,{ want_response=false,state=null }={}) {
+        return new Command_queue(this,false,state || this.default_state_data)
             .queue(command,want_response)
-            .execute(wait_for_render);
+            .execute();
     }
 
     /**
      * Sends a single command and returns an `Array` of `Promises` that will resolve with the responses.
-     * The array will contain up to 2 `Promises`.
+     * The array will contain up to 1 `Promise`.
      * - if `want_response` is `true` then the first `Promise` will resolve to the {@link RS.Response} of the command.
-     * - if `wait_for_render` is `true` and the state executes the command on a render loop then
-     * the last `Promise` will resolve to a {@link RS.Service~Rendered_image} when the first rendered image that
-     * contains the results of the commands is generated.
+     * - otherwise the array will be empty.
      * @param {RS.Command} command - The command to execute.
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the `reponses` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
-     * @param {Boolean=} options.wait_for_render - If `true`, and the state executes the command on a render loop then
-     * the `render` promise resolves to a {@link RS.Service~Rendered_image} just before the command results
-     * appear in a render.
-     * @param {(State_data|Render_loop_state_data)=} options.state - If provided then this is used as the state to
+     * @param {State_data=} options.state - If provided then this is used as the state to
      * execute the command. If not then the default service state is used.
      * @return {Promise[]} An `Array` of `Promises`. These promises will not reject.
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
-     * - `wait_for_render` is `true` but the state is not executing on a render loop.
      */
-    send_command(command,{ want_response=false,wait_for_render=false,state=null }={}) {
-        return new Command_queue(this,wait_for_render,state || this.default_state_data)
+    send_command(command,{ want_response=false,state=null }={}) {
+        return new Command_queue(this,false,state || this.default_state_data)
             .queue(command,want_response)
-            .send(wait_for_render);
+            .send();
     }
 
     /**

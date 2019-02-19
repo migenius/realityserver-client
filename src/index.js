@@ -13,7 +13,6 @@
         Error: require('./Error'),
         Helpers: require('./Helpers'),
         Math: require('./Math/index'),
-        Render_loop_state_data: require('./Render_loop_state_data'),
         Service: require('./Service'),
         State_data: require('./State_data'),
         Stream: require('./Stream'),

@@ -3,6 +3,8 @@
  *****************************************************************************/
 const EventEmitter = require('eventemitter3');
 const RS_error = require('./Error');
+const Command_queue = require('./Command_queue');
+const Render_loop_state_data = require('./Utils/Render_loop_state_data');
 
 /**
  * Represents an image stream from a render loop.
@@ -29,6 +31,8 @@ class Stream extends EventEmitter {
         this.command_promises = [];
         this.pause_count = 0;
         this._render_loop_name = undefined;
+
+        this.state_data = new Render_loop_state_data();
     }
 
     /**
@@ -61,6 +65,40 @@ class Stream extends EventEmitter {
         return this.render_loop_name && this.service.streaming(this.render_loop_name);
     }
 
+    /**
+     * When commands are executed on a stream the actual execution occurs between renders.
+     * Consequently there can be a (possibly considerable) delay before execution occurs.
+     * Specifying a cancel level causes any current render to be cancelled so command execution
+     * can occur as soon as possible. If set to `0` then rendering is cancelled, and if possible
+     * rendering continues without restarting progression. If `1` then cancelling will occur faster
+     * at the expense of always needing to restart. Any other value will not cancel rendering when
+     * executing commands
+     * @type {Number}
+     * @default -1
+     */
+    get cancel_level() {
+        return this.state_data.cancel;
+    }
+
+    set cancel_level(value) {
+        this.state_data.cancel = value;
+    }
+
+    /**
+     * Controls error handling when an error occurs during command execution.
+     * If `true` then commands will continue to be processed, if `false`
+     * processing will end at the first error and any subsequent commands
+     * will be aborted and get error resposes. Defaults to true.
+     * @type {Boolean}
+     * @default true
+     */
+    get continue_on_error() {
+        return this.state_data.continue_on_error;
+    }
+
+    set continue_on_error(value) {
+        this.state_data.continue_on_error = value;
+    }
 
     /**
      * Starts streaming images from a render loop on this stream. Note that a stream can only
@@ -99,6 +137,7 @@ class Stream extends EventEmitter {
                     reject(new RS_error(response.error.message));
                 } else {
                     this._render_loop_name = render_loop.render_loop_name;
+                    this.state_data.render_loop_name = this.render_loop_name;
                     this.service.add_stream(this);
 
                     resolve();
@@ -125,6 +164,7 @@ class Stream extends EventEmitter {
                     reject(new RS_error(response.error.message));
                 } else {
                     this.service.remove_stream(this.render_loop_name);
+                    this.state_data.render_loop_name = undefined;
                     resolve(response.result);
                 }
             });
@@ -272,6 +312,99 @@ class Stream extends EventEmitter {
                 }
             });
         });
+    }
+
+    /**
+     * Returns the state data to use.
+     * @param {Number=} cancel_level - cancel level override
+     * @param {Boolean=} continue_on_error - continue on error override
+     * @return {RS.Render_loop_state_data}
+     * @access private
+     */
+    get_state_data(cancel_level=null,continue_on_error=null) {
+        let state_data = this.state_data;
+        if ((cancel_level !== null && cancel_level !== this.cancel_level) ||
+            (continue_on_error !== null && !!continue_on_error !== this.continue_on_error)) {
+            state_data = new Render_loop_state_data(
+                this.render_loop_name,
+                cancel_level !== null ? cancel_level : this.cancel_level,
+                continue_on_error !== null ? continue_on_error : this.continue_on_error);
+        }
+        return state_data;
+    }
+
+    /**
+     * Returns a {@link RS.Command_queue} that can be used to queue up a series of commands to
+     * be executed on this render loop
+     * @param {Object=} options
+     * @param {Boolean=} options.wait_for_render - If `true` then when this queue is executed it will also
+     * generate a `Promise` that will resolve when the
+     * {@link RS.Service#event:image} event that contains the results of the commands is about to be emitted.
+     * @param {Number} [options.cancel_level=this.cancel_level] - If provided then this overrides the streams
+     * cancel level.
+     * @param {Boolean} [options.continue_on_error=this.continue_on_error] - If provided then this overrides the streams
+     * continue on error.
+     * @return {RS.Command_queue} The command queue to add commands to and then execute.
+     */
+    queue_commands({ wait_for_render=false,cancel_level=null,continue_on_error=null }={}) {
+        return new Command_queue(this.service,wait_for_render,this.get_state_data(cancel_level,continue_on_error));
+    }
+
+    /**
+     * Executes a single command on this render loop and returns a `Promise` that resolves to an iterable.
+     * The iterable will contain up to 2 results
+     * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
+     * - if `wait_for_render` is `true` then the last iterable will be a {@link RS.Service~Rendered_image} containing
+     * the first rendered image that contains the result of the command.
+     *
+     * The promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * @param {RS.Command} command - The command to execute.
+     * @param {Object=} options
+     * @param {Boolean=} options.want_response - If `true` then the returned promise will not resolve until the command
+     * response is available and the response will be in the first iterable.
+     * @param {Boolean=} options.wait_for_render - If `true`, the promise will not resolve until the
+     * {@link RS.Service#event:image} event that contains the result of this command is about to be emitted. The
+     * last iterable in the resolved value will be contain the rendered image.
+     * @param {Number} [options.cancel_level=this.cancel_level] - If provided then this overrides the streams
+     * cancel level.
+     * @param {Boolean} [options.continue_on_error=this.continue_on_error] - If provided then this overrides the streams
+     * continue on error.
+     * @return {Promise} A `Promise` that resolves to an iterable.
+     */
+    execute_command(command,{ want_response=false,wait_for_render=false,cancel_level=null,continue_on_error=null }={}) {
+        return new Command_queue(this.service,wait_for_render,this.get_state_data(cancel_level,continue_on_error))
+            .queue(command,want_response)
+            .execute();
+    }
+
+    /**
+     * Sends a single command to execute on this render loop and returns an `Array` of `Promises` that will resolve
+     * with the responses. The array will contain up to 2 `Promises`.
+     * - if `want_response` is `true` then the first `Promise` will resolve to the {@link RS.Response} of the command.
+     * - if `wait_for_render` is `true` then the last `Promise` will resolve to a {@link RS.Service~Rendered_image} when
+     * the first rendered image that contains the results of the commands is generated.
+     * @param {RS.Command} command - The command to execute.
+     * @param {Object=} options
+     * @param {Boolean=} options.want_response - If `true` then the `reponse` promise resolves to the response of the
+     * command. If `false` then the promise resolves immediately to undefined.
+     * @param {Boolean=} options.wait_for_render - If `true`, then the `render` promise resolves to a
+     * {@link RS.Service~Rendered_image} just before the {@link RS.Service#event:image} event that contains the
+     * result of this command is emitted.
+     * @param {Number} [options.cancel_level=this.cancel_level] - If provided then this overrides the streams
+     * cancel level.
+     * @param {Boolean} [options.continue_on_error=this.continue_on_error] - If provided then this overrides the streams
+     * continue on error.
+     * @return {Promise[]} An `Array` of `Promises`. These promises will not reject.
+     * @throws {RS.Error} This call will throw an error in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     */
+    send_command(command,{ want_response=false,wait_for_render=false,cancel_level=null,continue_on_error=null }={}) {
+        return new Command_queue(this.service,wait_for_render,this.get_state_data(cancel_level,continue_on_error))
+            .queue(command,want_response)
+            .send(wait_for_render);
     }
 }
 
