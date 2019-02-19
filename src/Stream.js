@@ -30,6 +30,20 @@ class Stream extends EventEmitter {
         this.state_data = new Render_loop_state_data();
     }
 
+
+    /**
+     * The result of an image render.
+     * @typedef {Object} RS.Stream~Rendered_image
+     * @property {String} render_loop_name - The name of the render loop this image was rendered by.
+     * @property {Number} result - The render result, `0` for success, `1` for converged,
+     * `-1` cancelled render, other negative values indicate errors.
+     * @property {Number} width - The image width.
+     * @property {Number} height - The image height.
+     * @property {Uint8Array} image - The rendered image
+     * @property {String} mime_type - The mime type of the rendered image.
+     * @property {Object} statistics - Rendering statistics.
+     */
+     
     /**
      *
      * The name of the render loop this stream is providing images from. Is
@@ -405,19 +419,6 @@ class Stream extends EventEmitter {
             .queue(command,want_response)
             .send(wait_for_render);
     }
-
-    /**
-     * The result of an image render.
-     * @typedef {Object} RS.Stream~Rendered_image
-     * @property {String} render_loop_name - The name of the render loop this image was rendered by.
-     * @property {Number} result - The render result, `0` for success, `1` for converged,
-     * `-1` cancelled render, other negative values indicate errors.
-     * @property {Number} width - The image width.
-     * @property {Number} height - The image height.
-     * @property {Uint8Array} image - The rendered image
-     * @property {String} mime_type - The mime type of the rendered image.
-     * @property {Object} statistics - Rendering statistics.
-     */
 }
 
 module.exports = Stream;
