@@ -9,14 +9,9 @@ const Render_loop_state_data = require('./Utils/Render_loop_state_data');
 /**
  * Represents an image stream from a render loop.
  *
- * This class will emit {@link RS.Service#event:image} events whenever an image is
- * rendered on the stream. It also provides functionality to manage stream parameters and
- * stop streaming images.
- *
  * *NOTE:* Users do not create `Streams` directly, streams are obtained using
  * {@link RS.Service#stream}
  * @memberof RS
- * @fires RS.Service#image whenever an image is rendered on the stream.
  * @hideconstructor
  */
 class Stream extends EventEmitter {
@@ -109,13 +104,17 @@ class Stream extends EventEmitter {
      * - if the given render loop is already being streamed by this service.
      * - starting the stream failed, usually this occurs if the render loop cannot be found or invalid streaming
      * data is provided.
+     *
+     * Once the stream has started {@link RS.Stream#event:image} events will be emitted on both the stream
+     * object and the original {@link RS.Service} object every time a rendered image is received from the server.
+     *
      * @param {String|Object} render_loop If a `String` then the name of the render loop to stream. Provide an
      * object to specify additional streaming data.
      * @param {String} render_loop.render_loop_name - the name of the render loop to stream.
      * @param {String=} render_loop.image_format - the streamed image format.
      * @param {String=} render_loop.quality - the streamed image quality.
      * @return {Promise} A promise that resolves when the stream has started.
-     * @fires RS.Service#image
+     * @fires RS.Stream#image
      */
     start(render_loop) {
         return new Promise((resolve,reject) => {
@@ -354,7 +353,7 @@ class Stream extends EventEmitter {
      * Executes a single command on this render loop and returns a `Promise` that resolves to an iterable.
      * The iterable will contain up to 2 results
      * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
-     * - if `wait_for_render` is `true` then the last iterable will be a {@link RS.Service~Rendered_image} containing
+     * - if `wait_for_render` is `true` then the last iterable will be a {@link RS.Stream~Rendered_image} containing
      * the first rendered image that contains the result of the command.
      *
      * The promise will reject in the following circumstances:
@@ -383,14 +382,14 @@ class Stream extends EventEmitter {
      * Sends a single command to execute on this render loop and returns an `Array` of `Promises` that will resolve
      * with the responses. The array will contain up to 2 `Promises`.
      * - if `want_response` is `true` then the first `Promise` will resolve to the {@link RS.Response} of the command.
-     * - if `wait_for_render` is `true` then the last `Promise` will resolve to a {@link RS.Service~Rendered_image} when
+     * - if `wait_for_render` is `true` then the last `Promise` will resolve to a {@link RS.Stream~Rendered_image} when
      * the first rendered image that contains the results of the commands is generated.
      * @param {RS.Command} command - The command to execute.
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the `reponse` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
      * @param {Boolean=} options.wait_for_render - If `true`, then the `render` promise resolves to a
-     * {@link RS.Service~Rendered_image} just before the {@link RS.Service#event:image} event that contains the
+     * {@link RS.Stream~Rendered_image} just before the {@link RS.Service#event:image} event that contains the
      * result of this command is emitted.
      * @param {Number} [options.cancel_level=this.cancel_level] - If provided then this overrides the streams
      * cancel level.
@@ -406,6 +405,19 @@ class Stream extends EventEmitter {
             .queue(command,want_response)
             .send(wait_for_render);
     }
+
+    /**
+     * The result of an image render.
+     * @typedef {Object} RS.Stream~Rendered_image
+     * @property {String} render_loop_name - The name of the render loop this image was rendered by.
+     * @property {Number} result - The render result, `0` for success, `1` for converged,
+     * `-1` cancelled render, other negative values indicate errors.
+     * @property {Number} width - The image width.
+     * @property {Number} height - The image height.
+     * @property {Uint8Array} image - The rendered image
+     * @property {String} mime_type - The mime type of the rendered image.
+     * @property {Object} statistics - Rendering statistics.
+     */
 }
 
 module.exports = Stream;

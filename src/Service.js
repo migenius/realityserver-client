@@ -271,8 +271,8 @@ class Service extends EventEmitter {
                      * This event will be fired on {@link RS.Service} for all streams
                      * and on each individual {@link RS.Stream}
                      *
-                     * @event RS.Service#image
-                     * @param {RS.Service~Rendered_image} image The rendered image
+                     * @event RS.Stream#image
+                     * @param {RS.Stream~Rendered_image} image The rendered image
                      */
                     scope.emit('image',data);
                     stream.emit('image',data);
@@ -544,19 +544,6 @@ class Service extends EventEmitter {
     create_stream() {
         return new Stream(this);
     }
-
-    /**
-     * The result of an image render.
-     * @typedef {Object} RS.Service~Rendered_image
-     * @property {String} render_loop_name - The name of the render loop this image was rendered by.
-     * @property {Number} result - The render result, `0` for success, `1` for converged,
-     * `-1` cancelled render, other negative values indicate errors.
-     * @property {Number} width - The image width.
-     * @property {Number} height - The image height.
-     * @property {Uint8Array} image - The rendered image
-     * @property {String} mime_type - The mime type of the rendered image.
-     * @property {Object} statistics - Rendering statistics.
-     */
 
     /**
      * Validates that the service is up and running.
