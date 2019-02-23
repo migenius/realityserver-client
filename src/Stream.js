@@ -12,6 +12,7 @@ const Render_loop_state_data = require('./Utils/Render_loop_state_data');
  * *NOTE:* Users do not create `Streams` directly, streams are obtained using
  * {@link RS.Service#stream}
  * @memberof RS
+ * @extends RS.Helpers.EventEmitter
  * @hideconstructor
  */
 class Stream extends EventEmitter {
@@ -43,7 +44,7 @@ class Stream extends EventEmitter {
      * @property {String} mime_type - The mime type of the rendered image.
      * @property {Object} statistics - Rendering statistics.
      */
-     
+
     /**
      *
      * The name of the render loop this stream is providing images from. Is
