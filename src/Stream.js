@@ -367,7 +367,8 @@ class Stream extends EventEmitter {
     /**
      * Executes a single command on this render loop and returns a `Promise` that resolves to an iterable.
      * The iterable will contain up to 2 results
-     * - if `want_response` is `true` then the first iterable will be the {@link RS.Response} of the command.
+     * - if `want_response` is `true` then the first iterable will be the result of the command or a
+     * {@link RS.Command_error}.
      * - if `wait_for_render` is `true` then the last iterable will be a {@link RS.Stream~Rendered_image} containing
      * the first rendered image that contains the result of the command.
      *
@@ -396,7 +397,8 @@ class Stream extends EventEmitter {
     /**
      * Sends a single command to execute on this render loop and returns an `Array` of `Promises` that will resolve
      * with the responses. The array will contain up to 2 `Promises`.
-     * - if `want_response` is `true` then the first `Promise` will resolve to the {@link RS.Response} of the command.
+     * - if `want_response` is `true` then the first `Promise` will resolve to the result of the command or a
+     * {@link RS.Command_error}.
      * - if `wait_for_render` is `true` then the last `Promise` will resolve to a {@link RS.Stream~Rendered_image} when
      * the first rendered image that contains the results of the commands is generated.
      * @param {RS.Command} command - The command to execute.

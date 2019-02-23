@@ -5,7 +5,12 @@
 /**
  * The RealityServer Error class. All rejected promises will receive an instance
  * of this class. Can be identified using either `instanceof RS.Error` or
- * the `name` property which will be `RealityServerError`;
+ * the `name` property which will be `RealityServerError`.
+ *
+ * Extends from the core JavaScript
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error Error}
+ * class.
+ * @extends Error
  * @alias Error
  * @memberof RS.
  * @example

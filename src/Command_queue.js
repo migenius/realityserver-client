@@ -43,12 +43,12 @@ class Command_queue {
 
     /**
      * Sends the command queue for execution and returns an array of promises that will resolve
-     * to the responses of all commands whose `want_response`
-     * argument was `true`. If the queue was created with `wait_for_render`
-     * set to `true` (see {@link RS.Stream#queue_commands}) then there will be an additional
-     * `Promise` at the end of the array that will resolve with a {@link RS.Service~Rendered_image}
-     * just before the {@link RS.Service#event:image} event that contains the
-     * result of this command is emitted.
+     * to the results of all commands whose `want_response`
+     * argument was `true`. On command error they will resolve with a {@link RS.Command_error}. If the
+     * queue was created with `wait_for_render` set to `true` (see {@link RS.Stream#queue_commands})
+     * then there will be an additional `Promise` at the end of the array that will resolve with a
+     * {@link RS.Stream~Rendered_image} just before the {@link RS.Stream#event:image} event that
+     * contains the result of this command is emitted.
      * @return {Promise[]} An `Array` of `Promises`.
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
@@ -61,11 +61,11 @@ class Command_queue {
 
     /**
      * Sends the command queue for execution and returns a `Promise` that will resolve
-     * to an iterable containing the {@link RS.Response}s of all commands whose `want_response`
-     * argument was `true`. If the queue was created with `wait_for_render`
-     * set to `true` (see {@link RS.Stream#queue_commands}) then the last iterable
-     * will contain the first rendered image that contains the results of the commands
-     * as a {@link RS.Service~Rendered_image}.
+     * to an iterable containing the results of all commands whose `want_response`
+     * argument was `true`. On command error they will resolve with a {@link RS.Command_error}.
+     * If the queue was created with `wait_for_render` set to `true` (see {@link RS.Stream#queue_commands})
+     * then the last iterable will contain the first rendered image that contains the results of the commands
+     * as a {@link RS.Stream~Rendered_image}.
      *
      * The promise will reject in the following circumstances:
      * - there is no WebSocket connection.

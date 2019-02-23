@@ -4,10 +4,10 @@
 const Web_socket_message_reader = require('./Utils/Web_socket_message_reader');
 const Web_socket_message_writer = require('./Utils/Web_socket_message_writer');
 const Delayed_promise = require('./Utils/Delayed_promise');
+const Command_error = require('./Command_error');
 const Command_queue = require('./Command_queue');
 const { EventEmitter } = require('./Helpers');
 const State_data = require('./State_data');
-const Response = require('./Response');
 const RS_error = require('./Error');
 const Stream = require('./Stream');
 
@@ -631,7 +631,7 @@ class Service extends EventEmitter {
 
     /**
      * Executes a single command and returns a `Promise` that resolves to an iterable. The iterable will
-     * contain a single result which will be the {@link RS.Response} of the command.
+     * contain a single result which will be the result of the command or a {@link RS.Command_error}.
      *
      * The promise will reject in the following circumstances:
      * - there is no WebSocket connection.
@@ -653,7 +653,8 @@ class Service extends EventEmitter {
     /**
      * Sends a single command and returns an `Array` of `Promises` that will resolve with the responses.
      * The array will contain up to 1 `Promise`.
-     * - if `want_response` is `true` then the first `Promise` will resolve to the {@link RS.Response} of the command.
+     * - if `want_response` is `true` then the first `Promise` will resolve to the result of the command
+     * or a {@link RS.Command_error}.
      * - otherwise the array will be empty.
      * @param {RS.Command} command - The command to execute.
      * @param {Object=} options
@@ -753,8 +754,12 @@ class Service extends EventEmitter {
             for (let i=response_offset;i<response.result.length;++i) {
                 let cmd_idx = i - response_offset;
                 if (this.commands[cmd_idx].response_promise) {
-                    this.commands[cmd_idx].response_promise.resolve(
-                        new Response(this.commands[cmd_idx].command, response.result[i]));
+                    const server_response = response.result[i];
+                    if ((!!server_response.error && server_response.error.code !== 0)) {
+                        this.commands[cmd_idx].response_promise.resolve(new Command_error(server_response.error));
+                    } else {
+                        this.commands[cmd_idx].response_promise.resolve(server_response.result);
+                    }
                 }
             }
         }

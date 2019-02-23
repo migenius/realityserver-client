@@ -10,6 +10,7 @@
 
     const RealityServer = {
         Command: require('./Command'),
+        Command_error: require('./Command_error'),
         Error: require('./Error'),
         Helpers: require('./Helpers'),
         Math: require('./Math/index'),
