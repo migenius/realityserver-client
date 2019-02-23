@@ -230,10 +230,21 @@ class Service extends EventEmitter {
             let scope = this;
 
             this.web_socket.onopen = event => {
-                event;
+                /**
+                 * Open event.
+                 *
+                 * Emitted when the web socket connection is opened.
+                 *
+                 * @event RS.Service#open
+                 * @param {Event} event The underlying WebSocket open event.
+                 * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onopen}
+                 */
+                scope.emit('open',event);
             };
             this.web_socket.onclose = event => {
                 scope.protocol_state = 'prestart';
+                scope.web_socket.onopen = undefined;
+                scope.web_socket.onerror = undefined;
                 scope.web_socket.onmessage = undefined;
                 scope.web_socket = undefined;
                 /**
@@ -247,8 +258,19 @@ class Service extends EventEmitter {
                  */
                 scope.emit('close',event);
             };
-            this.web_socket.onerror = err => {
-                err;
+            // this is the startup error handler. will be replaced with a general one
+            // once we've got going
+            this.web_socket.onerror = error => {
+                /**
+                 * Error event.
+                 *
+                 * Emitted when the web socket connection encounters an error.
+                 *
+                 * @event RS.Service#error
+                 * @param {Event} event The underlying WebSocket error event.
+                 * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onerror}
+                 */
+                scope.emit('error',error);
                 reject(new RS_error('WebSocket connection error.'));
             };
 
@@ -436,8 +458,8 @@ class Service extends EventEmitter {
                 }
             }
             function web_socket_prestart(event) {
-                // remove on error as we're now connected
-                scope.web_socket.onerror = undefined;
+                // switch on error as we're now connected
+                scope.web_socket.onerror = error => scope.emit('error',error);
                 // expecting a handshake message
                 if (event.data instanceof ArrayBuffer) {
                     let now = Service.now();
