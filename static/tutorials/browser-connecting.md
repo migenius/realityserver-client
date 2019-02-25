@@ -17,7 +17,7 @@ The first step is some simple boiler plate HTML to load the library and display 
 </body>
 </html>
 ```
-Note much to see here and nothing too unexpected.
+Not much to see here and nothing too unexpected.
 
 ### Status
 We're going to want to be able to get status information from the system for debugging and progress purposes. So we'll add another div to contain any text we want to display
