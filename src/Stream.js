@@ -4,7 +4,7 @@
 const EventEmitter = require('eventemitter3');
 const RS_error = require('./Error');
 const Command_queue = require('./Command_queue');
-const Render_loop_state_data = require('./Utils/Render_loop_state_data');
+const Render_loop_state_data = require('./internal/Render_loop_state_data');
 
 /**
  * Represents an image stream from a render loop.
@@ -12,7 +12,7 @@ const Render_loop_state_data = require('./Utils/Render_loop_state_data');
  * *NOTE:* Users do not create `Streams` directly, streams are obtained using
  * {@link RS.Service#stream}
  * @memberof RS
- * @extends RS.Helpers.EventEmitter
+ * @extends RS.Utils.EventEmitter
  * @hideconstructor
  */
 class Stream extends EventEmitter {

@@ -6,7 +6,7 @@ module.exports = {
   "recurseDepth": 10,
   "source": {
     "include": [ "src" ],
-    "exclude": [ "src/Utils" ],
+    "exclude": [ "src/internal" ],
     "includePattern": ".+\\.js(doc|x)?$",
     "excludePattern": "(^|\\/|\\\\)_"
   },

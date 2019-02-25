@@ -50,7 +50,7 @@ service.connect('ws://host.example.com/service/')
 ```javascript
 // Node has no native socket implementation so we use the 'websocket' module from npm
 const WS = require('websocket').w3cwebsocket; // ensure we have the W3C compliant API
-const { Service, Command, Helpers } = require('realityserver-client');
+const { Service, Command, Utils } = require('realityserver-client');
 
 async () => {
   const service = new Service();
@@ -96,8 +96,8 @@ A typical interactive browser application will want to start a render loop and d
 ```
 
 ```javascript
-const user_scope_name = `scope_${RS.Helpers.create_random_string(8)}`;
-const render_loop_name = `render_loop_${RS.Helpers.create_random_string(8)}`;
+const user_scope_name = `scope_${RS.Utils.create_random_string(8)}`;
+const render_loop_name = `render_loop_${RS.Utils.create_random_string(8)}`;
 
 function scene_loaded(scene_info) {
   const img = document.getElementById('rendered_image');
@@ -141,10 +141,10 @@ function scene_loaded(scene_info) {
           image_format: 'jpg',
           quality: '100'
         },
-        // RS.Helpers.html_image_display creates a streaming callback function which
+        // RS.Utils.html_image_display creates a streaming callback function which
         // will display rendered images in the provided Image. The provided callback
         // is then called with the image information
-        RS.Helpers.html_image_display(img,(data) => {
+        RS.Utils.html_image_display(img,(data) => {
           if (data.result < 0) {
             return; // error on render
           }

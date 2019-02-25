@@ -12,7 +12,7 @@
         Command: require('./Command'),
         Command_error: require('./Command_error'),
         Error: require('./Error'),
-        Helpers: require('./Helpers'),
+        Utils: require('./Utils'),
         Math: require('./Math/index'),
         Service: require('./Service'),
         State_data: require('./State_data'),

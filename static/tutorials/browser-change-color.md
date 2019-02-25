@@ -12,8 +12,8 @@ const state = {
   scene_filename: 'scenes/meyemii.mi',
   scene_name: 'meyemii',
   app_scope_name: 'tutorial',
-  session_scope_name: `scope_${RS.Helpers.create_random_string(8)}`,
-  render_loop_name: `render_loop_${RS.Helpers.create_random_string(8)}`,
+  session_scope_name: `scope_${RS.Utils.create_random_string(8)}`,
+  render_loop_name: `render_loop_${RS.Utils.create_random_string(8)}`,
   last_mouse: { x: 0, y: 0 },
   material_name: 'material_under_test'
 };

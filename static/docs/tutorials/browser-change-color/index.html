@@ -38,8 +38,8 @@
       scene_filename: 'scenes/meyemii.mi',
       scene_name: 'meyemii',
       app_scope_name: 'tutorial',
-      session_scope_name: `scope_${RS.Helpers.create_random_string(8)}`,
-      render_loop_name: `render_loop_${RS.Helpers.create_random_string(8)}`,
+      session_scope_name: `scope_${RS.Utils.create_random_string(8)}`,
+      render_loop_name: `render_loop_${RS.Utils.create_random_string(8)}`,
       last_mouse: { x: 0, y: 0 },
       material_name: 'material_under_test'
     };
@@ -147,9 +147,9 @@
         const img = document.getElementById('rendered_image');
         state.stream = service.create_stream();
 
-        // RS.Helpers.html_image_display creates an 'image' event handler which
+        // RS.Utils.html_image_display creates an 'image' event handler which
         // will display rendered images in the provided Image element.
-        state.stream.on('image',RS.Helpers.html_image_display(img));
+        state.stream.on('image',RS.Utils.html_image_display(img));
         state.stream.on('image',(image) => {
             if (image.result < 0) {
               set_status(`Render error: ${image.result}`);

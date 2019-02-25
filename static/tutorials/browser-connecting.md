@@ -65,7 +65,7 @@ const state = {
   }
 };
 ```
-For now this just contains the connection details of the RealityServer&reg; we are connecting to. You should modify these to match your installation. In a real world application these details would be provided by some resource management system or, if your pages are being served from the RealityServer&reg; instance that will also be performing rendering, you can use {@link RS.Helpers#extract_url_details} to get this information.
+For now this just contains the connection details of the RealityServer&reg; we are connecting to. You should modify these to match your installation. In a real world application these details would be provided by some resource management system or, if your pages are being served from the RealityServer&reg; instance that will also be performing rendering, you can use {@link RS.Utils#extract_url_details} to get this information.
 
 ### Connecting
 Now we have everything we need to connect. A simple `start` function is all that is needed.

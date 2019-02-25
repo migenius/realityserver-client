@@ -1,12 +1,12 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Web_socket_message_reader = require('./Utils/Web_socket_message_reader');
-const Web_socket_message_writer = require('./Utils/Web_socket_message_writer');
-const Delayed_promise = require('./Utils/Delayed_promise');
+const Web_socket_message_reader = require('./internal/Web_socket_message_reader');
+const Web_socket_message_writer = require('./internal/Web_socket_message_writer');
+const Delayed_promise = require('./internal/Delayed_promise');
 const Command_error = require('./Command_error');
 const Command_queue = require('./Command_queue');
-const { EventEmitter } = require('./Helpers');
+const { EventEmitter } = require('./Utils');
 const State_data = require('./State_data');
 const RS_error = require('./Error');
 const Stream = require('./Stream');
@@ -60,7 +60,7 @@ let Websocket_impl = function() {
  * images from a render loop. This allows for push based image
  * updates rather than the polling system required in HTTP.
  * @memberof RS
- * @extends RS.Helpers.EventEmitter
+ * @extends RS.Utils.EventEmitter
  */
 class Service extends EventEmitter {
     /**

@@ -12,8 +12,8 @@ const state = {
   scene_filename: 'scenes/meyemii.mi',
   scene_name: 'meyemii',
   app_scope_name: 'tutorial',
-  session_scope_name: `scope_${RS.Helpers.create_random_string(8)}`,
-  render_loop_name: `render_loop_${RS.Helpers.create_random_string(8)}`
+  session_scope_name: `scope_${RS.Utils.create_random_string(8)}`,
+  render_loop_name: `render_loop_${RS.Utils.create_random_string(8)}`
 };
 ```
 Since we are now going to be be modifying the scene to render it we will need a session scope in addition to the application one. This needs to be unique so we just give it a random name using one of the built in helpers. Server side rendering occurs in a render loop and we need a name for that as well.
@@ -179,9 +179,9 @@ async function start_stream() {
     const img = document.getElementById('rendered_image');
     state.stream = service.create_stream();
 
-    // RS.Helpers.html_image_display creates an 'image' event handler which
+    // RS.Utils.html_image_display creates an 'image' event handler which
     // will display rendered images in the provided Image element.
-    state.stream.on('image',RS.Helpers.html_image_display(img));
+    state.stream.on('image',RS.Utils.html_image_display(img));
     state.stream.on('image',(image) => {
         if (image.result < 0) {
           set_status(`Render error: ${image.result}`);
@@ -214,7 +214,7 @@ state.stream = service.create_stream();
 ```
 A stream is tied to a render loop and every time a render completes it is pushed to the client. When the image is received a {@link RS.Stream#event:image} event is emitted on the stream object (and on the service itself) containing the image and various statistics (see {@link RS.Stream~Rendered_image}). So all we need to do is listen for these events to handle each image:
 ```
-state.stream.on('image',RS.Helpers.html_image_display(img));
+state.stream.on('image',RS.Utils.html_image_display(img));
 state.stream.on('image',(image) => {
     if (image.result < 0) {
       set_status(`Render error: ${image.result}`);
@@ -224,7 +224,7 @@ state.stream.on('image',(image) => {
                                   `${image.result == 1 ? "(converged)" :""}`);
 });
 ```
-{@link RS.Helpers.html_image_display} is a utility function for image display. It returns a function that will display a rendered image in the Image element provided. Passing this as an event handler is all that's needed for image display.
+{@link RS.Utils.html_image_display} is a utility function for image display. It returns a function that will display a rendered image in the Image element provided. Passing this as an event handler is all that's needed for image display.
 
 We also register a second event handler to display render progress.
 
