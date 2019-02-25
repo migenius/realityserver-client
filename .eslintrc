@@ -28,9 +28,11 @@
     "no-unused-vars": "warn",
     "no-use-before-define": ["error", "nofunc"],
     "object-curly-spacing": ["error", "always"],
+    "prefer-promise-reject-errors": "error",
     "quotes": ["error", "single", "avoid-escape"],
     "semi": ["error", "always"],
     "keyword-spacing": ["error", {"before": true, "after": true}],
+    "key-spacing": "error",
     "space-unary-ops": "error",
     "no-var": "error"
   }

@@ -4,8 +4,8 @@
 const RS_error = require('./Error');
 
 /**
- * The RealityServer Command_error class. Commands that result in errors will 
- * resolve with instances of this class. 
+ * The RealityServer Command_error class. Commands that result in errors will
+ * resolve with instances of this class.
  * Can be identified using either `instanceof RS.Error` or the name property
  * which will be `CommandError`
  * @extends RS.Error
@@ -27,13 +27,17 @@ class Command_error extends RS_error {
      * The error code returned by RealityServer
      * @type {Number}
      */
-    get code() { return this.error.code; }
+    get code() {
+        return this.error.code;
+    }
 
     /**
      * Additional error data returned by RealityServer
      * @type {Object}
      */
-    get data() { return this.error.data; }
+    get data() {
+        return this.error.data;
+    }
 }
 
 module.exports = Command_error;
