@@ -78,10 +78,9 @@ function build() {
 
 build()
     .then(() => {
-        /*
         return fs.copy(
             path.resolve('lib','umd','realityserver.js'),
-            path.resolve('static','docs','lib','realityserver.js'));*/
+            path.resolve('static','docs','lib','realityserver.js'));
     })
     .catch(e => {
         console.error(e);

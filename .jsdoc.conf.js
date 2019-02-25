@@ -19,13 +19,23 @@ module.exports = {
     ]
   },
   "templates": {
-    "applicationName": "RealityServer",
+    "applicationName": "RealityServer&reg; Client",
     "cleverLinks": false,
-    "monospaceLinks": false
+    "monospaceLinks": false,
+    "default": {
+      "staticFiles": {
+        "include": [
+            "./static/docs/"
+        ]
+      }
+    }
   },
   "opts": {
     "encoding": "utf8",
     "destination": "./docs/",
-    "recurse": true
+    "recurse": true,
+    "template": "../pixi-jsdoc-template",
+    "tutorials": "static/tutorials",
+    "readme": "static/README.md"
   }
 }

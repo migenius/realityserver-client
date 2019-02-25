@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"> 
+  <title>RealityServer&reg; Client Tutorial</title>
+	<script src="../../lib/realityserver.js"></script>
+
+  <script type="text/javascript">
+    const service = new RS.Service();
+
+    const state = {
+      server: {
+        host: 'localhost',
+        port: 8080,
+        secure: false
+      },
+      scene_filename: 'scenes/meyemii.mi',
+      scene_name: 'meyemii',
+      app_scope_name: 'tutorial',
+      session_scope_name: `scope_${RS.Helpers.create_random_string(8)}`,
+      render_loop_name: `render_loop_${RS.Helpers.create_random_string(8)}`
+    };
+
+    async function start() {
+      set_status('Connecting');
+      try {
+        const url = `${(state.server.secure ? 'wss' : 'ws')}://${state.server.host}:${state.server.port}/service/`;
+        await service.connect(url);
+      } catch (err) {
+        set_status(`Failed to connect to RealityServer: ${err.toString()}`);
+        return;
+      }
+      set_status(`Loading scene: ${state.scene_filename}`);
+
+      try {
+        const [ scene_info ] = await service.queue_commands()
+          .queue(new RS.Command('create_scope',{ scope_name: state.app_scope_name }))
+          .queue(new RS.Command('use_scope',{ scope_name: state.app_scope_name }))
+          .queue(new RS.Command('import_scene',
+            {
+              filename: state.scene_filename,
+              scene_name: state.scene_name,
+              block: true,
+              import_options: {
+                prefix: `${state.scene_name}::`
+              }
+            }),true)
+          .execute();
+       if (scene_info instanceof RS.Command_error) {
+          set_status(`Scene load error: ${scene_info.message}`);
+          return;
+        } else {
+          state.scene = scene_info;
+          scene_loaded();
+        }
+      } catch (err) {
+        // In general usage comand promises shouldn't reject unless something
+        // went fundamentally wrong.
+        set_status(`System error: ${err.toString()}`);
+        return;
+      }
+    }
+
+    async function scene_loaded() {
+      set_status('Initializing render.');
+      try {
+        const img = document.getElementById('rendered_image');
+
+        const [ start_result ] = await service.queue_commands()
+          // create a scope for the session
+          .queue(new RS.Command('create_scope', { scope_name: state.session_scope_name, parent_scope: state.app_scope_name }))
+          .queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))
+          // localize the camera to the session scope
+          .queue(new RS.Command('localize_element',{ element_name: state.scene.camera }))
+          // set the camera resolution to match the size of the Image element we will display in
+          .queue(new RS.Command('camera_set_resolution',
+            {
+              camera_name: state.scene.camera,
+              resolution: { x: img.width, y: img.height }
+            }))
+          .queue(new RS.Command('camera_set_aspect',
+            {
+              camera_name: state.scene.camera,
+              aspect: img.width / img.height
+            }))
+          .queue(new RS.Command('render_loop_start',
+            {
+              scene_name: state.scene_name,
+              render_loop_name: state.render_loop_name,
+              render_loop_handler_name: 'default',
+              timeout: 10,
+            }),true) // want a response for this command
+          .execute();
+
+        if (start_result instanceof RS.Command_error) {
+          set_status(`Render loop start error: ${start_result.message}`);
+          return;
+        }
+        start_stream();
+      } catch (err) {
+        // service promises only reject for system errors which are not expected
+        // once the web socket is connected
+        set_status(`Unexpected service error: ${err.toString()}`);
+      }
+    }
+
+    async function start_stream() {
+      set_status('Starting render loop stream');
+      try {
+        const img = document.getElementById('rendered_image');
+        state.stream = service.create_stream();
+
+        // RS.Helpers.html_image_display creates an 'image' event handler which
+        // will display rendered images in the provided Image element.
+        state.stream.on('image',RS.Helpers.html_image_display(img));
+        state.stream.on('image',(image) => {
+            if (image.result < 0) {
+              set_status(`Render error: ${image.result}`);
+              return; // error on render
+            }
+            set_status(`Iteration count: ${image.statistics.iteration ? image.statistics.iteration : 1} ` +
+                                          `${image.result == 1 ? "(converged)" :""}`);
+        });
+        
+        await state.stream.start(
+          {
+            render_loop_name: state.render_loop_name,
+            image_format: 'jpg',
+            quality: '100'
+          }
+        );
+
+        set_status('Render loop stream started');
+      } catch (err) {
+        // service promises only reject for system errors which are not expected
+        // once the web socket is connected
+        set_status(`Unexpected service error: ${err.toString()}`);
+      }
+    }
+
+    function set_status(status) {
+      document.getElementById('status').firstChild.textContent = status;
+    }
+  </script>
+</head>
+<body onload="start();">
+  <div width="400">
+    <h1>RealityServer&reg; Client Tutorial</h1>
+    <img id="rendered_image" width="400" height="400"/>
+    <div>
+      <span id="status" />
+    </div>
+  </div>
+</body>
+</html>

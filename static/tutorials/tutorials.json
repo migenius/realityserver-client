@@ -1,0 +1,43 @@
+{
+	"01-getting-started": {
+		"title": "Getting Started",
+		"children": [
+			"browser",
+			"node"
+		]
+	},
+	"02-concepts": {
+		"title": "Concepts"
+	},
+	"03-migrating": {
+		"title": "Migration"
+	},
+	"browser": {
+		"title": "Browser",
+		"children": [
+			"browser-connecting",
+			"browser-scene-loading",
+			"browser-rendering",
+			"browser-camera-moving",
+			"browser-change-color"
+		]
+	},
+	"node": {
+		"title": "Node.js"
+	},
+	"browser-connecting": {
+		"title": "Connecting"
+	},
+	"browser-scene-loading": {
+		"title": "Scene Loading"
+	},
+	"browser-rendering": {
+		"title": "Rendering"
+	},
+	"browser-camera-moving": {
+		"title": "Moving the Camera"
+	},
+	"browser-change-color": {
+		"title": "Changing Color"
+	}
+}
