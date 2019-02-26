@@ -126,7 +126,7 @@ const [ response, available ] = state.stream.send_command(
   }
 );
 ```
-When executing commands on the stream the 2nd argument takes an object rather than just a simple true/false value. This is because stream command execution can do more than simply get the response. `want_response` indicates we want to get the result of the command. `wait_for_render` causes an additional Promise to be returned that will resolve when the first image that contains this commands effects is available. So we can wait not only for the command response, but for the image that contains the response as well.
+When executing commands on the stream the 2nd argument takes a different set of options than on the service. In addition to `want_response` there are options to control execution behaviour on the render loop and the stream specific `wait_for_render`. Setting `wait_for_render` causes an additional Promise to be returned that will resolve when the first image that contains this commands effects is available. So we can wait not only for the command response, but for the image that contains the response as well.
 
 `send_command` is functionality identical to  `execute_command` (as is `send` and `execute` on {@link RS.Command_queue}) except that the `send` variant returns an array of Promises rather than a single Promise that resolves to multiple values. Using `send` allows us to react in a more fine grained manner than simply waiting for everything to complete.  
 
