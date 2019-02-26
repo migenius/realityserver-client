@@ -7,7 +7,7 @@ const Delayed_promise = require('./internal/Delayed_promise');
 const Command_error = require('./Command_error');
 const Command_queue = require('./Command_queue');
 const { EventEmitter } = require('./Utils');
-const State_data = require('./State_data');
+const State_data = require('./internal/State_data');
 const RS_error = require('./Error');
 const Stream = require('./Stream');
 
@@ -65,31 +65,33 @@ let Websocket_impl = function() {
 class Service extends EventEmitter {
     /**
      * Creates the service class.
-     * @param {RS.State_data=} default_state_data the default state data to use
      */
-    constructor(default_state_data=null) {
+    constructor() {
         super();
-        if (!default_state_data) {
-            this._default_state_data = new State_data();
-        } else {
-            this._default_state_data = default_state_data;
-        }
-
+        this.default_state_data = new State_data();
+ 
         this.binary_commands = true;
     }
 
     /**
-    * The default state data for this Service instance. If no state
-    * data is specified when providing commands
-    * then this is the state data that will be used.
-    * @type {State_data}
+    * The name of the scope to execute commands in. By default the service executes
+    * all commands in the global scope. For convenience it is possible to change
+    * this default scope so it is not necessary to manually add `use_scope` commands
+    * to every call. Note this scope is only used for commands executed directly on
+    * the service. Commands executed on streams are executed in the scope of the 
+    * underlying render loop.
+    *
+    * The value `undefined` is used to represent the global scope.
+    *
+    * The scope must already exist before being set.
+    * @type {String}
     */
-    get default_state_data() {
-        return this._default_state_data;
+    get default_scope_name() {
+        return this.default_state_data.scope_name;
     }
 
-    set default_state_data(value) {
-        this._default_state_data = value;
+    set default_scope_name(value) {
+        this.default_state_data.scope_name = value;
     }
 
     /**
@@ -621,12 +623,12 @@ class Service extends EventEmitter {
      * Returns a {@link RS.Command_queue} that can be used to queue up a series of commands to
      * be executed.
      * @param {Object=} options
-     * @param {State_data=} options.state - If provided then this is used as the state for
-     * executing the commands. If not then the default service state is used.
+     * @param {String=} options.scope_name - If provided then commands are executed in this 
+     * scope. If not the default service scope is used.
      * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
-    queue_commands({ state=null }={}) {
-        return new Command_queue(this,false,state || this.default_state_data);
+    queue_commands({ scope_name=null }={}) {
+        return new Command_queue(this,false,scope_name ? new State_data(scope_name) : this.default_state_data);
     }
 
     /**
@@ -640,12 +642,12 @@ class Service extends EventEmitter {
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the returned promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to `undefined`.
-     * @param {State_data=} options.state - If provided then this is used as the state to
-     * execute the command. If not then the default service state is used.
+     * @param {String=} options.scope_name - If provided then commands are executed in this 
+     * scope. If not the default service scope is used.
      * @return {Promise} A `Promise` that resolves to an iterable.
      */
-    execute_command(command,{ want_response=false,state=null }={}) {
-        return new Command_queue(this,false,state || this.default_state_data)
+    execute_command(command,{ want_response=false,scope_name=null }={}) {
+        return new Command_queue(this,false,scope_name ? new State_data(scope_name) : this.default_state_data)
             .queue(command,want_response)
             .execute();
     }
@@ -660,15 +662,15 @@ class Service extends EventEmitter {
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the `reponses` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
-     * @param {State_data=} options.state - If provided then this is used as the state to
-     * execute the command. If not then the default service state is used.
+     * @param {String=} options.scope_name - If provided then commands are executed in this 
+     * scope. If not the default service scope is used.
      * @return {Promise[]} An `Array` of `Promises`. These promises will not reject.
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
      */
-    send_command(command,{ want_response=false,state=null }={}) {
-        return new Command_queue(this,false,state || this.default_state_data)
+    send_command(command,{ want_response=false,scope_name=null }={}) {
+        return new Command_queue(this,false,scope_name ? new State_data(scope_name) : this.default_state_data)
             .queue(command,want_response)
             .send();
     }
@@ -741,9 +743,7 @@ class Service extends EventEmitter {
             execute_args = {
                 commands: command_queue.state_data.state_commands ?
                     command_queue.state_data.state_commands.concat(commands) :
-                    commands,
-                url: command_queue.state_data.path,
-                state_arguments: command_queue.state_data.parameters
+                    commands
             };
         }
 

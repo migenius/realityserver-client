@@ -15,7 +15,6 @@
         Utils: require('./Utils'),
         Math: require('./Math/index'),
         Service: require('./Service'),
-        State_data: require('./State_data'),
         Stream: require('./Stream'),
     };
 
