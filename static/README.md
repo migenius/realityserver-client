@@ -4,7 +4,7 @@ The RealityServer Client API is a lightweight, modern JavaScript client library 
 ## Supported Environments
 The API supports any JavaScript ES6 environment that provides a [W3C WebSocket API](https://www.w3.org/TR/websockets/ "W3C WebSocket API") implementation. This includes all evergreen desktop browsers, most mobile browsers and Node.js >= 6.5 (with an appropriate WebSocket module like [websocket](https://www.npmjs.com/package/websocket "websocket")). The most notable exclusion is IE 11 which supports WebSockets but not ES6. If you need support for IE 11 it is recommended to transpile the API down to ES5.
 
-RealityServer&reg; 5.2 2272.236 or later is required.
+RealityServer&reg; 5.2 2272.266 or later is required.
 
 ## Installation
 For native browser usage download via CDN:

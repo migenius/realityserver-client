@@ -9,7 +9,7 @@ The RealityServer client library however has barely changed. Until now.
 
 `realityserver-client` is a Promise based, ES6 RealityServer client library that can be used directly both in the browser and Node.js. It utilises WebSockets for all communications providing fast and efficient command execution. The WebSocket connection can stream images to the client directly from render loops and provides synchronized command execution, ensuring that no changes are lost and letting you know exactly when changes appear in rendered images.
 
-`realityserver-client` requires at least RealityServer 5.2 2272.236 which is currently unreleased.
+`realityserver-client` requires at least RealityServer 5.2 2272.266.
 ## Usage
 Download the [minified](https://insertlinkhere.example.com "RealityServer client library") library and include it directly in your HTML, or install via `npm install @migenius/realityserver-client` and use as a module in [Node.js](https://nodejs.org "Node.js") directly or via your favorite bundler (EG: [rollup.js](https://rollupjs.org "rollup.js") [Webpack](https://webpack.github.io/ "Webpack") [Broswerify](https://github.com/substack/node-browserify "Browerify")). Then simply instantiate `RS.Service`, connect to your RealityServer and start sending commands.
 #### Browser

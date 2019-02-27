@@ -435,9 +435,11 @@ class Service extends EventEmitter {
                     } else {
                         // check that the protcol version is acceptable
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                        if (protocol_version < 2 || protocol_version > 2) {
+                        if (protocol_version < 2 || protocol_version > 3) {
                             // unsupported protocol, can't go on
-                            scope.web_socket.close();
+                            scope.web_socket.close(1002,protocol_version < 2 ?
+                                'RealityServer WebSocket protocol too old.' :
+                                'RealityServer WebSocket protocol too new.');
                             reject(new RS_error(protocol_version < 2 ?
                                 'RealityServer version unsupported, upgrade your RealityServer.' :
                                 'RealityServer WebSocket protocol version not supported.'));
@@ -484,9 +486,16 @@ class Service extends EventEmitter {
                     } else {
                         scope.web_socket_littleendian = data.getUint8(8) === 1 ? true : false;
                         const protocol_version = data.getUint32(12, scope.web_socket_littleendian);
-                        if (protocol_version < 2 || protocol_version > 2) {
+                        if (protocol_version < 3) {
+                            // unsupported, too old
+                            scope.web_socket.close(1002,'RealityServer too old.');
+                            reject(new RS_error('RealityServer version is too old, ' +
+                                            'client lirary requires at least version 5.2 2272.266.'));
+                            return;
+                        } 
+                        if (protocol_version > 3) {
                             // unsupported protocol, let's ask for what we know
-                            protocol_version = 2;
+                            protocol_version = 3;
                         }
                         // get server time
                         scope.protocol_state = 'handshaking';
