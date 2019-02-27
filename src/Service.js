@@ -448,8 +448,8 @@ class Service extends EventEmitter {
                             scope.web_socket.onmessage = web_socket_stream;
 
                             // if in debug mode then set debug on the server.
-                            if (!this.binary_commands) {
-                                this.binary_commands = false;
+                            if (!scope.binary_commands) {
+                                scope.binary_commands = false;
                             }
                             resolve();
                         }
@@ -506,7 +506,7 @@ class Service extends EventEmitter {
                         scope.web_socket.send(buffer);
                     }
                 } else {
-                    this.web_socket.close(1002,'Handshake header not binary');
+                    scope.web_socket.close(1002,'Handshake header not binary');
                     reject(new RS_error('Unexpected data during handshake, ' +
                                             'does not appear to be a RealityServer connection.'));
                 }
