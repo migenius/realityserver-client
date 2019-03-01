@@ -29,7 +29,7 @@ Note that this documentation should be read in conjuction with the [RealityServe
 
 ## Sample applications
 
-- [A simple rendering demo with camera dolly](http://github.com/migenius/react-mobx-render-loop "Simple demo")
+- [A simple rendering demo with camera dolly and material changing](http://github.com/migenius/realityserver-client-tutorial "Simple demo")
 
 - [React/mobx implementation of the render loop demo](http://github.com/migenius/react-mobx-render-loop "React/MobX demo")
 

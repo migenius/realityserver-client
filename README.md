@@ -11,7 +11,7 @@ The RealityServer client library however has barely changed. Until now.
 
 `realityserver-client` requires at least RealityServer 5.2 2272.266.
 ## Usage
-Download the [minified](https://insertlinkhere.example.com "RealityServer client library") library and include it directly in your HTML, or install via `npm install @migenius/realityserver-client` and use as a module in [Node.js](https://nodejs.org "Node.js") directly or via your favorite bundler (EG: [rollup.js](https://rollupjs.org "rollup.js") [Webpack](https://webpack.github.io/ "Webpack") [Broswerify](https://github.com/substack/node-browserify "Browerify")). Then simply instantiate `RS.Service`, connect to your RealityServer and start sending commands.
+Download the [minified](https://unpkg.com/@migenius/realityserver-client@1.0.0 "RealityServer client library") library and include it directly in your HTML, or install via `npm install @migenius/realityserver-client` and use as a module in [Node.js](https://nodejs.org "Node.js") directly or via your favorite bundler (EG: [rollup.js](https://rollupjs.org "rollup.js") [Webpack](https://webpack.github.io/ "Webpack") [Broswerify](https://github.com/substack/node-browserify "Browerify")). Then simply instantiate `RS.Service`, connect to your RealityServer and start sending commands.
 #### Browser
 ```html
 <script source='/js/realityserver.js'></script>
@@ -33,11 +33,11 @@ service.connect('ws://host.example.com/service/')
       .execute();
   })
   .then(([scene_info]) => {
-    if (scene_info.is_error_response) {
-      console.log(`Scene load error: ${JSON.stringify(scene_info.error)}`);
+    if (scene_info instanceof RS.Error) {
+      console.log(`Scene load error: ${scene_info.toString())}`);
     } else {
       // scene is loaded, do some more work with it
-      scene_loaded(scene_info.result);
+      scene_loaded(scene_info);
     }
   })
   .catch(err => {
@@ -50,7 +50,7 @@ service.connect('ws://host.example.com/service/')
 ```javascript
 // Node has no native socket implementation so we use the 'websocket' module from npm
 const WS = require('websocket').w3cwebsocket; // ensure we have the W3C compliant API
-const { Service, Command, Utils } = require('realityserver-client');
+const { Service, Command, Error: Rs_error, Utils } = require('realityserver-client');
 
 async () => {
   const service = new Service();
@@ -72,11 +72,11 @@ async () => {
           filename: 'scenes/meyemii.mi'
         }),true)
       .execute();
-    if (scene_info.is_error_response) {
-      console.log(`Scene load error: ${JSON.stringify(scene_info.error)}`);
+    if (scene_info instanceof Rs_error ) {
+      console.log(`Scene load error: ${scene_info.toString()}`);
       return;
     } else {
-      scene_loaded(scene_info.result);
+      scene_loaded(scene_info);
     }
   } catch(err) {
     // In general usage command promises shouldn't reject unless something
@@ -126,30 +126,38 @@ function scene_loaded(scene_info) {
         render_loop_name: render_loop_name,
         render_loop_handler_name: 'default',
         timeout: 30
-      }),true) // want a resonse for this command
+      }),true) // want a response for this command
     .execute()
     .then(([ start_response ]) => {
-      if (start_response.is_error_response) {
-        console.log(`Render loop start error: ${JSON.stringify(start_response.error)}`);
+      if (start_response instanceof RS.Error) {
+        console.log(`Render loop start error: ${start_response.toString()}`);
         return;
       }
       console.log('Starting render loop stream');
+
       // Render loop has started, start streaming images to img.
-      return service.stream(
+      const stream = service.create_stream();
+
+      // The stream will emit 'image' events whenever a rendered image is received.
+      // RS.Utils.html_image_display creates an event handling function which
+      // will display rendered images in the provided Image.
+      stream.on('image',RS.Utils.html_image_display(img));
+
+      // Also log that we received an image 
+      stream.on('image',(image) => {
+        if (image.result < 0) {
+          return; // error on render
+        }
+        console.log('Rendered image received');
+      });
+
+      // start the stream
+      return stream.start(
         {
           render_loop_name,
           image_format: 'jpg',
           quality: '100'
-        },
-        // RS.Utils.html_image_display creates a streaming callback function which
-        // will display rendered images in the provided Image. The provided callback
-        // is then called with the image information
-        RS.Utils.html_image_display(img,(data) => {
-          if (data.result < 0) {
-            return; // error on render
-          }
-          console.log('Rendered image received');
-        })
+        }
       );
     })
     .then(() => {
@@ -174,7 +182,7 @@ function render_scene(scene_info, width, height, max_samples, filename) {
 
     let image;
     try {
-      const [ response ] = await service.queue_commands()
+      [ image ] = await service.queue_commands()
         .queue(new Command('use_scope', { scope_name: 'myscope' }))
         .queue(new Command('camera_set_resolution',{
           camera_name: camera,
@@ -207,11 +215,9 @@ function render_scene(scene_info, width, height, max_samples, filename) {
           }),true)
         .execute();
 
-      if (response.error) {
-        reject(`render error: ${JSON.stringify(response.error)}`);
-        return;
+      if (image instanceof Rs_error) {
+        reject(`render error: ${image.toString()}`);
       }
-      image = response.result;
     } catch (err) {
       reject(`Service error rendering scene: ${err.toString()}`);
       return;
@@ -231,13 +237,15 @@ function render_scene(scene_info, width, height, max_samples, filename) {
   });
 }
 ```
-	
+  
 ## API Documentation
 
 TODO: link to live docs go here
 
 ## Demos
 
-- [React/mobx implementation of the render loop demo](http://github.com/migenius/react-mobx-render-loop "render loop demo")
+- [A simple rendering demo with camera dolly and material changing](http://github.com/migenius/realityserver-client-tutorial "Simple demo")
+
+- [React/mobx implementation of the render loop demo](http://github.com/migenius/react-mobx-render-loop "React/MobX demo")
 
 - [Simple Node.js render script](http://github.com/migenius/node-render "node render script")
