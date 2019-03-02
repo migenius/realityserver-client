@@ -450,8 +450,8 @@ class Service extends EventEmitter {
                             scope.web_socket.onmessage = web_socket_stream;
 
                             // if in debug mode then set debug on the server.
-                            if (!scope.binary_commands) {
-                                scope.binary_commands = false;
+                            if (scope.debug_commands) {
+                                scope.debug_commands = true;
                             }
                             resolve();
                         }
@@ -789,7 +789,7 @@ class Service extends EventEmitter {
      */
     set debug_commands(enable) {
         this.binary_commands = !enable;
-        if (this.web_socket && this.protocol_state !== 'started') {
+        if (this.web_socket && this.protocol_state === 'started') {
             // send debug message
             let buffer = new ArrayBuffer(8);
             let message = new DataView(buffer);
