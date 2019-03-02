@@ -22,7 +22,7 @@ class Vector3 {
         if (initial !== undefined) {
             this.set(...arguments);
         } else {
-            this.set(0,0,0);
+            this.set(0, 0, 0);
         }
     }
 
@@ -233,8 +233,8 @@ class Vector3 {
      * a new vector is created.
      * @return {RS.Math.Vector3} the transformed vector.
      */
-    rotate_to(matrix,out) {
-        return this.transform_to(matrix,out);
+    rotate_to(matrix, out) {
+        return this.transform_to(matrix, out);
     }
 
     /**
@@ -246,8 +246,8 @@ class Vector3 {
      * a new vector is created.
      * @return {RS.Math.Vector3} the transformed vector.
      */
-    rotate_transpose_to(matrix,out) {
-        return this.transform_transpose_to(matrix,out);
+    rotate_transpose_to(matrix, out) {
+        return this.transform_transpose_to(matrix, out);
     }
 
     /**
@@ -454,7 +454,7 @@ class Vector3 {
      */
     equal(rhs, tolerance) {
         if (tolerance) {
-            return this.equal_with_tolerance(rhs,tolerance);
+            return this.equal_with_tolerance(rhs, tolerance);
         }
 
         return this.x === rhs.x && this.y === rhs.y && this.z === rhs.z;

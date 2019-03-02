@@ -57,8 +57,8 @@
 
       try {
         const [ scene_info ] = await service.queue_commands()
-          .queue(new RS.Command('create_scope',{ scope_name: state.app_scope_name }))
-          .queue(new RS.Command('use_scope',{ scope_name: state.app_scope_name }))
+          .queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
+          .queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))
           .queue(new RS.Command('import_scene',
             {
               filename: state.scene_filename,
@@ -67,7 +67,7 @@
               import_options: {
                 prefix: `${state.scene_name}::`
               }
-            }),true)
+            }), true)
           .execute();
         if (scene_info instanceof RS.Command_error) {
           set_status(`Scene load error: ${scene_info.message}`);
@@ -90,12 +90,16 @@
         const img = document.getElementById('rendered_image');
         const [ camera_matrix, start_result ] = await service.queue_commands()
           // create a scope for the session
-          .queue(new RS.Command('create_scope', { scope_name: state.session_scope_name, parent_scope: state.app_scope_name }))
+          .queue(new RS.Command('create_scope',
+            {
+              scope_name: state.session_scope_name,
+              parent_scope: state.app_scope_name
+            }))
           .queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))
           // localize the camera to the session scope
-          .queue(new RS.Command('localize_element',{ element_name: state.scene.camera }))
-          .queue(new RS.Command('localize_element',{ element_name: state.scene.camera_instance }))
-          .queue(new RS.Command('localize_element',{ element_name: state.material_name }))
+          .queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
+          .queue(new RS.Command('localize_element', { element_name: state.scene.camera_instance }))
+          .queue(new RS.Command('localize_element', { element_name: state.material_name }))
           // set the camera resolution to match the size of the Image element we will display in
           .queue(new RS.Command('camera_set_resolution',
             {
@@ -118,7 +122,7 @@
               render_loop_name: state.render_loop_name,
               render_loop_handler_name: 'default',
               timeout: 10,
-            }),true) // want a response for this command
+            }), true) // want a response for this command
           .execute();
 
         if (camera_matrix instanceof RS.Command_error) {
@@ -149,16 +153,16 @@
 
         // RS.Utils.html_image_display creates an 'image' event handler which
         // will display rendered images in the provided Image element.
-        state.stream.on('image',RS.Utils.html_image_display(img));
-        state.stream.on('image',(image) => {
-            if (image.result < 0) {
-              set_status(`Render error: ${image.result}`);
-              return; // error on render
-            }
-            set_status(`Iteration count: ${image.statistics.iteration ? image.statistics.iteration : 1} ` +
-                                          `${image.result == 1 ? "(converged)" :""}`);
+        state.stream.on('image', RS.Utils.html_image_display(img));
+        state.stream.on('image', (image) => {
+          if (image.result < 0) {
+            set_status(`Render error: ${image.result}`);
+            return; // error on render
+          }
+          set_status(`Iteration count: ${image.statistics.iteration ? image.statistics.iteration : 1} ` +
+                                          `${image.result === 1 ? '(converged)' :''}`);
         });
-        
+    
         state.stream.cancel_level = 0;
 
         await state.stream.start(
@@ -171,7 +175,7 @@
 
         set_status('Render loop stream started');
 
-        img.addEventListener('mousedown',mouse_down);
+        img.addEventListener('mousedown', mouse_down);
 
       } catch (err) {
         // service promises only reject for system errors which are not expected
@@ -184,8 +188,8 @@
       state.last_mouse.x = event.clientX;
       state.last_mouse.y = event.clientY;
 
-      window.addEventListener('mousemove',mouse_move);
-      window.addEventListener('mouseup',mouse_up);
+      window.addEventListener('mousemove', mouse_move);
+      window.addEventListener('mouseup', mouse_up);
 
       event.preventDefault();
     }
@@ -212,16 +216,16 @@
     }
 
     function mouse_up(event) {
-      window.removeEventListener('mousemove',mouse_move);
-      window.removeEventListener('mouseup',mouse_up);
+      window.removeEventListener('mousemove', mouse_move);
+      window.removeEventListener('mouseup', mouse_up);
 
       event.preventDefault();
     }
 
-    async function set_color(r,g,b,name) {
+    async function set_color(r, g, b, name) {
       const button = document.getElementById(name);
       button.firstChild.textContent = 'setting';
-      
+    
       state.stream.pause();
 
       const [ response, available ] = state.stream.send_command(
@@ -261,10 +265,10 @@
     <h1>RealityServer&reg; Client Tutorial</h1>
     <img id="rendered_image" width="400" height="400"/>
     <div class="button-row">
-      <button class="gold" id="gold" onclick="set_color(0.2,0.135,0.0463,'gold')">gold</button>
-      <button class="silver" id="silver" onclick="set_color(0.753,0.753,0.753,'silver')">silver</button>
-      <button class="rose" id="rose" onclick="set_color(0.718,0.431,0.475,'rose')">rose</button>
-      <button class="copper" id="copper" onclick="set_color(0.722,.451,0.2,'copper')">copper</button>
+      <button class="gold" id="gold" onclick="set_color(0.2, 0.135, 0.0463, 'gold')">gold</button>
+      <button class="silver" id="silver" onclick="set_color(0.753, 0.753, 0.753, 'silver')">silver</button>
+      <button class="rose" id="rose" onclick="set_color(0.718, 0.431, 0.475, 'rose')">rose</button>
+      <button class="copper" id="copper" onclick="set_color(0.722, 0.451, 0.2,'copper')">copper</button>
     </div>
     <div>
       <span id="status" />

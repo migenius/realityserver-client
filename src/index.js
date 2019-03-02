@@ -18,5 +18,5 @@
         Stream: require('./Stream'),
     };
 
-    module.exports = Object.assign(RealityServer,RealityServer.Math);
+    module.exports = Object.assign(RealityServer, RealityServer.Math);
 })();

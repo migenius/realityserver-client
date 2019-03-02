@@ -25,10 +25,10 @@ For simplicity we'll just add a row of buttons that, when clicked, will change t
 ```html
 <img id="rendered_image" width="400" height="400"/>
 <div class="button-row">
-  <button class="gold" id="gold" onclick="set_color(0.2,0.135,0.0463,'gold')">gold</button>
-  <button class="silver" id="silver" onclick="set_color(0.753,0.753,0.753,'silver')">silver</button>
-  <button class="rose" id="rose" onclick="set_color(0.718,0.431,0.475,'rose')">rose</button>
-  <button class="copper" id="copper" onclick="set_color(0.722,.451,0.2,'copper')">copper</button>
+  <button class="gold" id="gold" onclick="set_color(0.2, 0.135, 0.0463, 'gold')">gold</button>
+  <button class="silver" id="silver" onclick="set_color(0.753, 0.753, 0.753, 'silver')">silver</button>
+  <button class="rose" id="rose" onclick="set_color(0.718, 0.431, 0.475, 'rose')">rose</button>
+  <button class="copper" id="copper" onclick="set_color(0.722, 0.451, 0.2, 'copper')">copper</button>
 </div>
 ```
 We also add some CSS at the top to make things look pretty:
@@ -60,13 +60,13 @@ We also add some CSS at the top to make things look pretty:
 We only need to modify the existing JavaScript in one location. This is to localize the material so we are the only ones to see the changes. Update the in `scene_loaded` command queue as follows:
 ```
 // localize the camera to the session scope
-.queue(new RS.Command('localize_element',{ element_name: state.scene.camera }))
-.queue(new RS.Command('localize_element',{ element_name: state.scene.camera_instance }))
-.queue(new RS.Command('localize_element',{ element_name: state.material_name }))
+.queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
+.queue(new RS.Command('localize_element', { element_name: state.scene.camera_instance }))
+.queue(new RS.Command('localize_element', { element_name: state.material_name }))
 ```
 The `set_color` function is called to change the actual color. It's arguments are the RGB values to change to (in linear floating point 0->1 format, all RealityServer&reg; colors are represented in this way) and the id of the button that was pressed.
 ```javascript
-async function set_color(r,g,b,name) {
+async function set_color(r, g, b, name) {
   const button = document.getElementById(name);
   button.firstChild.textContent = 'setting';
   

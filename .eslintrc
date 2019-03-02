@@ -34,6 +34,7 @@
     "keyword-spacing": ["error", {"before": true, "after": true}],
     "key-spacing": "error",
     "space-unary-ops": "error",
-    "no-var": "error"
+    "no-var": "error",
+    "comma-spacing": ["error", {"before": false, "after": true}]
   }
 }

@@ -20,7 +20,7 @@ class Command_queue {
      * @param {(RS.State_data|RS.Render_loop_state_data)} state_data - The state to execute in
      * @hideconstructor
      */
-    constructor(service,wait_for_render,state_data) {
+    constructor(service, wait_for_render, state_data) {
         this.service = service;
         this.wait_for_render = wait_for_render;
         this.state_data = state_data;
@@ -32,7 +32,7 @@ class Command_queue {
      * @param {Command} command - The command to add.
      * @param {Boolean} [want_response=false] - Whether we want a response from this command or not
      */
-    queue(command,want_response=false) {
+    queue(command, want_response=false) {
 
         this.commands.push({
             command,

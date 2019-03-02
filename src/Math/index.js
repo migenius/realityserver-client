@@ -28,5 +28,5 @@
         Vector4: require('./Vector4')
     };
 
-    module.exports = Object.assign(RS_math,require('./Functions'));
+    module.exports = Object.assign(RS_math, require('./Functions'));
 })();

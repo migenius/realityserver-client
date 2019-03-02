@@ -39,7 +39,7 @@ function generate_bundled_module(input_file, root_path, basename, formats, plugi
             return Promise.all(
                 formats.map(format => {
                     return bundle.write({
-                        file: path.join(root_path,format.format,basename),
+                        file: path.join(root_path, format.format, basename),
                         format: format.format,
                         name: format.name,
                         sourcemap: true,
@@ -59,8 +59,8 @@ function build() {
             path.resolve('lib'),
             'realityserver.js',
             [
-                { format: 'esm',name: 'RS' },
-                { format: 'umd',name: 'RS' }
+                { format: 'esm', name: 'RS' },
+                { format: 'umd', name: 'RS' }
             ]
         ),
         generate_bundled_module(
@@ -68,8 +68,8 @@ function build() {
             path.resolve('lib'),
             'realityserver.min.js',
             [
-                { format: 'esm',name: 'RS' },
-                { format: 'umd',name: 'RS' }
+                { format: 'esm', name: 'RS' },
+                { format: 'umd', name: 'RS' }
             ],
             production_rollup_plugins
         )
@@ -79,8 +79,8 @@ function build() {
 build()
     .then(() => {
         return fs.copy(
-            path.resolve('lib','umd','realityserver.js'),
-            path.resolve('static','docs','lib','realityserver.js'));
+            path.resolve('lib', 'umd', 'realityserver.js'),
+            path.resolve('static', 'docs', 'lib', 'realityserver.js'));
     })
     .catch(e => {
         console.error(e);

@@ -69,7 +69,7 @@ class Service extends EventEmitter {
     constructor() {
         super();
         this.default_state_data = new State_data();
- 
+
         this.binary_commands = true;
     }
 
@@ -78,7 +78,7 @@ class Service extends EventEmitter {
     * all commands in the global scope. For convenience it is possible to change
     * this default scope so it is not necessary to manually add `use_scope` commands
     * to every call. Note this scope is only used for commands executed directly on
-    * the service. Commands executed on streams are executed in the scope of the 
+    * the service. Commands executed on streams are executed in the scope of the
     * underlying render loop.
     *
     * The value `undefined` is used to represent the global scope.
@@ -241,7 +241,7 @@ class Service extends EventEmitter {
                  * @param {Event} event The underlying WebSocket open event.
                  * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onopen}
                  */
-                scope.emit('open',event);
+                scope.emit('open', event);
             };
             this.web_socket.onclose = event => {
                 scope.protocol_state = 'prestart';
@@ -258,7 +258,7 @@ class Service extends EventEmitter {
                  * @param {CloseEvent} event The underlying WebSocket close event.
                  * See {@link https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent}
                  */
-                scope.emit('close',event);
+                scope.emit('close', event);
             };
             // this is the startup error handler. will be replaced with a general one
             // once we've got going
@@ -272,7 +272,7 @@ class Service extends EventEmitter {
                  * @param {Event} event The underlying WebSocket error event.
                  * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onerror}
                  */
-                scope.emit('error',error);
+                scope.emit('error', error);
                 reject(new RS_error('WebSocket connection error.'));
             };
 
@@ -286,7 +286,7 @@ class Service extends EventEmitter {
                     delete scope.response_handlers[response.id];
                 }
             }
-            function emit_image_event(stream,data) {
+            function emit_image_event(stream, data) {
                 if (!stream.pause_count) {
                     /**
                      * Image event.
@@ -298,11 +298,11 @@ class Service extends EventEmitter {
                      * @event RS.Stream#image
                      * @param {RS.Stream~Rendered_image} image The rendered image
                      */
-                    scope.emit('image',data);
-                    stream.emit('image',data);
+                    scope.emit('image', data);
+                    stream.emit('image', data);
                 }
             }
-            function process_received_render(message,now) {
+            function process_received_render(message, now) {
                 const result = message.getSint32();
                 // render loop name
                 const render_loop_name = message.getString();
@@ -358,14 +358,14 @@ class Service extends EventEmitter {
                         // giving them a chance to unpause the stream.
                         if (command_promises.length) {
                             Promise.all(command_promises).then(() => {
-                                emit_image_event(stream,data);
+                                emit_image_event(stream, data);
                             });
                         } else {
-                            emit_image_event(stream,data);
+                            emit_image_event(stream, data);
                         }
                     }
                 } else {
-                    emit_image_event(stream,data);
+                    emit_image_event(stream, data);
                 }
 
             }
@@ -385,7 +385,7 @@ class Service extends EventEmitter {
                         }
                         let image_id = img_msg.getUint32();
 
-                        process_received_render(img_msg,now);
+                        process_received_render(img_msg, now);
 
                         // send image ack
                         let buffer = new ArrayBuffer(16);
@@ -429,7 +429,7 @@ class Service extends EventEmitter {
                         data.getUint8(6), data.getUint8(7));
                     if (hs_header !== 'RSWSRLIS') {
                         // not good
-                        scope.web_socket.close(1002,'Invalid handshake response');
+                        scope.web_socket.close(1002, 'Invalid handshake response');
                         reject(new RS_error('Unexpected handshake header, ' +
                                             'does not appear to be a RealityServer connection.'));
                     } else {
@@ -437,7 +437,7 @@ class Service extends EventEmitter {
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
                         if (protocol_version < 2 || protocol_version > 3) {
                             // unsupported protocol, can't go on
-                            scope.web_socket.close(1002,protocol_version < 2 ?
+                            scope.web_socket.close(1002, protocol_version < 2 ?
                                 'RealityServer WebSocket protocol too old.' :
                                 'RealityServer WebSocket protocol too new.');
                             reject(new RS_error(protocol_version < 2 ?
@@ -457,18 +457,18 @@ class Service extends EventEmitter {
                         }
                     }
                 } else {
-                    scope.web_socket.close(1002,'Handshake response not binary');
+                    scope.web_socket.close(1002, 'Handshake response not binary');
                     reject(new RS_error('unexpected data during handshake'));
                 }
             }
             function web_socket_prestart(event) {
                 // switch on error as we're now connected
-                scope.web_socket.onerror = error => scope.emit('error',error);
+                scope.web_socket.onerror = error => scope.emit('error', error);
                 // expecting a handshake message
                 if (event.data instanceof ArrayBuffer) {
                     let now = Service.now();
                     if (event.data.byteLength !== 40) {
-                        scope.web_socket.close(1002,'Invalid handshake size');
+                        scope.web_socket.close(1002, 'Invalid handshake size');
                         reject(new RS_error('Invalid handshake header size'));
                         return;
                     }
@@ -480,7 +480,7 @@ class Service extends EventEmitter {
                         data.getUint8(6), data.getUint8(7));
                     if (hs_header !== 'RSWSRLIS') {
                         // not good
-                        scope.web_socket.close(1002,'Not a RealityServer handshake');
+                        scope.web_socket.close(1002, 'Not a RealityServer handshake');
                         reject(new RS_error('Invalid handshake header, ' +
                                             'does not appear to be a RealityServer connection.'));
                     } else {
@@ -488,11 +488,11 @@ class Service extends EventEmitter {
                         const protocol_version = data.getUint32(12, scope.web_socket_littleendian);
                         if (protocol_version < 3) {
                             // unsupported, too old
-                            scope.web_socket.close(1002,'RealityServer too old.');
+                            scope.web_socket.close(1002, 'RealityServer too old.');
                             reject(new RS_error('RealityServer version is too old, ' +
                                             'client lirary requires at least version 5.2 2272.266.'));
                             return;
-                        } 
+                        }
                         if (protocol_version > 3) {
                             // unsupported protocol, let's ask for what we know
                             protocol_version = 3;
@@ -515,7 +515,7 @@ class Service extends EventEmitter {
                         scope.web_socket.send(buffer);
                     }
                 } else {
-                    scope.web_socket.close(1002,'Handshake header not binary');
+                    scope.web_socket.close(1002, 'Handshake header not binary');
                     reject(new RS_error('Unexpected data during handshake, ' +
                                             'does not appear to be a RealityServer connection.'));
                 }
@@ -532,8 +532,8 @@ class Service extends EventEmitter {
      * @fires RS.Service#close
      * @see [WebSocket Status Codes](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes)
      */
-    close(code=1000,reason='User request') {
-        this.web_socket.close(code,reason);
+    close(code=1000, reason='User request') {
+        this.web_socket.close(code, reason);
     }
 
     /**
@@ -632,12 +632,12 @@ class Service extends EventEmitter {
      * Returns a {@link RS.Command_queue} that can be used to queue up a series of commands to
      * be executed.
      * @param {Object=} options
-     * @param {String=} options.scope_name - If provided then commands are executed in this 
+     * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
      * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
     queue_commands({ scope_name=null }={}) {
-        return new Command_queue(this,false,scope_name ? new State_data(scope_name) : this.default_state_data);
+        return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data);
     }
 
     /**
@@ -651,13 +651,13 @@ class Service extends EventEmitter {
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the returned promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to `undefined`.
-     * @param {String=} options.scope_name - If provided then commands are executed in this 
+     * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
      * @return {Promise} A `Promise` that resolves to an iterable.
      */
-    execute_command(command,{ want_response=false,scope_name=null }={}) {
-        return new Command_queue(this,false,scope_name ? new State_data(scope_name) : this.default_state_data)
-            .queue(command,want_response)
+    execute_command(command, { want_response=false, scope_name=null }={}) {
+        return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
+            .queue(command, want_response)
             .execute();
     }
 
@@ -671,16 +671,16 @@ class Service extends EventEmitter {
      * @param {Object=} options
      * @param {Boolean=} options.want_response - If `true` then the `reponses` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
-     * @param {String=} options.scope_name - If provided then commands are executed in this 
+     * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
      * @return {Promise[]} An `Array` of `Promises`. These promises will not reject.
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
      */
-    send_command(command,{ want_response=false,scope_name=null }={}) {
-        return new Command_queue(this,false,scope_name ? new State_data(scope_name) : this.default_state_data)
-            .queue(command,want_response)
+    send_command(command, { want_response=false, scope_name=null }={}) {
+        return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
+            .queue(command, want_response)
             .send();
     }
 
@@ -692,7 +692,7 @@ class Service extends EventEmitter {
      * command queue.
      */
     send_command_queue(command_queue) {
-        const { wait_for_render,resolve_all } = command_queue;
+        const { wait_for_render, resolve_all } = command_queue;
 
         function throw_or_reject(arg) {
             if (resolve_all) {
@@ -717,12 +717,12 @@ class Service extends EventEmitter {
         let execute_args;
 
         const commands = command_queue.commands.map(c => c.command);
-        const promises = command_queue.commands.reduce((result,{ response_promise }) => {
+        const promises = command_queue.commands.reduce((result, { response_promise }) => {
             if (response_promise) {
                 result.push(response_promise.promise);
             }
             return result;
-        },[]);
+        }, []);
         if (command_queue.state_data.render_loop_name) {
             execute_args = {
                 commands,
@@ -775,9 +775,9 @@ class Service extends EventEmitter {
 
         if ((wait_for_render && promises.length > 1) || promises.length) {
             // we want responses
-            this.send_ws_command('execute',execute_args,resolve_responses,command_queue);
+            this.send_ws_command('execute', execute_args, resolve_responses, command_queue);
         } else {
-            this.send_ws_command('execute',execute_args);
+            this.send_ws_command('execute', execute_args);
         }
         return resolve_all ? Promise.all(promises) : promises;
     }
@@ -794,8 +794,8 @@ class Service extends EventEmitter {
             let buffer = new ArrayBuffer(8);
             let message = new DataView(buffer);
 
-            message.setUint32(0,Service.MESSAGE_ID_PREFER_STRING,this.web_socket_littleendian);
-            message.setUint32(4,!!enable ? 1 : 0,this.web_socket_littleendian);
+            message.setUint32(0, Service.MESSAGE_ID_PREFER_STRING, this.web_socket_littleendian);
+            message.setUint32(4, !!enable ? 1 : 0, this.web_socket_littleendian);
             this.web_socket.send(buffer);
         }
     }
@@ -839,7 +839,7 @@ class Service extends EventEmitter {
                 rate: max_rate
             };
 
-            this.send_ws_command('set_transfer_rate',args,response => {
+            this.send_ws_command('set_transfer_rate', args, response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
                 } else {

@@ -1,16 +1,16 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const src_path = path.resolve(__dirname, '..','static','tutorials');
-const out_path = path.join(src_path,'out');
+const src_path = path.resolve(__dirname, '..', 'static', 'tutorials');
+const out_path = path.join(src_path, 'out');
 
 fs.removeSync(out_path);
 
 fs.ensureDirSync(out_path);
 
-fs.copySync(path.join(src_path,'tutorials.json'),path.join(out_path,'tutorials.json'));
+fs.copySync(path.join(src_path, 'tutorials.json'), path.join(out_path, 'tutorials.json'));
 
-const tutorials = require(path.join(src_path,'tutorials.json'));
+const tutorials = require(path.join(src_path, 'tutorials.json'));
 
 // find all top level tutorials
 const top_level = {};
@@ -21,7 +21,7 @@ Object.keys(tutorials).forEach(tut_name => {
     }
     const tut = tutorials[tut_name];
     if (tut.children) {
-        tut.children.forEach((child_tut,child_idx) => {
+        tut.children.forEach((child_tut, child_idx) => {
             child[child_tut] = true;
             delete top_level[child_tut];
             tutorials[child_tut].parent = tut_name;
@@ -32,13 +32,13 @@ Object.keys(tutorials).forEach(tut_name => {
     }
 });
 
-function resolve_next(list,index) {
+function resolve_next(list, index) {
     const self = tutorials[list[index]];
     if (self.children) {
         self.next = self.children[0];
         for (let i=0;i<self.children.length;i++) {
-            resolve_next(self.children,i);
-            resolve_prev(self.children,i);
+            resolve_next(self.children, i);
+            resolve_prev(self.children, i);
         }
     } else {
         if (index != list.length-1) {
@@ -47,7 +47,7 @@ function resolve_next(list,index) {
             function resolve_parent(me) {
                 const parent = tutorials[me.parent];
                 if (parent) {
-                    if(parent.sibling_idx != parent.siblings.length-1) {
+                    if (parent.sibling_idx != parent.siblings.length-1) {
                         return parent.siblings[parent.sibling_idx+1];
                     } else {
                         return resolve_parent(parent);
@@ -61,7 +61,7 @@ function resolve_next(list,index) {
         }
     }
 }
-function resolve_prev(list,index) {
+function resolve_prev(list, index) {
     const self = tutorials[list[index]];
     if (index == 0) {
         if (self.parent) {
@@ -76,8 +76,8 @@ const top = Object.keys(top_level);
 for (let i=0;i<top.length;i++) {
     tutorials[top[i]].siblings = top;
     tutorials[top[i]].sibling_idx = i;
-    resolve_next(top,i);
-    resolve_prev(top,i);
+    resolve_next(top, i);
+    resolve_prev(top, i);
 }
 
 Object.keys(tutorials).forEach(tut_name => {
@@ -92,7 +92,7 @@ Object.keys(tutorials).forEach(tut_name => {
         ext: '.md'
     });
     const in_file = fs.createReadStream(src_file);
-    const out_file = fs.createWriteStream(dest_file,{autoClose:false});
+    const out_file = fs.createWriteStream(dest_file, { autoClose: false });
     in_file.pipe(out_file, { end: false });
     in_file.on('end', () => {
         out_file.write('\n---\n');

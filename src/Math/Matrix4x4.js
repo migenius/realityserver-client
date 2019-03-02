@@ -567,7 +567,7 @@ class Matrix4x4 {
      */
     equal(rhs, tolerance) {
         if (tolerance) {
-            return this.equal_with_tolerance(rhs,tolerance);
+            return this.equal_with_tolerance(rhs, tolerance);
         }
 
         if (rhs.xx === this.xx && rhs.xy === this.xy && rhs.xz === this.xz && rhs.xw === this.xw &&

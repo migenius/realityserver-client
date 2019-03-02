@@ -6,7 +6,7 @@
 /// rejected later
 class Delayed_promise {
     constructor() {
-        this._promise = new Promise((resolve,reject) => {
+        this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
         });

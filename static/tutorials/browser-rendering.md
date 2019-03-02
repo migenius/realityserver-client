@@ -68,10 +68,14 @@ async function scene_loaded() {
 
     const [ start_result ] = await service.queue_commands()
       // create a scope for the session
-      .queue(new RS.Command('create_scope', { scope_name: state.session_scope_name, parent_scope: state.app_scope_name }))
+      .queue(new RS.Command('create_scope', 
+        {
+          scope_name: state.session_scope_name,
+          parent_scope: state.app_scope_name
+        }))
       .queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))
       // localize the camera to the session scope
-      .queue(new RS.Command('localize_element',{ element_name: state.scene.camera }))
+      .queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
       // set the camera resolution to match the size of the Image element we will display in
       .queue(new RS.Command('camera_set_resolution',
         {
@@ -89,7 +93,7 @@ async function scene_loaded() {
           render_loop_name: state.render_loop_name,
           render_loop_handler_name: 'default',
           timeout: 10,
-        }),true) // want a response for this command
+        }), true) // want a response for this command
       .execute();
 
     if (start_result instanceof RS.Command_error) {
@@ -111,7 +115,11 @@ const img = document.getElementById('rendered_image');
 This is the DOM element that we are going to be using to display images in. We require it here to work out what size image we need to render to.
 ```
 // create a scope for the session
-.queue(new RS.Command('create_scope', { scope_name: state.session_scope_name, parent_scope: state.app_scope_name }))
+.queue(new RS.Command('create_scope', 
+  {
+    scope_name: state.session_scope_name,
+    parent_scope: state.app_scope_name
+  }))
 .queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))
 ```
 We are making another scope, this time for the session. The session scope is used to perform scene changes that only want to be applied for this user in this session. As it wants to be able to access the scene we've just loaded it is created as a child of the application scope by passing it's name is as the parent. We then issue a `use_scope` command so that the rest of the commands in this sequence are executed in the session scope.
@@ -122,7 +130,7 @@ All the `localize_element` command does is makes a copy of the given element and
 
 ```
 // localize the camera to the session scope
-.queue(new RS.Command('localize_element',{ element_name: state.scene.camera }))
+.queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
 ```
 Now there is another camera called 'meyemii::cam' that exists in `session_scope_name`. Changes we make to that camera are only visible within that scope (and it's children). So we can freely edit that camera without having it affect users in other session. When we reload the page, or another user simultaneously accesses the application a new session scope will be made and a new copy of the scene camera.
 
@@ -148,7 +156,7 @@ We set the resolution and aspect ratio of the camera to that of the Image elemen
     render_loop_name: state.render_loop_name,
     render_loop_handler_name: 'default',
     timeout: 10,
-  }),true) // want a response for this command
+  }), true) // want a response for this command
 .execute();
 ```
 Adds the start render loop command and executes the sequence. Render loops are the primary mechanism of providing interactive rendering results to the user. Given a scene name they render in a tight loop on the server and can push images back to the client when available. Render loops are named so they can be identified and they behaviour modified. Any changes to the scene are automatically picked up and rendering will automatically begin again with the changes.
@@ -181,8 +189,8 @@ async function start_stream() {
 
     // RS.Utils.html_image_display creates an 'image' event handler which
     // will display rendered images in the provided Image element.
-    state.stream.on('image',RS.Utils.html_image_display(img));
-    state.stream.on('image',(image) => {
+    state.stream.on('image', RS.Utils.html_image_display(img));
+    state.stream.on('image', (image) => {
         if (image.result < 0) {
           set_status(`Render error: ${image.result}`);
           return; // error on render
@@ -214,8 +222,8 @@ state.stream = service.create_stream();
 ```
 A stream is tied to a render loop and every time a render completes it is pushed to the client. When the image is received a {@link RS.Stream#event:image} event is emitted on the stream object (and on the service itself) containing the image and various statistics (see {@link RS.Stream~Rendered_image}). So all we need to do is listen for these events to handle each image:
 ```
-state.stream.on('image',RS.Utils.html_image_display(img));
-state.stream.on('image',(image) => {
+state.stream.on('image', RS.Utils.html_image_display(img));
+state.stream.on('image', (image) => {
     if (image.result < 0) {
       set_status(`Render error: ${image.result}`);
       return; // error on render

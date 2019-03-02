@@ -29,11 +29,11 @@
         return;
       }
       set_status(`Loading scene: ${state.scene_filename}`);
-      
+    
       try {
         const [ scene_info ] = await service.queue_commands()
-          .queue(new RS.Command('create_scope',{ scope_name: state.app_scope_name }))
-          .queue(new RS.Command('use_scope',{ scope_name: state.app_scope_name }))
+          .queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
+          .queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))
           .queue(new RS.Command('import_scene',
             {
               filename: state.scene_filename,
@@ -42,7 +42,7 @@
               import_options: {
                 prefix: `${state.scene_name}::`
               }
-            }),true)
+            }), true)
           .execute();
         if (scene_info instanceof RS.Command_error) {
           set_status(`Scene load error: ${scene_info.message}`);

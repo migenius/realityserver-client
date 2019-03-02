@@ -56,8 +56,8 @@ Then create a command queue, add the commands to it and execute.
 ```
 try {
   const [ scene_info ] = await service.queue_commands()
-    .queue(new RS.Command('create_scope',{ scope_name: state.app_scope_name }))
-    .queue(new RS.Command('use_scope',{ scope_name: state.app_scope_name }))
+    .queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
+    .queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))
     .queue(new RS.Command('import_scene',
       {
         filename: state.scene_filename,
@@ -66,7 +66,7 @@ try {
         import_options: {
           prefix: `${state.scene_name}::`
         }
-      }),true)
+      }), true)
     .execute();
   if (scene_info instanceof RS.Command_error) {
     set_status(`Scene load error: ${scene_info.message}`);
@@ -88,12 +88,12 @@ service.queue_commands()
 The {@link RS.Service#queue_commands} call returns a {@link RS.Command_queue} object that can be used to queue a sequence of commands for execution as a block. It is possible to just execute single commands directly however typically more than one command is needed to acheive a given result. The command queue has a {@link RS.Command_queue#queue} function which adds commands to the queue and {@link RS.Command_queue#execute} and {@link RS.Command_queue#send} which push the commands for execution. The two latter function both perform the same function but have a subtle difference in how they return results.
 
 ```
-.queue(new RS.Command('create_scope',{ scope_name: state.app_scope_name }))
+.queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
 ```
 Adds the first command to the queue which will create the application scope. The {@link RS.Command} class reprents individual commands. The constructor takes just 2 arguments, the name of the command and an object containing it's named arguments. For convenience `queue` returns the command queue object so we can chain commands.
 
 ```
-.queue(new RS.Command('use_scope',{ scope_name: state.app_scope_name }))
+.queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))
 ```
 As stated above all commands are executed in the global scope by default so the newly created scope won't automatically be used. Therefore we need to explicitly make this new scope active with the `use_scope` command so that the import command adds the scene elements to our application scope. Once made activate, all subsequent commands in the queue will use this scope.
 
@@ -106,7 +106,7 @@ As stated above all commands are executed in the global scope by default so the 
     import_options: {
       prefix: `${state.scene_name}::`
     }
-  }),true)
+  }), true)
 ```
 Imports the actual scene and adds all elements to the scene database. The `filename` and `scene_name` arguments come from the state and should be self explanatory. `block` prevents other users from attempting to load content into `scene_name` while the current import is taking place. We wouldn't want someone else populating the scene with unexpected content while we're loading. The `import_options` specify a prefix that will be added to the start of all scene element names. For example: if the scene contains a camera called `cam` it would be added to the database as `meyemii::cam`. This is done to prevent name clashes with other scenes that may be imported into the `tutorial` scope. Note we could accomplish the same thing by creating a per-scene child scope of `tutorial` and importing the content into there.
 

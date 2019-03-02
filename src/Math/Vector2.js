@@ -22,7 +22,7 @@ class Vector2 {
         if (initial !== undefined) {
             this.set(...arguments);
         } else {
-            this.set(0,0,0);
+            this.set(0, 0, 0);
         }
     }
 
@@ -269,7 +269,7 @@ class Vector2 {
      */
     equal(rhs, tolerance) {
         if (tolerance) {
-            return this.equal_with_tolerance(rhs,tolerance);
+            return this.equal_with_tolerance(rhs, tolerance);
         }
 
         return this.x === rhs.x && this.y === rhs.y;

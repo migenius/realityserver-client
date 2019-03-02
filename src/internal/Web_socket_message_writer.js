@@ -72,7 +72,7 @@ class Web_socket_message_writer {
         let result = new Uint8Array(this.totalLength);
         let offset = 0;
         for (let i=0;i<this.buffers.length;i++) {
-            result.set(new Uint8Array(this.buffers[i].buffer,0,this.buffers[i].length),offset);
+            result.set(new Uint8Array(this.buffers[i].buffer, 0, this.buffers[i].length), offset);
             offset += this.buffers[i].length;
         }
         this.buffers = [];
@@ -87,7 +87,7 @@ class Web_socket_message_writer {
    */
     pushUint8(val) {
         this.validate_data(1);
-        this.data.setUint8(this.offset,val);
+        this.data.setUint8(this.offset, val);
         this.offset += 1;
     }
 
@@ -97,7 +97,7 @@ class Web_socket_message_writer {
    */
     pushSint8(val) {
         this.validate_data(1);
-        this.data.setInt8(this.offset,val);
+        this.data.setInt8(this.offset, val);
         this.offset += 1;
     }
 
@@ -107,7 +107,7 @@ class Web_socket_message_writer {
    */
     pushUint16(val) {
         this.validate_data(2);
-        this.data.setUint16(this.offset,val,this.le);
+        this.data.setUint16(this.offset, val, this.le);
         this.offset += 2;
     }
 
@@ -117,7 +117,7 @@ class Web_socket_message_writer {
    */
     pushSint16(val) {
         this.validate_data(2);
-        this.data.setInt16(this.offset,val,this.le);
+        this.data.setInt16(this.offset, val, this.le);
         this.offset += 2;
     }
 
@@ -127,7 +127,7 @@ class Web_socket_message_writer {
    */
     pushUint32(val) {
         this.validate_data(4);
-        this.data.setUint32(this.offset,val,this.le);
+        this.data.setUint32(this.offset, val, this.le);
         this.offset += 4;
     }
 
@@ -137,7 +137,7 @@ class Web_socket_message_writer {
    */
     pushSint32(val) {
         this.validate_data(4);
-        this.data.setInt32(this.offset,val,this.le);
+        this.data.setInt32(this.offset, val, this.le);
         this.offset += 4;
     }
 
@@ -219,7 +219,7 @@ class Web_socket_message_writer {
    */
     pushFloat32(val) {
         this.validate_data(4);
-        this.data.setFloat32(this.offset,val,this.le);
+        this.data.setFloat32(this.offset, val, this.le);
         this.offset += 4;
     }
 
@@ -229,7 +229,7 @@ class Web_socket_message_writer {
    */
     pushFloat64(val) {
         this.validate_data(8);
-        this.data.setFloat64(this.offset,val,this.le);
+        this.data.setFloat64(this.offset, val, this.le);
         this.offset += 8;
     }
 
@@ -241,8 +241,8 @@ class Web_socket_message_writer {
         let utf8_array = Utf8.encode(val);
         this.validate_data(1 + 4 + utf8_array.byteLength);
         // character size
-        this.data.setUint8(this.offset++,1);
-        this.data.setUint32(this.offset,utf8_array.byteLength,this.le);
+        this.data.setUint8(this.offset++, 1);
+        this.data.setUint32(this.offset, utf8_array.byteLength, this.le);
         this.offset += 4;
 
         this.pushArrayBuffer(utf8_array.buffer);
@@ -255,7 +255,7 @@ class Web_socket_message_writer {
     pushArrayBuffer(value) {
         let arr = new Uint8Array(value);
         this.validate_data(arr.byteLength);
-        let set_arr = new Uint8Array(this.data.buffer,this.offset);
+        let set_arr = new Uint8Array(this.data.buffer, this.offset);
         set_arr.set(arr);
         this.offset += arr.byteLength;
     }

@@ -24,7 +24,7 @@ class Color {
         if (color !== undefined) {
             this.set(...arguments);
         } else {
-            this.set(0,0,0);
+            this.set(0, 0, 0);
         }
     }
 

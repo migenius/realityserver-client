@@ -24,7 +24,7 @@ class Spectrum {
          * A 3 element `Array` containing the components of the Spectrum
          * @member {Number[]}
          */
-        this.c = [ 0,0,0 ];
+        this.c = [ 0, 0, 0 ];
 
         if (initial !== undefined) {
             this.set(...arguments);
@@ -221,7 +221,7 @@ class Spectrum {
      */
     equal(rhs, tolerance) {
         if (tolerance) {
-            return this.equal_with_tolerance(rhs,tolerance);
+            return this.equal_with_tolerance(rhs, tolerance);
         }
 
         return Array.isArray(rhs.c) && this.c[0] === rhs.c[0] && this.c[1] === rhs.c[1] && this.c[2] === rhs.c[2];

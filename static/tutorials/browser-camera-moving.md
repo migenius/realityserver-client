@@ -24,11 +24,15 @@ To move the camera we first need to know where it is. The scene info has already
 ```
  const [ camera_matrix, start_result ] = await service.queue_commands()
   // create a scope for the session
-  .queue(new RS.Command('create_scope', { scope_name: state.session_scope_name, parent_scope: state.app_scope_name }))
+  .queue(new RS.Command('create_scope', 
+    {
+      scope_name: state.session_scope_name,
+      parent_scope: state.app_scope_name
+    }))
   .queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))
   // localize the camera to the session scope
-  .queue(new RS.Command('localize_element',{ element_name: state.scene.camera }))
-  .queue(new RS.Command('localize_element',{ element_name: state.scene.camera_instance }))
+  .queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
+  .queue(new RS.Command('localize_element', { element_name: state.scene.camera_instance }))
   // set the camera resolution to match the size of the Image element we will display in
   .queue(new RS.Command('camera_set_resolution',
     {
@@ -51,7 +55,7 @@ To move the camera we first need to know where it is. The scene info has already
       render_loop_name: state.render_loop_name,
       render_loop_handler_name: 'default',
       timeout: 10,
-    }),true) // want a response for this command
+    }), true) // want a response for this command
   .execute();
 
 if (camera_matrix instanceof RS.Command_error) {
@@ -84,7 +88,7 @@ We want the user to be able to drag the mouse on the image to move the camera ba
 ```
 set_status('Render loop stream started');
 
-img.addEventListener('mousedown',mouse_down);
+img.addEventListener('mousedown', mouse_down);
 ```
 `mouse_down` and it's associated functions are defined as follows:
 ```
@@ -92,8 +96,8 @@ function mouse_down(event) {
   state.last_mouse.x = event.clientX;
   state.last_mouse.y = event.clientY;
 
-  window.addEventListener('mousemove',mouse_move);
-  window.addEventListener('mouseup',mouse_up);
+  window.addEventListener('mousemove', mouse_move);
+  window.addEventListener('mouseup', mouse_up);
 
   event.preventDefault();
 }
@@ -107,8 +111,8 @@ function mouse_move(event) {
 }
 
 function mouse_up(event) {
-  window.removeEventListener('mousemove',mouse_move);
-  window.removeEventListener('mouseup',mouse_up);
+  window.removeEventListener('mousemove', mouse_move);
+  window.removeEventListener('mouseup', mouse_up);
 
   event.preventDefault();
 }

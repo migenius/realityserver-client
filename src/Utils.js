@@ -12,8 +12,8 @@ const EventEmitter = require('eventemitter3');
      * @type {Char[]}
      */
     function uidArr() {
-        return [ '0','1','2','3','4','5','6','7','8','9',
-            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z' ];
+        return [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z' ];
     };
 
     /**
@@ -173,7 +173,7 @@ const EventEmitter = require('eventemitter3');
          *      };
          *  }
          */
-        html_image_display: function(image,url_creator) {
+        html_image_display: function(image, url_creator) {
             const bind_to = {
                 image
             };

@@ -132,7 +132,7 @@ class Stream extends EventEmitter {
      * @fires RS.Stream#image
      */
     start(render_loop) {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.service.validate(reject)) {
                 return;
             }
@@ -146,7 +146,7 @@ class Stream extends EventEmitter {
                 };
             }
 
-            this.service.send_ws_command('start_stream',render_loop,response => {
+            this.service.send_ws_command('start_stream', render_loop, response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
                 } else {
@@ -166,14 +166,14 @@ class Stream extends EventEmitter {
      * on error.
      */
     stop() {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.service.validate(reject)) {
                 return;
             }
             if (!this.streaming) {
                 reject(new RS_error('Not streaming.'));
             }
-            this.service.send_ws_command('stop_stream',{ render_loop_name: this.render_loop_name },response => {
+            this.service.send_ws_command('stop_stream', { render_loop_name: this.render_loop_name }, response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
                 } else {
@@ -229,7 +229,7 @@ class Stream extends EventEmitter {
      * the error message.
      */
     set_parameters(parameters) {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.service.validate(reject)) {
                 return;
             }
@@ -242,7 +242,7 @@ class Stream extends EventEmitter {
                 },
                 parameters
             );
-            this.service.send_ws_command('set_stream_parameters',args, response => {
+            this.service.send_ws_command('set_stream_parameters', args, response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
                 } else {
@@ -299,7 +299,7 @@ class Stream extends EventEmitter {
      * @return {Promise} A promise that resolves with the result of the camera update.
      */
     update_camera(data) {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.service.validate(reject)) {
                 return;
             }
@@ -318,7 +318,7 @@ class Stream extends EventEmitter {
                 camera_instance: data.camera_instance
             };
 
-            this.service.send_ws_command('set_camera',args,response => {
+            this.service.send_ws_command('set_camera', args, response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
                 } else {
@@ -335,7 +335,7 @@ class Stream extends EventEmitter {
      * @return {RS.Render_loop_state_data}
      * @access private
      */
-    get_state_data(cancel_level=null,continue_on_error=null) {
+    get_state_data(cancel_level=null, continue_on_error=null) {
         let state_data = this.state_data;
         if ((cancel_level !== null && cancel_level !== this.cancel_level) ||
             (continue_on_error !== null && !!continue_on_error !== this.continue_on_error)) {
@@ -360,8 +360,8 @@ class Stream extends EventEmitter {
      * continue on error.
      * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
-    queue_commands({ wait_for_render=false,cancel_level=null,continue_on_error=null }={}) {
-        return new Command_queue(this.service,wait_for_render,this.get_state_data(cancel_level,continue_on_error));
+    queue_commands({ wait_for_render=false, cancel_level=null, continue_on_error=null }={}) {
+        return new Command_queue(this.service, wait_for_render, this.get_state_data(cancel_level, continue_on_error));
     }
 
     /**
@@ -388,9 +388,9 @@ class Stream extends EventEmitter {
      * continue on error.
      * @return {Promise} A `Promise` that resolves to an iterable.
      */
-    execute_command(command,{ want_response=false,wait_for_render=false,cancel_level=null,continue_on_error=null }={}) {
-        return new Command_queue(this.service,wait_for_render,this.get_state_data(cancel_level,continue_on_error))
-            .queue(command,want_response)
+    execute_command(command, { want_response=false, wait_for_render=false, cancel_level=null, continue_on_error=null }={}) {
+        return new Command_queue(this.service, wait_for_render, this.get_state_data(cancel_level, continue_on_error))
+            .queue(command, want_response)
             .execute();
     }
 
@@ -417,9 +417,9 @@ class Stream extends EventEmitter {
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
      */
-    send_command(command,{ want_response=false,wait_for_render=false,cancel_level=null,continue_on_error=null }={}) {
-        return new Command_queue(this.service,wait_for_render,this.get_state_data(cancel_level,continue_on_error))
-            .queue(command,want_response)
+    send_command(command, { want_response=false, wait_for_render=false, cancel_level=null, continue_on_error=null }={}) {
+        return new Command_queue(this.service, wait_for_render, this.get_state_data(cancel_level, continue_on_error))
+            .queue(command, want_response)
             .send(wait_for_render);
     }
 }

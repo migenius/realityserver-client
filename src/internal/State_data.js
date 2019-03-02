@@ -36,8 +36,8 @@ class State_data {
             this._scope_name = value;
             if (value) {
                 this._state_commands = [
-                    new Command('use_scope',{scope_name: value})
-                ]
+                    new Command('use_scope', { scope_name: value })
+                ];
             } else {
                 this._state_commands = null;
             }

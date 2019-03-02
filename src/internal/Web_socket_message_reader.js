@@ -8,7 +8,7 @@ class Web_socket_message_reader {
    * @private Helper for reading binary messages
    * @ctor
    */
-    constructor(data,initial_offset,little_endian) {
+    constructor(data, initial_offset, little_endian) {
         this.data = data;
         this.offset = initial_offset || 0;
         this.le = little_endian || true;
@@ -18,7 +18,7 @@ class Web_socket_message_reader {
    * @private
    */
     getUint8() {
-        let r= this.data.getUint8(this.offset,this.le);
+        let r= this.data.getUint8(this.offset, this.le);
         this.offset += 1;
         return r;
     }
@@ -27,7 +27,7 @@ class Web_socket_message_reader {
    * @private
    */
     getSint8() {
-        let r= this.data.getInt8(this.offset,this.le);
+        let r= this.data.getInt8(this.offset, this.le);
         this.offset += 1;
         return r;
     }
@@ -36,7 +36,7 @@ class Web_socket_message_reader {
    * @private
    */
     getUint16() {
-        let r= this.data.getUint16(this.offset,this.le);
+        let r= this.data.getUint16(this.offset, this.le);
         this.offset += 2;
         return r;
     }
@@ -45,7 +45,7 @@ class Web_socket_message_reader {
    * @private
    */
     getSint16() {
-        let r= this.data.getInt16(this.offset,this.le);
+        let r= this.data.getInt16(this.offset, this.le);
         this.offset += 2;
         return r;
     }
@@ -54,7 +54,7 @@ class Web_socket_message_reader {
    * @private
    */
     getUint32() {
-        let r= this.data.getUint32(this.offset,this.le);
+        let r= this.data.getUint32(this.offset, this.le);
         this.offset += 4;
         return r;
     }
@@ -63,7 +63,7 @@ class Web_socket_message_reader {
    * @private
    */
     getSint32() {
-        let r= this.data.getInt32(this.offset,this.le);
+        let r= this.data.getInt32(this.offset, this.le);
         this.offset += 4;
         return r;
     }
@@ -122,7 +122,7 @@ class Web_socket_message_reader {
    * @private
    */
     getFloat32() {
-        let r= this.data.getFloat32(this.offset,this.le);
+        let r= this.data.getFloat32(this.offset, this.le);
         this.offset += 4;
         return r;
     }
@@ -131,7 +131,7 @@ class Web_socket_message_reader {
    * @private
    */
     getFloat64() {
-        let r= this.data.getFloat64(this.offset,this.le);
+        let r= this.data.getFloat64(this.offset, this.le);
         this.offset += 8;
         return r;
     }
@@ -145,7 +145,7 @@ class Web_socket_message_reader {
         let r = '';
         if (char_size === 1) {
             // utf8
-            let string_bytes = new Uint8Array(this.data.buffer,this.data.byteOffset+this.offset,length);
+            let string_bytes = new Uint8Array(this.data.buffer, this.data.byteOffset+this.offset, length);
             r = Utf8.decode(string_bytes);
             this.offset += length;
         } else if (char_size === 2) {
@@ -162,7 +162,7 @@ class Web_socket_message_reader {
    * @private
    */
     getUint8Array(length) {
-        let r = new Uint8Array(this.data.buffer,this.offset,length);
+        let r = new Uint8Array(this.data.buffer, this.offset, length);
         this.offset += length;
         return r;
     }
@@ -171,7 +171,7 @@ class Web_socket_message_reader {
    * @private
    */
     getUint8ClampedArray(length) {
-        let r = new Uint8ClampedArray(this.data.buffer,this.offset,length);
+        let r = new Uint8ClampedArray(this.data.buffer, this.offset, length);
         this.offset += length;
         return r;
     }

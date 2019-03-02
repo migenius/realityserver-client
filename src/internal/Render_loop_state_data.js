@@ -4,7 +4,7 @@
 
 /**
  * This interface encapsulates the data that is to used when executing
- * commands on render loops. Used when rendering commands on streams to 
+ * commands on render loops. Used when rendering commands on streams to
  * pass required information to the service.
  * @memberof RS
  */
