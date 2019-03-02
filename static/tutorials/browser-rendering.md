@@ -253,7 +253,3 @@ The complete source for this tutorial can be found below:
 
 [Source](tutorials/browser-rendering/index.html)
 
----
-|||
-|:-|-:|
-|<<< {@tutorial browser-scene-loading}|{@tutorial browser-camera-moving} >>>|

@@ -185,7 +185,4 @@ The complete source for this tutorial can be found below:
 
 [Source](tutorials/browser-change-color/index.html)
 
----
-|||
-|:-|-:|
-|<<< {@tutorial browser-camera-moving}|{@tutorial node} >>>|
+

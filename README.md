@@ -244,8 +244,8 @@ TODO: link to live docs go here
 
 ## Demos
 
-- [A simple rendering demo with camera dolly and material changing](http://github.com/migenius/realityserver-client-tutorial "Simple demo")
+- [A simple rendering demo with camera dolly and material changing](https://github.com/migenius/realityserver-client-tutorial "Simple demo")
 
-- [React/mobx implementation of the render loop demo](http://github.com/migenius/react-mobx-render-loop "React/MobX demo")
+- [React/mobx implementation of the render loop demo](https://github.com/migenius/react-mobx-render-loop "React/MobX demo")
 
-- [Simple Node.js render script](http://github.com/migenius/node-render "node render script")
+- [Simple Node.js render script](https://github.com/migenius/node-render "node render script")

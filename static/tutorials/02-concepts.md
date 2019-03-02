@@ -4,8 +4,6 @@ A lightweight, modern JavaScript client library to connect to and render using [
 
 ## Scopes
 
-## State
-
 ## Send and execute
 
 

@@ -11,7 +11,8 @@
   "unpkg": "lib/umd/realityserver.min.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "build-doc": "node_modules/.bin/jsdoc -c .jsdoc.conf.js",
+    "build:doc:preprocess": "node scripts/preprocess-tutorials.js",
+    "build:doc": "npm run build:doc:preprocess && jsdoc -c .jsdoc.conf.js",
     "eslint": "node_modules/.bin/eslint src scripts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

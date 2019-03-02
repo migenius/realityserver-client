@@ -140,7 +140,4 @@ The complete source for this tutorial can be found below:
 
 [Source](tutorials/browser-scene-loading/index.html)
 
----
-|||
-|:-|-:|
-|<<< {@tutorial browser-connecting}|{@tutorial browser-rendering} >>>|
+

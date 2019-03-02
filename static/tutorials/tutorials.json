@@ -23,7 +23,12 @@
 		]
 	},
 	"node": {
-		"title": "Node.js"
+		"title": "Node.js",
+		"children": [
+			"node-connecting",
+			"node-scene-loading",
+			"node-rendering"
+		]
 	},
 	"browser-connecting": {
 		"title": "Connecting"
@@ -39,5 +44,14 @@
 	},
 	"browser-change-color": {
 		"title": "Changing Color"
+	},
+	"node-connecting": {
+		"title": "Connecting"
+	},
+	"node-scene-loading": {
+		"title": "Scene Loading"
+	},
+	"node-rendering": {
+		"title": "Rendering"
 	}
 }

@@ -172,7 +172,3 @@ The complete source for this tutorial can be found below:
 
 [Source](tutorials/browser-camera-moving/index.html)
 
----
-|||
-|:-|-:|
-|<<< {@tutorial browser-rendering}|{@tutorial browser-change-color} >>>|

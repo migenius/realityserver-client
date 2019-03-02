@@ -6,7 +6,7 @@ The first step is some simple boiler plate HTML to load the library and display 
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RealityServer&reg; Client Tutorial</title>
+  <title>RealityServer&reg; Client Tutorial</title> 
   <meta charset="UTF-8"> 
   <script src="../../lib/realityserver.js"></script>
 </head>
@@ -108,7 +108,4 @@ The complete source for this tutorial can be found below:
 
 [Source](tutorials/browser-connecting/index.html)
 
----
-|||
-|:-|-:|
-|<<< {@tutorial browser}|{@tutorial browser-scene-loading} >>>|
+

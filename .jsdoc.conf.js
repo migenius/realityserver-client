@@ -35,7 +35,7 @@ module.exports = {
     "destination": "./docs/",
     "recurse": true,
     "template": "../pixi-jsdoc-template",
-    "tutorials": "static/tutorials",
+    "tutorials": "static/tutorials/out",
     "readme": "static/README.md"
   }
 }
