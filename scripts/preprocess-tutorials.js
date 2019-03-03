@@ -41,13 +41,13 @@ function resolve_next(list, index) {
             resolve_prev(self.children, i);
         }
     } else {
-        if (index != list.length-1) {
+        if (index !== list.length-1) {
             self.next = list[index+1];
         } else {
             function resolve_parent(me) {
                 const parent = tutorials[me.parent];
                 if (parent) {
-                    if (parent.sibling_idx != parent.siblings.length-1) {
+                    if (parent.sibling_idx !== parent.siblings.length-1) {
                         return parent.siblings[parent.sibling_idx+1];
                     } else {
                         return resolve_parent(parent);
@@ -63,7 +63,7 @@ function resolve_next(list, index) {
 }
 function resolve_prev(list, index) {
     const self = tutorials[list[index]];
-    if (index == 0) {
+    if (index === 0) {
         if (self.parent) {
             self.prev = self.parent;
         }

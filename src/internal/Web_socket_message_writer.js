@@ -148,7 +148,7 @@ class Web_socket_message_writer {
     pushUint64(val) {
         // split 64-bit number into two 32-bit (4-byte) parts
         let low = val | 0; // bitwise ops convert to 32 bit
-        let high = val / (2**32);
+        let high = val / Math.pow(2, 32);
         if (this.le) {
             this.pushUint32(low);
             this.pushUint32(high);
@@ -172,7 +172,7 @@ class Web_socket_message_writer {
             // make positive and extract bits.
             // then negate by doing not().add(1)
             low = (-val) | 0; // bitwise ops convert to 32 bit
-            high = (-val / (2**32)) | 0;
+            high = (-val / Math.pow(2, 32)) | 0;
 
             // not
             low = ~low;
@@ -201,7 +201,7 @@ class Web_socket_message_writer {
             high = (c48 << 16) | c32;
         } else {
             low = val | 0; // bitwise ops convert to 32 bit
-            high = (val / (2**32)) | 0;
+            high = (val / Math.pow(2, 32)) | 0;
         }
 
         if (this.le) {

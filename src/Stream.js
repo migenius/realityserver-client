@@ -389,7 +389,12 @@ class Stream extends EventEmitter {
      * continue on error.
      * @return {Promise} A `Promise` that resolves to an iterable.
      */
-    execute_command(command, { want_response=false, wait_for_render=false, cancel_level=null, continue_on_error=null }={}) {
+    execute_command(command, {
+        want_response=false,
+        wait_for_render=false,
+        cancel_level=null,
+        continue_on_error=null
+    } = {}) {
         return new Command_queue(this.service, wait_for_render, this.get_state_data(cancel_level, continue_on_error))
             .queue(command, want_response)
             .execute();
@@ -418,7 +423,12 @@ class Stream extends EventEmitter {
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
      */
-    send_command(command, { want_response=false, wait_for_render=false, cancel_level=null, continue_on_error=null }={}) {
+    send_command(command, {
+        want_response=false,
+        wait_for_render=false,
+        cancel_level=null,
+        continue_on_error=null
+    } = {}) {
         return new Command_queue(this.service, wait_for_render, this.get_state_data(cancel_level, continue_on_error))
             .queue(command, want_response)
             .send(wait_for_render);

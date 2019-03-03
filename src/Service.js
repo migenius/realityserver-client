@@ -413,7 +413,7 @@ class Service extends EventEmitter {
                         }
                     }
                 } else {
-                    const data = JSON.parse(event.data,Class_hinting.reviver);
+                    const data = JSON.parse(event.data, Class_hinting.reviver);
                     if (data.id !== undefined) {
                         process_response(data);
                     }

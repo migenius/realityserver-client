@@ -86,7 +86,7 @@ class Web_socket_message_reader {
         high |= 0; // a trick to get signed
 
         // combine the two 32-bit values
-        let combined = low + (2**32)*high;
+        let combined = low + Math.pow(2, 32) * high;
 
         if (!Number.isSafeInteger(combined)) {
             console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
@@ -110,7 +110,7 @@ class Web_socket_message_reader {
             low = this.getUint32();
         }
         // combine the two 32-bit values
-        let combined = low + (2**32)*high;
+        let combined = low + Math.pow(2, 32) * high;
 
         if (!Number.isSafeInteger(combined)) {
             console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');

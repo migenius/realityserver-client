@@ -3,6 +3,8 @@
  *****************************************************************************/
 const RS_math = require('../Math/index.js');
 
+/* eslint new-cap: off */
+
 /// Known classes
 const constructors = {
     'Color': RS_math.Color,
@@ -13,7 +15,7 @@ const constructors = {
     'Spectrum': RS_math.Spectrum
 };
 
-/// Resolves JSON-RPC style class hinting. It's not a pure implementation of 
+/// Resolves JSON-RPC style class hinting. It's not a pure implementation of
 /// class hinting however it acheives the same result.
 /// @access private
 class Class_hinting {
@@ -22,14 +24,14 @@ class Class_hinting {
         if (object && object['__jsonclass__'] && object['__jsonclass__'][0]) {
             const ctor = constructors[object['__jsonclass__'][0]];
             if (ctor) {
-                return new ctor(object); 
+                return new ctor(object);
             }
         }
         return object;
     }
 
     /// Can be used as a JSON reviver
-    static reviver(key,value) {
+    static reviver(key, value) {
         return Class_hinting.resolve(value);
     }
 }
