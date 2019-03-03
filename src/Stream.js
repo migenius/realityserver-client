@@ -253,7 +253,6 @@ class Stream extends EventEmitter {
     }
 
     /**
-     * TODO: passing a cancel level
      * Utility function to update the camera on this stream's render loop
      *
      * While it is possible to simply use individual commands to update the
@@ -268,8 +267,9 @@ class Stream extends EventEmitter {
      * - updating the camera information failed
      * @endcode
      * @param {Object} data Object specifying the camera to update. Supported format is:
-     * @param {Object=} data.camera Properties to update on the camera
-     * @param {String} data.camera.name The name of the camera to update
+     * @param {Number=} data.cancel_level - Cancel level to use when updating.
+     * @param {Object=} data.camera - Properties to update on the camera
+     * @param {String} data.camera.name - The name of the camera to update
      * @param {Number=} data.camera.aperture - The aperture width of the camera.
      * @param {Number=} data.camera.aspect - The aspect ratio of the camera.
      * @param {Number=} data.camera.clip_max - The yon clipping distance.
@@ -315,7 +315,8 @@ class Stream extends EventEmitter {
             const args = {
                 render_loop_name: this.render_loop_name,
                 camera: data.camera,
-                camera_instance: data.camera_instance
+                camera_instance: data.camera_instance,
+                cancel_level: data.cancel_level
             };
 
             this.service.send_ws_command('set_camera', args, response => {
