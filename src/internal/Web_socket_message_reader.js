@@ -2,6 +2,7 @@
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 const Utf8 = require('./Utf8.js');
+const Class_hinting = require('./Class_hinting.js');
 
 class Web_socket_message_reader {
     /**
@@ -201,7 +202,7 @@ class Web_socket_message_reader {
                 let value = this.getTypedValue();
                 r[key] = value;
             }
-            return r;
+            return Class_hinting.resolve(r);
         };
         case 0x0c: {
             let count = this.getUint32();

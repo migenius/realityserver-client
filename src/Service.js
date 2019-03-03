@@ -4,10 +4,11 @@
 const Web_socket_message_reader = require('./internal/Web_socket_message_reader');
 const Web_socket_message_writer = require('./internal/Web_socket_message_writer');
 const Delayed_promise = require('./internal/Delayed_promise');
+const Class_hinting = require('./internal/Class_hinting');
+const State_data = require('./internal/State_data');
 const Command_error = require('./Command_error');
 const Command_queue = require('./Command_queue');
 const { EventEmitter } = require('./Utils');
-const State_data = require('./internal/State_data');
 const RS_error = require('./Error');
 const Stream = require('./Stream');
 
@@ -412,7 +413,7 @@ class Service extends EventEmitter {
                         }
                     }
                 } else {
-                    let data = JSON.parse(event.data);
+                    const data = JSON.parse(event.data,Class_hinting.reviver);
                     if (data.id !== undefined) {
                         process_response(data);
                     }
