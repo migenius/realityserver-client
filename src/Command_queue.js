@@ -53,6 +53,8 @@ class Command_queue {
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * @fires RS.Service#command_requests
+     * @fires RS.Service#command_results
      */
     send() {
         this.resolve_all = false;
@@ -71,6 +73,8 @@ class Command_queue {
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
      * @return {Promise}
+     * @fires RS.Service#command_requests
+     * @fires RS.Service#command_results
      */
     execute() {
         this.resolve_all = true;

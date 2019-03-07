@@ -388,6 +388,8 @@ class Stream extends EventEmitter {
      * @param {Boolean} [options.continue_on_error=this.continue_on_error] - If provided then this overrides the streams
      * continue on error.
      * @return {Promise} A `Promise` that resolves to an iterable.
+     * @fires RS.Service#command_requests
+     * @fires RS.Service#command_results
      */
     execute_command(command, {
         want_response=false,
@@ -422,6 +424,8 @@ class Stream extends EventEmitter {
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * @fires RS.Service#command_requests
+     * @fires RS.Service#command_results
      */
     send_command(command, {
         want_response=false,

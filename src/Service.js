@@ -72,6 +72,8 @@ class Service extends EventEmitter {
         this.default_state_data = new State_data();
 
         this.binary_commands = true;
+
+        this.emit_command_events = false;
     }
 
     /**
@@ -655,6 +657,8 @@ class Service extends EventEmitter {
      * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
      * @return {Promise} A `Promise` that resolves to an iterable.
+     * @fires RS.Service#command_requests
+     * @fires RS.Service#command_results
      */
     execute_command(command, { want_response=false, scope_name=null }={}) {
         return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
@@ -678,6 +682,8 @@ class Service extends EventEmitter {
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * @fires RS.Service#command_requests
+     * @fires RS.Service#command_results
      */
     send_command(command, { want_response=false, scope_name=null }={}) {
         return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
@@ -756,8 +762,31 @@ class Service extends EventEmitter {
                     commands
             };
         }
-
+        const scope = this;
         function resolve_responses(response) {
+            if (scope.emit_command_events) {
+                /**
+                 * Command response event.
+                 *
+                 * Emitted when command responses are received and {@link RS.Service#log_commands}
+                 * is enabled.
+                 *
+                 * @event RS.Service#command_results
+                 * @param {Object} event - The response event.
+                 * @param {Number} event.id - The request ID that these responses are for.
+                 * @param {Array} event.results - The command results, note this will include results
+                 * for any prepended scope commands.
+                 * @param {Array} event.commands - The commands these results are for.
+                 * @param {String=} event.render_loop_name - If these commands were executed on a stream
+                 * then the name of ther render loop associated with the stream.
+                 */
+                scope.emit('command_results', {
+                    id: response.id,
+                    results: response.result,
+                    commands: execute_args.commands,
+                    render_loop_name: this.state_data.render_loop_name
+                });
+            }
             // this is the command queue
             // state data commands will have results as well so we need to compensate for them
             let response_offset = this.state_data.state_commands ? this.state_data.state_commands.length : 0;
@@ -774,7 +803,29 @@ class Service extends EventEmitter {
             }
         }
 
-        if ((wait_for_render && promises.length > 1) || promises.length) {
+        if ((wait_for_render && promises.length > 1) || promises.length || this.emit_command_events) {
+            if (this.emit_command_events) {
+                /**
+                 * Command request event.
+                 *
+                 * Emitted when command requests are sent and {@link RS.Service#log_commands}
+                 * is enabled.
+                 *
+                 * @event RS.Service#command_requests
+                 * @param {Object} event - The request event.
+                 * @param {Number} event.id - The request ID. There will be a corresponding
+                 * {@link RS.Service#event:command_results} event emitted with this ID.
+                 * @param {Array} event.commands - The commands to be executed, note this will include
+                 * any commands prepended by the service for scope management.
+                 * @param {String=} event.render_loop_name - If these commands are to be executed on a stream
+                 * then the name of ther render loop associated with the stream.
+                 */
+                this.emit('command_requests', {
+                    id: this.command_id,
+                    commands: execute_args.commands,
+                    render_loop_name: command_queue.state_data.render_loop_name
+                });
+            }
             // we want responses
             this.send_ws_command('execute', execute_args, resolve_responses, command_queue);
         } else {
@@ -803,6 +854,21 @@ class Service extends EventEmitter {
 
     get debug_commands() {
         return !this.binary_commands;
+    }
+
+    /**
+     * If set to `true` then events are emitted for each command execution providing details of the command
+     * request and response. Note that if enabled this will cause responses to be sent for every command,
+     * not just ones that specify the `want_response` flag. Also note that this is not meant as a replacement
+     * for the promise based response handling system but as a debug tool. Should not be enabled in production.
+     * @type {Boolean}
+     */
+    set log_commands(enable) {
+        this.emit_command_events = !!enable;
+    }
+
+    get log_commands() {
+        return this.emit_command_events;
     }
 
     /**
