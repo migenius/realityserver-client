@@ -99,7 +99,7 @@
           // localize the camera to the session scope
           .queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
           .queue(new RS.Command('localize_element', { element_name: state.scene.camera_instance }))
-          .queue(new RS.Command('localize_element', { element_name: state.material_name }))
+          .queue(new RS.Command('localize_element', { element_name: `${state.scene_name}::${state.material_name}` }))
           // set the camera resolution to match the size of the Image element we will display in
           .queue(new RS.Command('camera_set_resolution',
             {

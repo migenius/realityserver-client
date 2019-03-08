@@ -62,8 +62,10 @@ We only need to modify the existing JavaScript in one location. This is to local
 // localize the camera to the session scope
 .queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
 .queue(new RS.Command('localize_element', { element_name: state.scene.camera_instance }))
-.queue(new RS.Command('localize_element', { element_name: state.material_name }))
+.queue(new RS.Command('localize_element', { element_name: `${state.scene_name}::${state.material_name}` }))
 ```
+Note the material name is being prefixed with the scene name due to the import prefix.
+
 The `set_color` function is called to change the actual color. It's arguments are the RGB values to change to (in linear floating point 0->1 format, all RealityServer&reg; colors are represented in this way) and the id of the button that was pressed.
 ```javascript
 async function set_color(r, g, b, name) {
@@ -116,7 +118,7 @@ new RS.Command('mdl_set_argument',
       value: { r, g, b }
     })
 ```
-This command sets the `metal_color` argument of the MDL material instance `element_name` to the provided color. Note the `element_name` is being prefixed with the scene name due to the import prefix. 
+This command sets the `metal_color` argument of the MDL material instance specified in `element_name` to the provided color. Again we prefix the name with the import prefix. Maybe we should have just done that in the state.
 ```javascript
 const [ response, available ] = state.stream.send_command(
   ...
