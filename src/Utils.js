@@ -126,8 +126,8 @@ const EventEmitter = require('eventemitter3');
          * to display rendered images via an HTML Image element (or any object that can process a
          * URL assigned to it's `src` property).
          * @memberof RS.Utils
-         * @param {Image} element - the image element to use
-         * @param {Object} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
+         * @param {Image} image - the image element to use
+         * @param {Object=} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
          * `URL.revokeObjectURL(String)`. If not provided then `window.URL` or
          * `window.webkitURL` will be used.
          * @see RS.Service#stream
@@ -198,6 +198,21 @@ const EventEmitter = require('eventemitter3');
             return display_image.bind(bind_to);
         },
 
+        /**
+         * Returns a function that can be used as a event handler for render loop stream image events
+         * to display MP4 encoded rendered images via an HTML Video element and MediaSource 
+         * compatible decoder.
+         * @memberof RS.Utils
+         * @param {Video} video - the video element to use
+         * @param {Object=} media_source - a constructor that returns an object  that implements the
+         * MediaSource API as defined in
+         * {@link https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API}.
+         * If not provided then the `MediaSource` constructor will be used.
+         * @param {Object=} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
+         * `URL.revokeObjectURL(String)`. If not provided then `window.URL` or
+         * `window.webkitURL` will be used.
+         * @see RS.Service#stream
+         */
         html_video_display: function(video, media_source, url_creator) {
             const bind_to = {
                 video,
