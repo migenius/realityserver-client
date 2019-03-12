@@ -37,5 +37,9 @@
     "lib",
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/migenius/realityserver-client.git"
+  },
   "author": "Brendan Hack"
 }
