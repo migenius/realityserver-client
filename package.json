@@ -18,6 +18,7 @@
   },
   "license": "ISC",
   "devDependencies": {
+    "@migenius/jsdoc-template": "^1.0.0",
     "eslint": "^5.13.0",
     "eventemitter3": "^3.1.0",
     "fs-extra": "^7.0.1",
@@ -41,5 +42,5 @@
     "type": "git",
     "url": "git://github.com/migenius/realityserver-client.git"
   },
-  "author": "Brendan Hack"
+  "author": "Brendan Hack <brendan@migenius.com>"
 }
