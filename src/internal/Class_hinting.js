@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const RS_math = require('../Math/index.js');
+import * as RS_math from '../Math/index';
 
 /* eslint new-cap: off */
 
@@ -36,4 +36,4 @@ class Class_hinting {
     }
 }
 
-module.exports = Class_hinting;
+export default Class_hinting;

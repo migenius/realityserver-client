@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Const = require('./Functions');
+import * as Const from './Functions';
 
 /**
  * Class representing a 2D Vector with components x and y.
@@ -309,5 +309,4 @@ class Vector2 {
     }
 }
 
-/// @}
-module.exports = Vector2;
+export default Vector2;

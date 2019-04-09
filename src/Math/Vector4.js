@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Const = require('./Functions');
+import * as Const from './Functions';
 
 /**
  * Class representing a 4D Vector with components x, y, z and w.
@@ -630,4 +630,4 @@ class Vector4 {
     }
 }
 
-module.exports = Vector4;
+export default Vector4;

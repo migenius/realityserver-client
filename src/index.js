@@ -6,17 +6,15 @@
  * @namespace RS
  */
 
-; (function () {
+export { default as Command } from './Command';
+export { default as Command_error } from './Command_error';
+export { default as Error } from './Error';
+import * as Utils from './Utils';
+export { Utils as Utils };
 
-    const RealityServer = {
-        Command: require('./Command'),
-        Command_error: require('./Command_error'),
-        Error: require('./Error'),
-        Utils: require('./Utils'),
-        Math: require('./Math/index'),
-        Service: require('./Service'),
-        Stream: require('./Stream'),
-    };
+import * as Math from './Math/index';
+export { Math as Math };
+export * from './Math/index';
 
-    module.exports = Object.assign(RealityServer, RealityServer.Math);
-})();
+export { default as Service } from './Service';
+export { default as Stream } from './Stream';

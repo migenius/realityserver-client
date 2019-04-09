@@ -1,8 +1,8 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Utf8 = require('./Utf8.js');
-const Class_hinting = require('./Class_hinting.js');
+import Utf8 from './Utf8';
+import Class_hinting from './Class_hinting';
 
 class Web_socket_message_reader {
     /**
@@ -251,5 +251,4 @@ class Web_socket_message_reader {
     }
 }
 
-
-module.exports = Web_socket_message_reader;
+export default Web_socket_message_reader;

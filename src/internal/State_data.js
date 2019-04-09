@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Command = require('../Command');
+import Command from '../Command';
 /**
  * This cass encapsulates the state data that is used when rendering commands on
  * the service. Used when rendering commands on the service to pass required
@@ -54,4 +54,4 @@ class State_data {
     }
 }
 
-module.exports = State_data;
+export default State_data;

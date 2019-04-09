@@ -1,6 +1,6 @@
 /*! https://mths.be/utf8js v3.0.0 by @mathias */
-;(function(root) {
-
+//;(function(root) {
+    const root = {}
     let stringFromCharCode = String.fromCharCode;
 
     // Taken from https://mths.be/punycode
@@ -202,4 +202,5 @@
     root.encode = utf8encode;
     root.decode = utf8decode;
 
-}(typeof exports === 'undefined' ? this.utf8 = {} : exports));
+    export default root;
+//}(typeof exports === 'undefined' ? this.utf8 = {} : exports));

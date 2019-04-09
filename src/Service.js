@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Web_socket_message_reader = require('./internal/Web_socket_message_reader');
-const Web_socket_message_writer = require('./internal/Web_socket_message_writer');
-const Delayed_promise = require('./internal/Delayed_promise');
-const Class_hinting = require('./internal/Class_hinting');
-const State_data = require('./internal/State_data');
-const Command_error = require('./Command_error');
-const Command_queue = require('./Command_queue');
-const { EventEmitter } = require('./Utils');
-const RS_error = require('./Error');
-const Stream = require('./Stream');
+import Web_socket_message_reader from './internal/Web_socket_message_reader';
+import Web_socket_message_writer from './internal/Web_socket_message_writer';
+import Delayed_promise from './internal/Delayed_promise';
+import Class_hinting from './internal/Class_hinting';
+import State_data from './internal/State_data';
+import Command_error from './Command_error';
+import Command_queue from './Command_queue';
+import { EventEmitter } from './Utils';
+import RS_error from './Error';
+import Stream from './Stream';
 
 let sequence_id=0;
 
@@ -918,4 +918,4 @@ class Service extends EventEmitter {
     }
 };
 
-module.exports = Service;
+export default Service;

@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const RS_error = require('./Error');
+import RS_error from './Error';
 
 /**
  * The RealityServer Command_error class. Commands that result in errors will
@@ -40,4 +40,4 @@ class Command_error extends RS_error {
     }
 }
 
-module.exports = Command_error;
+export default Command_error;

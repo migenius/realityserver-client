@@ -1,10 +1,10 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const EventEmitter = require('eventemitter3');
-const RS_error = require('./Error');
-const Command_queue = require('./Command_queue');
-const Render_loop_state_data = require('./internal/Render_loop_state_data');
+import { EventEmitter } from './Utils';
+import RS_error from './Error';
+import Command_queue from './Command_queue';
+import Render_loop_state_data from './internal/Render_loop_state_data';
 
 /**
  * Represents an image stream from a render loop.
@@ -439,4 +439,4 @@ class Stream extends EventEmitter {
     }
 }
 
-module.exports = Stream;
+export default Stream;

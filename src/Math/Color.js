@@ -1,8 +1,8 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Const = require('./Functions');
-const Spectrum = require('./Spectrum');
+import * as Const from './Functions';
+import Spectrum from './Spectrum';
 
 /**
  * Class representing an RGBA Color.
@@ -305,6 +305,4 @@ class Color {
     }
 }
 
-/** @} */
-
-module.exports = Color;
+export default Color;

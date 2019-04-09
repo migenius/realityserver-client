@@ -17,16 +17,13 @@
  * @namespace Math
  * @memberof RS
  */
-; (function () {
 
-    const RS_math = {
-        Color: require('./Color'),
-        Matrix4x4: require('./Matrix4x4'),
-        Spectrum: require('./Spectrum'),
-        Vector2: require('./Vector2'),
-        Vector3: require('./Vector3'),
-        Vector4: require('./Vector4')
-    };
 
-    module.exports = Object.assign(RS_math, require('./Functions'));
-})();
+export { default as Color } from './Color';
+export { default as Matrix4x4 } from './Matrix4x4';
+export { default as Spectrum } from './Spectrum';
+export { default as Vector2 } from './Vector2';
+export { default as Vector3 } from './Vector3';
+export { default as Vector4 } from './Vector4';
+
+export * from './Functions';

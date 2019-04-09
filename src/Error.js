@@ -46,4 +46,4 @@ class RealityServerError extends Error {
     }
 }
 
-module.exports = RealityServerError;
+export default RealityServerError;

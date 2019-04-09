@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Delayed_promise = require('./internal/Delayed_promise');
+import Delayed_promise from './internal/Delayed_promise';
 
 /**
  * The Command_queue class queues up an array of commands to be executed
@@ -82,4 +82,4 @@ class Command_queue {
     }
 }
 
-module.exports = Command_queue;
+export default Command_queue;

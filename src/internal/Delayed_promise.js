@@ -25,4 +25,4 @@ class Delayed_promise {
     }
 }
 
-module.exports = Delayed_promise;
+export default Delayed_promise;

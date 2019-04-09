@@ -1,6 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
+import * as Const from './Functions';
 
 /**
  * Class representing a row major 4x4 Matrix.
@@ -619,6 +620,5 @@ class Matrix4x4 {
                      this.wx + ', ' + this.wy + ', ' + this.wz + ', ' + this.ww + ']';
     }
 }
-/// @}
 
-module.exports = Matrix4x4;
+export default Matrix4x4;

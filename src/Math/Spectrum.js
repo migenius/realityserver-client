@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Const = require('./Functions');
+import * as Const from './Functions';
 
 /**
  * Class representing a 3 component color spectrum.
@@ -263,4 +263,4 @@ class Spectrum {
     }
 }
 
-module.exports = Spectrum;
+export default Spectrum;

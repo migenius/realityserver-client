@@ -81,4 +81,4 @@ class Render_loop_state_data {
 
 }
 
-module.exports = Render_loop_state_data;
+export default Render_loop_state_data;

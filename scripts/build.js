@@ -8,7 +8,6 @@ process.chdir(path.resolve(__dirname, '..'));
 fs.removeSync('./lib');
 
 const pre_rollup_plugins = [
-    require('rollup-plugin-node-builtins')(),
     require('rollup-plugin-node-resolve')(),
     require('rollup-plugin-commonjs')(),
     require('rollup-plugin-cleanup')()

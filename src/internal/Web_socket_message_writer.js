@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
-const Utf8 = require('./Utf8.js');
+import Utf8 from './Utf8';
 
 class Web_socket_message_writer {
     /**
@@ -480,4 +480,4 @@ class Web_socket_message_writer {
     }
 }
 
-module.exports = Web_socket_message_writer;
+export default Web_socket_message_writer;
