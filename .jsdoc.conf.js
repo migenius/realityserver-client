@@ -34,7 +34,7 @@ module.exports = {
     "encoding": "utf8",
     "destination": "./docs/",
     "recurse": true,
-    "template": "../pixi-jsdoc-template",
+    "template": "./node_modules/@migenius/jsdoc-template",
     "tutorials": "static/tutorials/out",
     "readme": "static/README.md"
   }
