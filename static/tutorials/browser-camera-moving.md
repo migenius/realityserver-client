@@ -75,7 +75,7 @@ We've inserted 2 new commands here. Since we're going to be editing the camera i
 
 After execution we check for errors in the result and store the camera matrix in the state.
 
-### Instances and matric  es
+### Instances and matrices
 You will notice that we're actually dealing with two distinct scene elements here to manipulate the camera. We are referencing a camera to set the resolution but there is also a camera instance from which we get it's matrix. RealityServer&reg; separates out an elements definition and it's location in the scene into two separate elements. The first defines the scene element. For a camera this is the resolution, field of view, tonemapping, depth of field etc. For a mesh it defines the polygons or triangles that represent the object; lights contain the light type and MDL material that defines the emission properties. Basically everything except for where the element is in 3D space. To actually use a scene element an instance needs to be created that references it, then we set it's orientation matrix and insert it into the scene. This decoupling of element properties and location allows for many interesting features, not the least of which is instancing where the same object can be placed into the scene multiple times in different locations (and even with different materials) without having to redefine the entire object.
 
 However this does mean that we need two elements to represent any item in the scene. The instance is what is directly available from within the scene graph, from that we can then obtain the element. For convenience the `import_scene` command returns both the camera instance and the camera element itself since we usually want to start working with both straight away.
