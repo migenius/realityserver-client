@@ -262,7 +262,7 @@ class Matrix4x4 {
 
 
     /**
-     * Sets this matrix to be  rotation matrix.
+     * Sets this matrix to be a rotation matrix.
      * @param {(RS.Math.Vector4|RS.Math.Vector3)} axis The vector to rotate around.
      * @param {Number} angle The angle to rotate around the axis in radians.
      */
