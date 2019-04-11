@@ -38,10 +38,8 @@ function generate_bundled_module(input_file, root_path, basename, formats, plugi
             return Promise.all(
                 formats.map(format => {
                     return bundle.write({
+                        ...format,
                         file: path.join(root_path, format.format, basename),
-                        format: format.format,
-                        name: format.name,
-                        extend: true,
                         sourcemap: true,
                         banner: '/******************************************************************************\n' +
                                 '* Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.\n' +
@@ -59,8 +57,8 @@ function build() {
             path.resolve('lib'),
             'realityserver.js',
             [
-                { format: 'esm', name: 'RS' },
-                { format: 'umd', name: 'RS' }
+                { format: 'esm' },
+                { format: 'umd', name: 'RS', extend: true }
             ]
         ),
         generate_bundled_module(
@@ -68,8 +66,8 @@ function build() {
             path.resolve('lib'),
             'realityserver.min.js',
             [
-                { format: 'esm', name: 'RS' },
-                { format: 'umd', name: 'RS' }
+                { format: 'esm' },
+                { format: 'umd', name: 'RS', extend: true }
             ],
             production_rollup_plugins
         )
