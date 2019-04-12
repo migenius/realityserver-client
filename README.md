@@ -246,6 +246,9 @@ TODO: link to live docs go here
 
 - [A simple rendering demo with camera dolly and material changing](https://github.com/migenius/realityserver-client-tutorial "Simple demo")
 
-- [React/mobx implementation of the render loop demo](https://github.com/migenius/react-mobx-render-loop "React/MobX demo")
+- [React/mobx implementation of the render loop demo](https://github.com/migenius/render-loop-react-mobx "React/MobX demo")
 
-- [Simple Node.js render script](https://github.com/migenius/node-render "node render script")
+- [Simple Node.js render script](https://github.com/migenius/render-node "node render script")
+
+## Extras
+A [RealityServer Extras](https://github.com/migenius/realityserver-extras "RealityServer Extras") add-on package is available to assist in manipulating scene elements.
