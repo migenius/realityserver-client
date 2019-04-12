@@ -41,6 +41,7 @@ function generate_bundled_module(input_file, root_path, basename, formats, plugi
                         file: path.join(root_path, format.format, basename),
                         format: format.format,
                         name: format.name,
+                        extend: true,
                         sourcemap: true,
                         banner: '/******************************************************************************\n' +
                                 '* Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.\n' +
