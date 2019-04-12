@@ -174,5 +174,8 @@ In this tutorial we have learnt about instances and matrices and how to move the
 ### Source
 The complete source for this tutorial can be found below:
 
-[Source](tutorials/browser-camera-moving/index.html)
+[GitHub](https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-camera-moving/index.html)
 
+If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:
+
+[Load](tutorials/browser-camera-moving/index.html)

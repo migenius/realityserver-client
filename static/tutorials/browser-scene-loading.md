@@ -138,6 +138,8 @@ In this tutorial we have learnt about scopes, basic scene management and how to 
 ### Source
 The complete source for this tutorial can be found below:
 
-[Source](tutorials/browser-scene-loading/index.html)
+[GitHub](https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-scene-loading/index.html)
 
+If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:
 
+[Load](tutorials/browser-scene-loading/index.html)

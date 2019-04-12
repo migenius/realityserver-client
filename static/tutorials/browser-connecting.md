@@ -106,6 +106,8 @@ In this tutorial we have learnt how to load the client library and connect to a 
 ### Source
 The complete source for this tutorial can be found below:
 
-[Source](tutorials/browser-connecting/index.html)
+[GitHub](https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-connecting/index.html)
 
+If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:
 
+[Load](tutorials/browser-connecting/index.html)
