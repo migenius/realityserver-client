@@ -18,7 +18,7 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@migenius/jsdoc-template": "^1.0.0",
+    "@migenius/jsdoc-template": "^1.0.1",
     "eslint": "^5.13.0",
     "eventemitter3": "^3.1.0",
     "fs-extra": "^7.0.1",
