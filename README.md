@@ -240,7 +240,7 @@ function render_scene(scene_info, width, height, max_samples, filename) {
   
 ## API Documentation
 
-TODO: link to live docs go here
+The RealityServer Client API documentation can be found [here](https://migenius.github.io/realityserver-client/ "RealityServer Client").
 
 ## Demos
 

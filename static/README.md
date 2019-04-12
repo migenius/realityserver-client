@@ -27,6 +27,9 @@ See the {@tutorial 01-getting-started} tutorial to get connected and start rende
 
 Note that this documentation should be read in conjuction with the [RealityServer&reg; documentation](https://rsdoc.migenius.com "RealityServer&reg; documentation").
 
+## GitHub
+The RealityServer&reg; Client repository can be found on [GitHub](https://github.com/migenius/realityserver-client "RealityServer Client").
+
 ## Sample applications
 
 - [A simple rendering demo with camera dolly and material changing](http://github.com/migenius/realityserver-client-tutorial "Simple demo")
