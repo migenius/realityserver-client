@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tutorial: Rendering</title>
+    
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,700" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/main.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"RealityServer&reg; Client","default":{"staticFiles":{"include":["./static/docs/"]}}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">RealityServer&reg; Client</a><a href="https://www.migenius.com"><img src="images/toplogo.png"/></a></h3>
+    <button id="menuToggle" class="btn btn-link btn-lg menu-toggle">
+        <span class="glyphicon glyphicon-menu-hamburger"></span>
+    </button>
+    <div class="search">
+        <input id="search" type="text" class="form-control input-md" placeholder="Search...">
+    </div>
+    <ul class="list">
+    
+    
+        <li class="item" data-name="tutorial-01-getting-started">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-01-getting-started.html">Getting Started</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            <span class="subtitle"></span>
+            
+        <li class="item" data-name="tutorial-browser">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-browser.html">Browser</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            <span class="subtitle"></span>
+            
+        <li class="item" data-name="tutorial-browser-connecting">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-browser-connecting.html">Connecting</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-browser-scene-loading">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-browser-scene-loading.html">Scene Loading</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-browser-rendering">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-browser-rendering.html">Rendering</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-browser-camera-moving">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-browser-camera-moving.html">Moving the Camera</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-browser-change-color">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-browser-change-color.html">Changing Color</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-node">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-node.html">Node.js</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            <span class="subtitle"></span>
+            
+        <li class="item" data-name="tutorial-node-connecting">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-node-connecting.html">Connecting</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-node-scene-loading">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-node-scene-loading.html">Scene Loading</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-node-rendering">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-node-rendering.html">Rendering</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+            </ul>
+            
+        </li>
+    
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-02-concepts">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-02-concepts.html">Concepts</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="tutorial-03-migrating">
+            <span class="title  ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-education"></span>
+                </span>
+                
+                <a href="tutorial-03-migrating.html">Migration</a>
+            </span>
+            
+            <ul class="children itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS">
+            <span class="title namespace ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-folder-open"></span>
+                </span>
+                
+                <a href="RS.html">RS</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math">
+            <span class="title namespace ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-folder-open"></span>
+                </span>
+                
+                <a href="RS.Math.html">RS.Math</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.exports.ALMOST_ZERO"><a href="RS.Math.html#.exports.ALMOST_ZERO">exports.ALMOST_ZERO</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.exports.degrees"><a href="RS.Math.html#.exports.degrees">exports.degrees</a></li>
+            
+                <li class="parent  " data-name="RS.Math.exports.radians"><a href="RS.Math.html#.exports.radians">exports.radians</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Utils">
+            <span class="title namespace ">
+                
+                <span class="namespaceTag">
+                    <span class="glyphicon glyphicon-folder-open"></span>
+                </span>
+                
+                <a href="RS.Utils.html">RS.Utils</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Utils.exports.create_random_string"><a href="RS.Utils.html#.exports.create_random_string">exports.create_random_string</a></li>
+            
+                <li class="parent  " data-name="RS.Utils.exports.extract_url_details"><a href="RS.Utils.html#.exports.extract_url_details">exports.extract_url_details</a></li>
+            
+                <li class="parent  " data-name="RS.Utils.exports.html_image_display"><a href="RS.Utils.html#.exports.html_image_display">exports.html_image_display</a></li>
+            
+                <li class="parent  " data-name="RS.Utils.exports.html_video_display"><a href="RS.Utils.html#.exports.html_video_display">exports.html_video_display</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Command">
+            <span class="title  ">
+                
+                <a href="RS.Command.html">RS.Command</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Command#name"><a href="RS.Command.html#name">name</a></li>
+            
+                <li class="parent " data-name="RS.Command#params"><a href="RS.Command.html#params">params</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Command_error">
+            <span class="title  ">
+                
+                <a href="RS.Command_error.html">RS.Command_error</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Command_error#code"><a href="RS.Command_error.html#code">code</a></li>
+            
+                <li class="parent " data-name="RS.Command_error#data"><a href="RS.Command_error.html#data">data</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Command_queue">
+            <span class="title  ">
+                
+                <a href="RS.Command_queue.html">RS.Command_queue</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Command_queue#execute"><a href="RS.Command_queue.html#execute">execute</a></li>
+            
+                <li class="parent  " data-name="RS.Command_queue#queue"><a href="RS.Command_queue.html#queue">queue</a></li>
+            
+                <li class="parent  " data-name="RS.Command_queue#send"><a href="RS.Command_queue.html#send">send</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Error">
+            <span class="title  ">
+                
+                <a href="RS.Error.html">RS.Error</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math.Color">
+            <span class="title  ">
+                
+                <a href="RS.Math.Color.html">RS.Math.Color</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.Color#a"><a href="RS.Math.Color.html#a">a</a></li>
+            
+                <li class="parent " data-name="RS.Math.Color#b"><a href="RS.Math.Color.html#b">b</a></li>
+            
+                <li class="parent " data-name="RS.Math.Color#g"><a href="RS.Math.Color.html#g">g</a></li>
+            
+                <li class="parent " data-name="RS.Math.Color#r"><a href="RS.Math.Color.html#r">r</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.Color#add"><a href="RS.Math.Color.html#add">add</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#cie_intensity"><a href="RS.Math.Color.html#cie_intensity">cie_intensity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#clone"><a href="RS.Math.Color.html#clone">clone</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#equal"><a href="RS.Math.Color.html#equal">equal</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#equal_with_tolerance"><a href="RS.Math.Color.html#equal_with_tolerance">equal_with_tolerance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#gamma_correct"><a href="RS.Math.Color.html#gamma_correct">gamma_correct</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#is_black"><a href="RS.Math.Color.html#is_black">is_black</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#linear_intensity"><a href="RS.Math.Color.html#linear_intensity">linear_intensity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#ntsc_intensity"><a href="RS.Math.Color.html#ntsc_intensity">ntsc_intensity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#scale"><a href="RS.Math.Color.html#scale">scale</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#set"><a href="RS.Math.Color.html#set">set</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#subtract"><a href="RS.Math.Color.html#subtract">subtract</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#tint"><a href="RS.Math.Color.html#tint">tint</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Color#toString"><a href="RS.Math.Color.html#toString">toString</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math.Matrix4x4">
+            <span class="title  ">
+                
+                <a href="RS.Math.Matrix4x4.html">RS.Math.Matrix4x4</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#ww"><a href="RS.Math.Matrix4x4.html#ww">ww</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#wx"><a href="RS.Math.Matrix4x4.html#wx">wx</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#wy"><a href="RS.Math.Matrix4x4.html#wy">wy</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#wz"><a href="RS.Math.Matrix4x4.html#wz">wz</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#xw"><a href="RS.Math.Matrix4x4.html#xw">xw</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#xx"><a href="RS.Math.Matrix4x4.html#xx">xx</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#xy"><a href="RS.Math.Matrix4x4.html#xy">xy</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#xz"><a href="RS.Math.Matrix4x4.html#xz">xz</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#yw"><a href="RS.Math.Matrix4x4.html#yw">yw</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#yx"><a href="RS.Math.Matrix4x4.html#yx">yx</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#yy"><a href="RS.Math.Matrix4x4.html#yy">yy</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#yz"><a href="RS.Math.Matrix4x4.html#yz">yz</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#zw"><a href="RS.Math.Matrix4x4.html#zw">zw</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#zx"><a href="RS.Math.Matrix4x4.html#zx">zx</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#zy"><a href="RS.Math.Matrix4x4.html#zy">zy</a></li>
+            
+                <li class="parent " data-name="RS.Math.Matrix4x4#zz"><a href="RS.Math.Matrix4x4.html#zz">zz</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#clear"><a href="RS.Math.Matrix4x4.html#clear">clear</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#clone"><a href="RS.Math.Matrix4x4.html#clone">clone</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#equal"><a href="RS.Math.Matrix4x4.html#equal">equal</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#equal_with_tolerance"><a href="RS.Math.Matrix4x4.html#equal_with_tolerance">equal_with_tolerance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#get_determinant"><a href="RS.Math.Matrix4x4.html#get_determinant">get_determinant</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#invert"><a href="RS.Math.Matrix4x4.html#invert">invert</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#multiply"><a href="RS.Math.Matrix4x4.html#multiply">multiply</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#set"><a href="RS.Math.Matrix4x4.html#set">set</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#set_identity"><a href="RS.Math.Matrix4x4.html#set_identity">set_identity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#set_rotation"><a href="RS.Math.Matrix4x4.html#set_rotation">set_rotation</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#set_scaling"><a href="RS.Math.Matrix4x4.html#set_scaling">set_scaling</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#set_translation"><a href="RS.Math.Matrix4x4.html#set_translation">set_translation</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#toString"><a href="RS.Math.Matrix4x4.html#toString">toString</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#translate"><a href="RS.Math.Matrix4x4.html#translate">translate</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Matrix4x4#transpose"><a href="RS.Math.Matrix4x4.html#transpose">transpose</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math.Spectrum">
+            <span class="title  ">
+                
+                <a href="RS.Math.Spectrum.html">RS.Math.Spectrum</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.Spectrum#c"><a href="RS.Math.Spectrum.html#c">c</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#add"><a href="RS.Math.Spectrum.html#add">add</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#cie_intensity"><a href="RS.Math.Spectrum.html#cie_intensity">cie_intensity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#clone"><a href="RS.Math.Spectrum.html#clone">clone</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#equal"><a href="RS.Math.Spectrum.html#equal">equal</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#equal_with_tolerance"><a href="RS.Math.Spectrum.html#equal_with_tolerance">equal_with_tolerance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#gamma_correct"><a href="RS.Math.Spectrum.html#gamma_correct">gamma_correct</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#is_black"><a href="RS.Math.Spectrum.html#is_black">is_black</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#linear_intensity"><a href="RS.Math.Spectrum.html#linear_intensity">linear_intensity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#ntsc_intensity"><a href="RS.Math.Spectrum.html#ntsc_intensity">ntsc_intensity</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#scale"><a href="RS.Math.Spectrum.html#scale">scale</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#set"><a href="RS.Math.Spectrum.html#set">set</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#subtract"><a href="RS.Math.Spectrum.html#subtract">subtract</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#tint"><a href="RS.Math.Spectrum.html#tint">tint</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Spectrum#toString"><a href="RS.Math.Spectrum.html#toString">toString</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math.Vector2">
+            <span class="title  ">
+                
+                <a href="RS.Math.Vector2.html">RS.Math.Vector2</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.Vector2#x"><a href="RS.Math.Vector2.html#x">x</a></li>
+            
+                <li class="parent " data-name="RS.Math.Vector2#y"><a href="RS.Math.Vector2.html#y">y</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#add"><a href="RS.Math.Vector2.html#add">add</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#clone"><a href="RS.Math.Vector2.html#clone">clone</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#distance"><a href="RS.Math.Vector2.html#distance">distance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#divide"><a href="RS.Math.Vector2.html#divide">divide</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#dot"><a href="RS.Math.Vector2.html#dot">dot</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#equal"><a href="RS.Math.Vector2.html#equal">equal</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#equal_with_tolerance"><a href="RS.Math.Vector2.html#equal_with_tolerance">equal_with_tolerance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#is_colinear"><a href="RS.Math.Vector2.html#is_colinear">is_colinear</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#is_null_vector"><a href="RS.Math.Vector2.html#is_null_vector">is_null_vector</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#length"><a href="RS.Math.Vector2.html#length">length</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#multiply"><a href="RS.Math.Vector2.html#multiply">multiply</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#normalize"><a href="RS.Math.Vector2.html#normalize">normalize</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#scale"><a href="RS.Math.Vector2.html#scale">scale</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#set"><a href="RS.Math.Vector2.html#set">set</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#subtract"><a href="RS.Math.Vector2.html#subtract">subtract</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector2#toString"><a href="RS.Math.Vector2.html#toString">toString</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math.Vector3">
+            <span class="title  ">
+                
+                <a href="RS.Math.Vector3.html">RS.Math.Vector3</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.Vector3#x"><a href="RS.Math.Vector3.html#x">x</a></li>
+            
+                <li class="parent " data-name="RS.Math.Vector3#y"><a href="RS.Math.Vector3.html#y">y</a></li>
+            
+                <li class="parent " data-name="RS.Math.Vector3#z"><a href="RS.Math.Vector3.html#z">z</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#add"><a href="RS.Math.Vector3.html#add">add</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#clone"><a href="RS.Math.Vector3.html#clone">clone</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#cross"><a href="RS.Math.Vector3.html#cross">cross</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#distance"><a href="RS.Math.Vector3.html#distance">distance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#divide"><a href="RS.Math.Vector3.html#divide">divide</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#dot"><a href="RS.Math.Vector3.html#dot">dot</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#equal"><a href="RS.Math.Vector3.html#equal">equal</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#equal_with_tolerance"><a href="RS.Math.Vector3.html#equal_with_tolerance">equal_with_tolerance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#is_colinear"><a href="RS.Math.Vector3.html#is_colinear">is_colinear</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#is_null_vector"><a href="RS.Math.Vector3.html#is_null_vector">is_null_vector</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#length"><a href="RS.Math.Vector3.html#length">length</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#multiply"><a href="RS.Math.Vector3.html#multiply">multiply</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#normalize"><a href="RS.Math.Vector3.html#normalize">normalize</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#rotate"><a href="RS.Math.Vector3.html#rotate">rotate</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#rotate_to"><a href="RS.Math.Vector3.html#rotate_to">rotate_to</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#rotate_transpose"><a href="RS.Math.Vector3.html#rotate_transpose">rotate_transpose</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#rotate_transpose_to"><a href="RS.Math.Vector3.html#rotate_transpose_to">rotate_transpose_to</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#scale"><a href="RS.Math.Vector3.html#scale">scale</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#set"><a href="RS.Math.Vector3.html#set">set</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#subtract"><a href="RS.Math.Vector3.html#subtract">subtract</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#toString"><a href="RS.Math.Vector3.html#toString">toString</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#transform"><a href="RS.Math.Vector3.html#transform">transform</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#transform_to"><a href="RS.Math.Vector3.html#transform_to">transform_to</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#transform_transpose"><a href="RS.Math.Vector3.html#transform_transpose">transform_transpose</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector3#transform_transpose_to"><a href="RS.Math.Vector3.html#transform_transpose_to">transform_transpose_to</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Math.Vector4">
+            <span class="title  ">
+                
+                <a href="RS.Math.Vector4.html">RS.Math.Vector4</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Math.Vector4#w"><a href="RS.Math.Vector4.html#w">w</a></li>
+            
+                <li class="parent " data-name="RS.Math.Vector4#x"><a href="RS.Math.Vector4.html#x">x</a></li>
+            
+                <li class="parent " data-name="RS.Math.Vector4#y"><a href="RS.Math.Vector4.html#y">y</a></li>
+            
+                <li class="parent " data-name="RS.Math.Vector4#z"><a href="RS.Math.Vector4.html#z">z</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#add"><a href="RS.Math.Vector4.html#add">add</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#clone"><a href="RS.Math.Vector4.html#clone">clone</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#cross"><a href="RS.Math.Vector4.html#cross">cross</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#distance"><a href="RS.Math.Vector4.html#distance">distance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#divide"><a href="RS.Math.Vector4.html#divide">divide</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#dot"><a href="RS.Math.Vector4.html#dot">dot</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#equal"><a href="RS.Math.Vector4.html#equal">equal</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#equal_with_tolerance"><a href="RS.Math.Vector4.html#equal_with_tolerance">equal_with_tolerance</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#is_colinear"><a href="RS.Math.Vector4.html#is_colinear">is_colinear</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#is_null_vector"><a href="RS.Math.Vector4.html#is_null_vector">is_null_vector</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#length"><a href="RS.Math.Vector4.html#length">length</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#multiply"><a href="RS.Math.Vector4.html#multiply">multiply</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#normalize"><a href="RS.Math.Vector4.html#normalize">normalize</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#rotate"><a href="RS.Math.Vector4.html#rotate">rotate</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#rotate_to"><a href="RS.Math.Vector4.html#rotate_to">rotate_to</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#rotate_transpose"><a href="RS.Math.Vector4.html#rotate_transpose">rotate_transpose</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#rotate_transpose_to"><a href="RS.Math.Vector4.html#rotate_transpose_to">rotate_transpose_to</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#scale"><a href="RS.Math.Vector4.html#scale">scale</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#set"><a href="RS.Math.Vector4.html#set">set</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#subtract"><a href="RS.Math.Vector4.html#subtract">subtract</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#toString"><a href="RS.Math.Vector4.html#toString">toString</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#transform"><a href="RS.Math.Vector4.html#transform">transform</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#transform_to"><a href="RS.Math.Vector4.html#transform_to">transform_to</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#transform_transpose"><a href="RS.Math.Vector4.html#transform_transpose">transform_transpose</a></li>
+            
+                <li class="parent  " data-name="RS.Math.Vector4#transform_transpose_to"><a href="RS.Math.Vector4.html#transform_transpose_to">transform_transpose_to</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Service">
+            <span class="title  ">
+                
+                <a href="RS.Service.html">RS.Service</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Service.supported"><a href="RS.Service.html#.supported">supported</a></li>
+            
+                <li class="parent " data-name="RS.Service.websocket"><a href="RS.Service.html#.websocket">websocket</a></li>
+            
+                <li class="parent " data-name="RS.Service#connector_name"><a href="RS.Service.html#connector_name">connector_name</a></li>
+            
+                <li class="parent " data-name="RS.Service#debug_commands"><a href="RS.Service.html#debug_commands">debug_commands</a></li>
+            
+                <li class="parent " data-name="RS.Service#default_scope_name"><a href="RS.Service.html#default_scope_name">default_scope_name</a></li>
+            
+                <li class="parent " data-name="RS.Service#log_commands"><a href="RS.Service.html#log_commands">log_commands</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Service#close"><a href="RS.Service.html#close">close</a></li>
+            
+                <li class="parent  " data-name="RS.Service#connect"><a href="RS.Service.html#connect">connect</a></li>
+            
+                <li class="parent  " data-name="RS.Service#create_stream"><a href="RS.Service.html#create_stream">create_stream</a></li>
+            
+                <li class="parent  " data-name="RS.Service#execute_command"><a href="RS.Service.html#execute_command">execute_command</a></li>
+            
+                <li class="parent  " data-name="RS.Service#queue_commands"><a href="RS.Service.html#queue_commands">queue_commands</a></li>
+            
+                <li class="parent  " data-name="RS.Service#send_command"><a href="RS.Service.html#send_command">send_command</a></li>
+            
+                <li class="parent  " data-name="RS.Service#set_max_rate"><a href="RS.Service.html#set_max_rate">set_max_rate</a></li>
+            
+                <li class="parent  " data-name="RS.Service#streaming"><a href="RS.Service.html#streaming">streaming</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li class="parent" data-name="RS.Service#event:close"><a href="RS.Service.html#event:close">close</a></li>
+            
+                <li class="parent" data-name="RS.Service#event:command_requests"><a href="RS.Service.html#event:command_requests">command_requests</a></li>
+            
+                <li class="parent" data-name="RS.Service#event:command_results"><a href="RS.Service.html#event:command_results">command_results</a></li>
+            
+                <li class="parent" data-name="RS.Service#event:error"><a href="RS.Service.html#event:error">error</a></li>
+            
+                <li class="parent" data-name="RS.Service#event:open"><a href="RS.Service.html#event:open">open</a></li>
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Stream">
+            <span class="title  ">
+                
+                <a href="RS.Stream.html">RS.Stream</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li class="parent " data-name="RS.Stream#cancel_level"><a href="RS.Stream.html#cancel_level">cancel_level</a></li>
+            
+                <li class="parent " data-name="RS.Stream#continue_on_error"><a href="RS.Stream.html#continue_on_error">continue_on_error</a></li>
+            
+                <li class="parent " data-name="RS.Stream#paused"><a href="RS.Stream.html#paused">paused</a></li>
+            
+                <li class="parent " data-name="RS.Stream#render_loop_name"><a href="RS.Stream.html#render_loop_name">render_loop_name</a></li>
+            
+                <li class="parent " data-name="RS.Stream#streaming"><a href="RS.Stream.html#streaming">streaming</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li class="parent" data-name="RS.Stream~Rendered_image"><a href="RS.Stream.html#~Rendered_image">Rendered_image</a></li>
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li class="parent  " data-name="RS.Stream#execute_command"><a href="RS.Stream.html#execute_command">execute_command</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#pause"><a href="RS.Stream.html#pause">pause</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#queue_commands"><a href="RS.Stream.html#queue_commands">queue_commands</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#resume"><a href="RS.Stream.html#resume">resume</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#send_command"><a href="RS.Stream.html#send_command">send_command</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#set_parameters"><a href="RS.Stream.html#set_parameters">set_parameters</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#start"><a href="RS.Stream.html#start">start</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#stop"><a href="RS.Stream.html#stop">stop</a></li>
+            
+                <li class="parent  " data-name="RS.Stream#update_camera"><a href="RS.Stream.html#update_camera">update_camera</a></li>
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li class="parent" data-name="RS.Stream#event:image"><a href="RS.Stream.html#event:image">image</a></li>
+            
+            </ul>
+            
+        </li>
+    
+        <li class="item" data-name="RS.Utils.EventEmitter">
+            <span class="title  ">
+                
+                <a href="RS.Utils.EventEmitter.html">RS.Utils.EventEmitter</a>
+            </span>
+            
+            <ul class="members itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            
+            <ul class="methods itemMembers">
+            
+            </ul>
+            
+            <ul class="events itemMembers">
+            
+            </ul>
+            
+        </li>
+    
+    </ul>
+</div>
+
+    <div class="main">
+        <h1 class="page-title" data-filename="tutorial-node-rendering.html">Tutorial: Rendering</h1>
+        <section>
+    
+<header>
+	<div class="header content-size">
+    <h2>Rendering</h2>
+    </div>
+</header>  
+
+<article class="content-size">
+    <p>Batch rendering is a different process to interactive rendering as used in the browser. Here, instead of receiving a stream of images and being able to make changes to the scene at any time we simply want to fire off a render call and get a single response when the result is ready.</p>
+<h3>A bit of prep</h3><pre class="prettyprint source lang-javascript"><code>console.log(`rendering at ${width}x${height} for ${max_samples} iterations`);
+
+try {
+  scene_info.scene_name = 'myscene';
+  scene_info.scope_name = scene_file;
+  await render_scene(scene_info, width, height, max_samples, filename);
+  console.log(`image saved to ${filename}`);
+} catch (err) {
+  console.error(err);
+}</code></pre><p>So we just transfer some data to the scene info then call our <code>render_scene</code> function to perform the actual render.</p>
+<h3>Rendering</h3><pre class="prettyprint source lang-javascript"><code>function render_scene(scene_info, width, height, max_samples, filename) {
+  return new Promise(async (resolve, reject) => {
+    const camera = scene_info.camera;
+    const options = scene_info.options;
+    const user_scope_name = `scope_${Utils.create_random_string(8)}`;
+
+    const [ image ] = await service.queue_commands()
+      .queue(new Command('create_scope', { scope_name: user_scope_name, parent_scope: scene_info.scope_name }))
+      .queue(new Command('use_scope', { scope_name: user_scope_name }))
+      .queue(new Command('localize_element', { element_name: options }))
+      .queue(new Command('localize_element', { element_name: camera }))
+      .queue(new Command('camera_set_resolution', {
+        camera_name: camera,
+        resolution: {
+          x: width,
+          y: height
+        }
+      }))
+      .queue(new Command('camera_set_aspect', {
+        camera_name: camera,
+        aspect: width / height
+      }))
+      .queue(new Command('element_set_attribute', {
+        element_name: options,
+        attribute_name: 'progressive_rendering_max_samples',
+        attribute_value: max_samples,
+        attribute_type: 'Sint32',
+        create: true
+      }))
+      .queue(new Command('render',
+        {
+          scene_name: scene_info.scene_name,
+          renderer: 'iray',
+          format: path.extname(filename).slice(1),
+          render_context_options: {
+            scheduler_mode: {
+              value: 'batch',
+              type: 'String'
+            }
+          }
+        }), true)
+      .queue(new Command('delete_scope', { scope_name: user_scope_name }))
+      .execute().catch(err => [ err ]);
+
+    if (image instanceof Command_error) {
+      reject(`render error: ${image.message}`);
+      return;
+    }
+    if (image instanceof Rs_error) {
+      reject(`render error: ${image.toString()}`);
+      return;
+    }
+
+    if (!image.data) {
+      reject('no rendered image');
+      return;
+    }
+    fs.writeFile(filename, image.data, (err) => {
+      if (err) {
+        reject(`error writing file ${err}`);
+      } else {
+        resolve(`image saved to ${filename}`);
+      }
+    });
+  });
+}</code></pre><p>The render returns a Promise that resolves when the rendered image has been written to disk or rejects on error.</p>
+<p>Similar to the browser tutorial we are creating a user scope to make our changes and render in. However, in addition to localizing the camera we are also localizing the scene options block:</p>
+<pre class="prettyprint source"><code>const options = scene_info.options;
+...
+  .queue(new Command('localize_element',{ element_name: options }))
+  ...
+  .queue(new Command('element_set_attribute', {
+    element_name: options,
+    attribute_name: 'progressive_rendering_max_samples',
+    attribute_value: max_samples,
+    attribute_type: 'Sint32',
+    create: true
+  }))</code></pre><p>Like the camera elements the option block is also returned when importing the scene. This element is the main location where global rendering options are set for the scene. In this case we are setting the <code>progressive_rendering_max_samples</code> attribute on the options. In interactive rendering, images are returned every few progressive iterations. So you can watch the quality of the render improve as time goes on. In batch rendering however the render call doesn't return until a converged image is obtained. A converged image is one where one of three refinement metrics is met:</p>
+<ol>
+<li>Iteration count - the image is converged once it has rendered a given number of iterations.</li>
+<li>Time - the image is converged once it has rendered for a given amount of time. </li>
+<li>Quality - the image is converged once a given quality metric has been obtained in a given percentage of pixels.</li>
+</ol>
+<p>All 3 have default values, 100 iterations, 1 hour and a quality of 1 in 95% of pixels. Whichever of these three criteria is first met terminates rendering and returns the final image. Individual criteria can also be disabled. We really should allow all 3 types to be set however for simplicity we are only exposing max iterations.</p>
+<p>The <code>element_set_attribute</code> command is a generic command that allows any attribute to be set on any element. Most settings on scene elements are controlled by attributes, ones that will have specific RealityServer&reg; commands for controlling them.</p>
+<p>Two important things to note, the <code>element_set_attribute</code> command will not create attributes by default. If the attribute does not already exist on the element the set command will fail. So we provide the <code>create</code> argument so the attribute can be created if it doesn't already exist. Attributes are also strictly typed, so we need to provide the type of the attribute in <code>attribute_type</code> as well. </p>
+<p>Note that termination criteria are also honoured when using interactive mode in render loops. When converged, the render loop simply pauses rendering until the scene is changed again.</p>
+<p>Information on how to setup the other 2 criteria, as well as supported attributes in general, can be found in the RealityServer&reg; documentation.</p>
+<pre class="prettyprint source lang-javascript"><code>.queue(new Command('render',
+{
+  scene_name: scene_info.scene_name,
+  renderer: 'iray',
+  format: path.extname(filename).slice(1),
+  render_context_options: {
+    scheduler_mode: {
+      value: 'batch',
+      type: 'String'
+    }
+  }
+}),true)</code></pre><p>The command that does the actual work. We supply scene name, renderer and the image format to encode the image to which comes from the filename extension (png/jpg/exr etc.). Render context options are the other main location that rendering options are provided. These however are per render options rather than scene options. In this case we are setting <code>scheduler_mode</code> to <code>batch</code> which enables batch mode as described previously. Like the options block, these options are also strictly typed.</p>
+<p>Remember that since we want to get the result of this command (the actual rendered image) we pass <code>true</code> as the second argument.</p>
+<pre class="prettyprint source"><code>.queue(new Command('delete_scope', { scope_name: user_scope_name }))
+.execute().catch(err => [ err ]);</code></pre><p>Since this is a one shot render we clean up after ourselves by deleting the created user scope after rendering. This is the last command for the queue so we execute the commands and resolve any errors.</p>
+<pre class="prettyprint source"><code>if (image instanceof Command_error) {
+  reject(`render error: ${image.message}`);
+  return;
+}
+if (image instanceof Rs_error) {
+  reject(`render error: ${image.toString()}`);
+  return;
+}
+
+if (!image.data) {
+  reject('no rendered image');
+  return;
+}
+fs.writeFile(filename, image.data, (err) => {
+  if (err) {
+    reject(`error writing file ${err.toString()}`);
+  } else {
+    resolve(`image saved to ${filename}`);
+  }
+});</code></pre><p>If our error checks pass then the render command will have returned an object containing two properties:</p>
+<ul>
+<li><code>data</code> - a <code>Uint8Array</code> containing the rendered image.</li>
+<li><code>mime_type</code> a <code>String</code> containing the mime-type of the image.</li>
+</ul>
+<p>The final step is to write the image data to disk and resolve or reject the promise.</p>
+<p>We can now perform a render:</p>
+<pre class="prettyprint source"><code>$ node index.js localhost 8080 scenes/meyemii.mi 800 800 500 out.png</code></pre><p>Given this is a generic command you can substitute any scene name that is in the RealityServer&reg; content root and render at any resolution required.</p>
+<h3>Summary</h3><p>In this tutorial we have learnt about setting rendering options, termination critera and how to perform a one shot render.</p>
+<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<p><a href="tutorials/node-rendering/index.js">Source</a></p>
+<hr>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:right"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">&lt;&lt;&lt; <a href="tutorial-node-scene-loading.html">Scene Loading</a></td>
+<td style="text-align:right"><a href="tutorial-02-concepts.html">Concepts</a> &gt;&gt;&gt;</td>
+</tr>
+</tbody>
+</table>
+</article>
+
+</section>  
+
+
+        
+
+        <footer class="content-size">
+            <div class="footer">
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Apr 09 2019 13:13:34 GMT+1000 (Australian Eastern Standard Time)
+            </div>
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

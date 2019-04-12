@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"> 
+  <title>RealityServer&reg; Client Tutorial</title>
+	<script src="../../lib/realityserver.js"></script>
+
+  <script type="text/javascript">
+    const service = new RS.Service();
+
+    const state = {
+      server: {
+        host: 'localhost',
+        port: 8080,
+        secure: false
+      },
+      scene_filename: 'scenes/meyemii.mi',
+      scene_name: 'meyemii',
+      app_scope_name: 'tutorial'
+    };
+
+    async function start() {
+      set_status('Connecting');
+      try {
+        const url = `${(state.server.secure ? 'wss' : 'ws')}://${state.server.host}:${state.server.port}/service/`;
+        await service.connect(url);
+      } catch (err) {
+        set_status(`Failed to connect to RealityServer: ${err.toString()}`);
+        return;
+      }
+      set_status(`Loading scene: ${state.scene_filename}`);
+    
+      try {
+        const [ scene_info ] = await service.queue_commands()
+          .queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
+          .queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))
+          .queue(new RS.Command('import_scene',
+            {
+              filename: state.scene_filename,
+              scene_name: state.scene_name,
+              block: true,
+              import_options: {
+                prefix: `${state.scene_name}::`
+              }
+            }), true)
+          .execute();
+        if (scene_info instanceof RS.Command_error) {
+          set_status(`Scene load error: ${scene_info.message}`);
+        } else {
+          set_status(`Loaded scene: ${state.scene_filename}`);
+        }
+      } catch (err) {
+        // In general usage comand promises shouldn't reject unless something
+        // went fundamentally wrong.
+        set_status(`System error: ${err.toString()}`);
+        return;
+      }
+    }
+
+    function set_status(status) {
+      document.getElementById('status').firstChild.textContent = status;
+    }
+  </script>
+</head>
+<body onload="start();">
+  <div width="400">
+    <h1>RealityServer&reg; Client Tutorial</h1>
+    <div>
+      <span id="status" />
+    </div>
+  </div>
+</body>
+</html>
