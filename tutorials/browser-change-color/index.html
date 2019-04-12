@@ -28,13 +28,7 @@
 
   <script type="text/javascript">
     const service = new RS.Service();
-    service.log_commands = true;
-    service.on('command_requests', (reqs) => {
-      console.log(`req: ${JSON.stringify(reqs)}`)
-    });
-    service.on('command_results', (resps) => {
-      console.log(`res: ${JSON.stringify(resps)}`)
-    });
+
     const state = {
       server: {
         host: 'localhost',
@@ -127,9 +121,6 @@
               scene_name: state.scene_name,
               render_loop_name: state.render_loop_name,
               render_loop_handler_name: 'default',
-              render_loop_handler_parameters: [
-                "canvas_pixel_type", "Rgba" 
-              ],
               timeout: 10,
             }), true) // want a response for this command
           .execute();
@@ -162,8 +153,7 @@
 
         // RS.Utils.html_image_display creates an 'image' event handler which
         // will display rendered images in the provided Image element.
-        //state.stream.on('image', RS.Utils.html_image_display(img));
-        state.stream.on('image', RS.Utils.html_video_display(img));
+        state.stream.on('image', RS.Utils.html_image_display(img));
         state.stream.on('image', (image) => {
           if (image.result < 0) {
             set_status(`Render error: ${image.result}`);
@@ -178,7 +168,7 @@
         await state.stream.start(
           {
             render_loop_name: state.render_loop_name,
-            image_format: 'mp4',
+            image_format: 'jpg',
             quality: '100'
           }
         );
@@ -186,6 +176,7 @@
         set_status('Render loop stream started');
 
         img.addEventListener('mousedown', mouse_down);
+
       } catch (err) {
         // service promises only reject for system errors which are not expected
         // once the web socket is connected
@@ -272,9 +263,7 @@
 <body onload="start();">
   <div width="400">
     <h1>RealityServer&reg; Client Tutorial</h1>
-    <!-- <img id="rendered_image" width="400" height="400"/> -->
-    <video id="rendered_image" width="400" height="400" autoplay muted="true"> <!--style="cursor: none;"-->
-    </video>
+    <img id="rendered_image" width="400" height="400"/>
     <div class="button-row">
       <button class="gold" id="gold" onclick="set_color(0.2, 0.135, 0.0463, 'gold')">gold</button>
       <button class="silver" id="silver" onclick="set_color(0.753, 0.753, 0.753, 'silver')">silver</button>
