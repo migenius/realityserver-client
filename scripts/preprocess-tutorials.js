@@ -98,8 +98,8 @@ Object.keys(tutorials).forEach(tut_name => {
         out_file.write('\n---\n');
         out_file.write('|||\n');
         out_file.write('|:-|-:|\n');
-        const prev = tutorials[tut_name].prev ? `<<< {@tutorial ${tutorials[tut_name].prev}}` : ' ';
-        const next = tutorials[tut_name].next ? `{@tutorial ${tutorials[tut_name].next}} >>>` : ' ';
+        const prev = tutorials[tut_name].prev ? `<<< {@tutorial ${tutorials[tut_name].prev}}` : '&nbsp;';
+        const next = tutorials[tut_name].next ? `{@tutorial ${tutorials[tut_name].next}} >>>` : '&nbsp;';
         out_file.write(`|${prev}|${next}|\n`);
         out_file.close();
     });
