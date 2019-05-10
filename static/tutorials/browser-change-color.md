@@ -68,7 +68,7 @@ Note the material name is being prefixed with the scene name due to the import p
 
 The `set_color` function is called to change the actual color. It's arguments are the RGB values to change to (in linear floating point 0->1 format, all RealityServer&reg; colors are represented in this way) and the id of the button that was pressed.
 ```javascript
-async function set_color(r, g, b, name) {
+function set_color(r, g, b, name) {
   const button = document.getElementById(name);
   button.firstChild.textContent = 'setting';
   
