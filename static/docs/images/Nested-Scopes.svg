@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="564.968" viewBox="0 0 980 564.968">
+  <title>Nested Scopes</title>
+  <rect x="25" y="25" width="928.816" height="508.785" rx="10.855" ry="10.855" style="fill: #f1f2f2;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <text transform="translate(49.211 66.947)" style="font-size: 22.677165985107422px;fill: #3083a7;font-family: OpenSans-Bold, Open Sans;font-weight: 700">Global Scope</text>
+  <rect x="49.211" y="94.737" width="878.947" height="180" rx="10.855" ry="10.855" style="fill: #e6e7e8;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <text transform="translate(69.842 137.737)" style="font-size: 22.677165985107422px;fill: #282560;font-family: OpenSans-Bold, Open Sans;font-weight: 700">Application Scope A</text>
+  <rect x="81.684" y="161.684" width="382" height="58" rx="10.855" ry="10.855" style="fill: #d1d3d4;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <rect x="509.368" y="161.684" width="382" height="58" rx="10.855" ry="10.855" style="fill: #d1d3d4;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <text transform="translate(102.263 198.053)" style="font-size: 22.677165985107422px;fill: #282560;font-family: OpenSans-Bold, Open Sans;font-weight: 700">User Scope A</text>
+  <text transform="translate(532.053 198.053)" style="font-size: 22.677165985107422px;fill: #282560;font-family: OpenSans-Bold, Open Sans;font-weight: 700">User Scope B</text>
+  <rect x="50.526" y="314.526" width="878.947" height="180" rx="10.855" ry="10.855" style="fill: #e6e7e8;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <text transform="translate(71.158 357.526)" style="font-size: 22.677165985107422px;fill: #282560;font-family: OpenSans-Bold, Open Sans;font-weight: 700">Application Scope B</text>
+  <rect x="83" y="381.474" width="382" height="58" rx="10.855" ry="10.855" style="fill: #d1d3d4;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <rect x="510.684" y="381.474" width="382" height="58" rx="10.855" ry="10.855" style="fill: #d1d3d4;stroke: #6d6e71;stroke-miterlimit: 10"/>
+  <text transform="translate(103.579 417.842)" style="font-size: 22.677165985107422px;fill: #282560;font-family: OpenSans-Bold, Open Sans;font-weight: 700">User Scope C</text>
+  <text transform="translate(533.368 417.842)" style="font-size: 22.677165985107422px;fill: #282560;font-family: OpenSans-Bold, Open Sans;font-weight: 700">User Scope D</text>
+</svg>

@@ -28,7 +28,10 @@ set_status(`Loading scene: ${state.scene_filename}`);
 ```
 
 ### Scoping
-Before actually loading the scene we need to introduce the concept of scoping. All RealityServer&reg; scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name. 
+
+Before actually loading the scene we need to introduce the concept of scoping. Scopes are a core RealityServer concept and a detailed description can be found in the {@tutorial 02-concepts} section, some of which is repeated here.
+
+All RealityServer&reg; scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name. 
 
 Scopes provide an isolated view into the database and allow different database elements stored using the same name. Without scopes, it would not be possible for two users to create an element called `camera` as they would clash. 
 

@@ -30,7 +30,7 @@ We're going to want to be able to get status information from the system for deb
 </div>
 ```
 
-We need to be able to populate the status with something so we'll add our first piece of JavaScript in the &lt;head&gt; block
+We need to be able to populate the status with something so we'll add our first piece of JavaScript in the `<head>` block
 ```html
 <script src="../../lib/realityserver.js"></script>
 <script type="text/javascript">
