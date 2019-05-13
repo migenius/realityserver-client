@@ -299,7 +299,7 @@
             
             <span class="subtitle">Members</span>
             
-                <li class="parent " data-name="RS.Math.exports.ALMOST_ZERO"><a href="RS.Math.html#.exports.ALMOST_ZERO">exports.ALMOST_ZERO</a></li>
+                <li class="parent " data-name="ALMOST_ZERO"><a href="RS.Math.html">ALMOST_ZERO</a></li>
             
             </ul>
             
@@ -315,9 +315,9 @@
             
             <span class="subtitle">Methods</span>
             
-                <li class="parent  " data-name="RS.Math.exports.degrees"><a href="RS.Math.html#.exports.degrees">exports.degrees</a></li>
+                <li class="parent  " data-name="degrees"><a href="RS.Math.html">degrees</a></li>
             
-                <li class="parent  " data-name="RS.Math.exports.radians"><a href="RS.Math.html#.exports.radians">exports.radians</a></li>
+                <li class="parent  " data-name="radians"><a href="RS.Math.html">radians</a></li>
             
             </ul>
             
@@ -353,13 +353,13 @@
             
             <span class="subtitle">Methods</span>
             
-                <li class="parent  " data-name="RS.Utils.exports.create_random_string"><a href="RS.Utils.html#.exports.create_random_string">exports.create_random_string</a></li>
+                <li class="parent  " data-name="create_random_string"><a href="RS.Utils.html">create_random_string</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.extract_url_details"><a href="RS.Utils.html#.exports.extract_url_details">exports.extract_url_details</a></li>
+                <li class="parent  " data-name="extract_url_details"><a href="RS.Utils.html">extract_url_details</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.html_image_display"><a href="RS.Utils.html#.exports.html_image_display">exports.html_image_display</a></li>
+                <li class="parent  " data-name="html_image_display"><a href="RS.Utils.html">html_image_display</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.html_video_display"><a href="RS.Utils.html#.exports.html_video_display">exports.html_video_display</a></li>
+                <li class="parent  " data-name="html_video_display"><a href="RS.Utils.html">html_video_display</a></li>
             
             </ul>
             
@@ -1159,13 +1159,11 @@
 <pre class="prettyprint source lang-javascript"><code>const
   path = require('path'),
   fs = require('fs'),
-  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client');
-
-Service.websocket = require('websocket').w3cwebsocket;
+  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client'),
+  WebSocket = require('websocket').w3cwebsocket;
 
 const service = new Service();</code></pre><p>After the built in modules we require the RealityServer&reg; client itself. The individual components required are destructured out for convenience. Note this requires renaming the Error class else it will clash with the builtin Error class, the same would need to be done if extracting the RS.Math API.</p>
-<p>We then pull in the <code>websocket</code> module and get the W3C compliant interface. But instead of importing to a new global we instead assign it to the <code>Service.websocket</code> static property. This will cause the API to use that as the WebSocket constructor instead of <code>window.WebSocket</code> which won't be defined. </p>
-<p>That is all that is needed to setup the API for Node.js. From this point on it can be used in exactly the same was as in the browser. The only exception is the RS.Utils.html_image_display function which requires an Image DOM object to display. However even that can be used if you can provide a custom <code>Image</code> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL" title="Object URL">Object URL</a> implementation.</p>
+<p>We then pull in the <code>websocket</code> module and get the W3C compliant interface. This will be used later to directly create a WebSocket object since <code>window.WebSocket</code> is not available in Node.js. </p>
 <h3>Yargs</h3><p>We use the most excellent <a href="https://www.npmjs.com/package/yargs" title="yargs">yargs</a> module to process the command line arguments of this script.</p>
 <pre class="prettyprint source lang-javascript"><code>require('yargs')
   .demandCommand(7)
@@ -1217,7 +1215,7 @@ const service = new Service();</code></pre><p>After the built in modules we requ
   console.log(`connecting to: ${url}`);
 
   try {
-    await service.connect(url);
+    await service.connect(new WebSocket(url));
   } catch (err) {
     console.error(`Web Socket connection failed: ${err.toString()}`);
     return;
@@ -1226,19 +1224,17 @@ const service = new Service();</code></pre><p>After the built in modules we requ
   console.log('connected.');
 
   service.close();
-}</code></pre><p>First, we destructure out the arguments provided by yargs. From those arguments we generate the URL to connect to and connect the service.</p>
+}</code></pre><p>First, we destructure out the arguments provided by yargs. From those arguments we generate the URL to connect to. We then connect to the service however instead of supplying the URL we pass an instance of the W3C compatible WebSocket interface. The service will use this object directly for communications rather than creating it's own instance.</p>
+<p>Note that you must not process any messages on the WebSocket before passing it to the service otherwise initialization will fail.</p>
+<p>From this point on the API can be used in exactly the same way as in the browser. The only exception is the RS.Utils.exports.html_image_display function which requires an Image DOM object to display. However even that can be used if you can provide a custom <code>Image</code> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL" title="Object URL">Object URL</a> implementation.</p>
 <p>One thing to note is that in Node.js applications we need to ensure that the service gets closed when we're done. Otherwise the open WebSocket connection will prevent the application from exiting on completion.</p>
-<h3>Custom constructor arguments</h3><p>In some cases it may be necessary to pass additional arguments to the WebSocket contructor, EG: if custom headers are required on the initial HTTP connection. There are two ways to acheive this.</p>
-<pre class="prettyprint source lang-javascript"><code>service.connect(url, [ null, { 'custom-header': 'value' } ]);</code></pre><p>The 2nd argument to <a href="RS.Service.html#connect">RS.Service#connect</a> can be an array of additional arguments to provide to the WebSocket construtor. These are appended after the <code>protocol</code> argument in the constructor. The above would result in the following constructor call:</p>
-<pre class="prettyprint source lang-javascript"><code>new WebSocket(url, null, null, { 'custom-header': 'value' });</code></pre><p>Alternatively, an already created WebSocket object may be passed into connect. This gives the user complete control over the creation of the WebSocket and allows them to call any additional setup functions the implementation may provide before handing it over to the service.</p>
-<pre class="prettyprint source"><code>const { Command,Command_error,Error: Rs_error,Utils,Service } = require('realityserver-client');
-const WebSocket = require('websocket').w3cwebsocket;
+<h3>Overriding default WebSocket constructor</h3><p>An alternative to passing in a WebSocket instance to <a href="RS.Service.html#connect">RS.Service#connect</a> is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the RS.Service#websocket static property to the W3C compatible constructor:</p>
+<pre class="prettyprint source lang-javascript"><code>const { Command,Command_error,Error: Rs_error,Utils,Service } = require('realityserver-client');
+Service.websocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 
-const ws = new WebSocket(url, null, null, { 'custom-header': 'value' });
-
-service.connect(ws);</code></pre><p>Note that you must not process any messages on the WebSocket before passing it to the service otherwise initialization will fail.</p>
+service.connect(url);</code></pre><p>This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.</p>
 <h3>Summary</h3><p>In this tutorial we have learnt about the differences between initialization in the browser and Node.js and how to connect to RealityServer&reg;.</p>
 <h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
 <p><a href="tutorials/node-connecting/index.js">Source</a></p>
@@ -1266,7 +1262,7 @@ service.connect(ws);</code></pre><p>Note that you must not process any messages 
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 10 2019 16:24:53 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon May 13 2019 12:06:03 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
