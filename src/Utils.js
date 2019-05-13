@@ -35,6 +35,7 @@ function uidArr() {
  * Creates a random string of the given length using characters 0-9 and a-z.
  * Useful for creating random scope, scene or render loop names.
  * @memberof RS.Utils
+ * @alias create_random_string
  * @param {Number} length - The length of the string
  * @return {String} The random string
  */
@@ -70,6 +71,7 @@ export function create_random_string(length=8) {
  * default port for the protocol is returned.
  * - `secure` whether a secure protocol was supplied.
  * @memberof RS.Utils
+ * @alias extract_url_details
  * @param {String} url - The url to extract from.
  * @return {Object}
  * @throws {String} Throws if the URL protocol is unsupported.
@@ -134,6 +136,7 @@ export function extract_url_details(url) {
  * to display rendered images via an HTML Image element (or any object that can process a
  * URL assigned to it's `src` property).
  * @memberof RS.Utils
+ * @alias html_image_display
  * @param {Image} image - the image element to use
  * @param {Object=} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
  * `URL.revokeObjectURL(String)`. If not provided then `window.URL` or
@@ -211,6 +214,7 @@ export function html_image_display(image, url_creator) {
  * to display MP4 encoded rendered images via an HTML Video element and MediaSource
  * compatible decoder.
  * @memberof RS.Utils
+ * @alias html_video_display
  * @param {Video} video - the video element to use
  * @param {Object=} media_source - a constructor that returns an object  that implements the
  * MediaSource API as defined in
