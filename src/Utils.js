@@ -141,7 +141,6 @@ export function extract_url_details(url) {
  * @param {Object=} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
  * `URL.revokeObjectURL(String)`. If not provided then `window.URL` or
  * `window.webkitURL` will be used.
- * @see RS.Service#stream
  * @example
  * // Assumptions: There exists a DOM element &lt;img src="" id="rs_display"&gt;
  *
@@ -223,7 +222,6 @@ export function html_image_display(image, url_creator) {
  * @param {Object=} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
  * `URL.revokeObjectURL(String)`. If not provided then `window.URL` or
  * `window.webkitURL` will be used.
- * @see RS.Service#stream
  */
 export function html_video_display(video, media_source, url_creator) {
     const bind_to = {
