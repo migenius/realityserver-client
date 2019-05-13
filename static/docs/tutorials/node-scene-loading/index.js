@@ -1,9 +1,8 @@
 const
   path = require('path'),
   fs = require('fs'),
-  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client');
-
-Service.websocket = require('websocket').w3cwebsocket;
+  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client'),
+  WebSocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 
@@ -57,7 +56,7 @@ async function load_and_render(argv) {
   console.log(`connecting to: ${url}`);
 
   try {
-    await service.connect(url);
+    await service.connect(new WebSocket(url));
   } catch (err) {
     console.error(`Web Socket connection failed: ${err.toString()}`);
     return;

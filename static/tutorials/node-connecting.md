@@ -11,17 +11,14 @@ Now we can start the script itself which we'll call `index.js`. As usual at the 
 const
   path = require('path'),
   fs = require('fs'),
-  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client');
-
-Service.websocket = require('websocket').w3cwebsocket;
+  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client'),
+  WebSocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 ```
 After the built in modules we require the RealityServer&reg; client itself. The individual components required are destructured out for convenience. Note this requires renaming the Error class else it will clash with the builtin Error class, the same would need to be done if extracting the RS.Math API.
 
-We then pull in the `websocket` module and get the W3C compliant interface. But instead of importing to a new global we instead assign it to the `Service.websocket` static property. This will cause the API to use that as the WebSocket constructor instead of `window.WebSocket` which won't be defined. 
-
-That is all that is needed to setup the API for Node.js. From this point on it can be used in exactly the same was as in the browser. The only exception is the {@link RS.Utils.html_image_display} function which requires an Image DOM object to display. However even that can be used if you can provide a custom `Image` and [Object URL](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL "Object URL") implementation.
+We then pull in the `websocket` module and get the W3C compliant interface. This will be used later to directly create a WebSocket object since `window.WebSocket` is not available in Node.js. 
 
 ### Yargs
 We use the most excellent [yargs](https://www.npmjs.com/package/yargs "yargs") module to process the command line arguments of this script.
@@ -82,7 +79,7 @@ async function load_and_render(argv) {
   console.log(`connecting to: ${url}`);
 
   try {
-    await service.connect(url);
+    await service.connect(new WebSocket(url));
   } catch (err) {
     console.error(`Web Socket connection failed: ${err.toString()}`);
     return;
@@ -93,32 +90,27 @@ async function load_and_render(argv) {
   service.close();
 }
 ```
-First, we destructure out the arguments provided by yargs. From those arguments we generate the URL to connect to and connect the service.
+First, we destructure out the arguments provided by yargs. From those arguments we generate the URL to connect to. We then connect to the service however instead of supplying the URL we pass an instance of the W3C compatible WebSocket interface. The service will use this object directly for communications rather than creating it's own instance.
+
+Note that you must not process any messages on the WebSocket before passing it to the service otherwise initialization will fail.
+
+From this point on the API can be used in exactly the same way as in the browser. The only exception is the {@link RS.Utils.html_image_display} function which requires an Image DOM object to display. However even that can be used if you can provide a custom `Image` and [Object URL](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL "Object URL") implementation.
 
 One thing to note is that in Node.js applications we need to ensure that the service gets closed when we're done. Otherwise the open WebSocket connection will prevent the application from exiting on completion.
 
-### Custom constructor arguments
-In some cases it may be necessary to pass additional arguments to the WebSocket contructor, EG: if custom headers are required on the initial HTTP connection. There are two ways to acheive this.
-```javascript
-service.connect(url, [ null, { 'custom-header': 'value' } ]);
-```
-The 2nd argument to {@link RS.Service#connect} can be an array of additional arguments to provide to the WebSocket construtor. These are appended after the `protocol` argument in the constructor. The above would result in the following constructor call:
-```javascript
-new WebSocket(url, null, null, { 'custom-header': 'value' });
-```
+### Overriding default WebSocket constructor
+An alternative to passing in a WebSocket instance to {@link RS.Service#connect} is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the {@link RS.Service#websocket} static property to the W3C compatible constructor:
 
-Alternatively, an already created WebSocket object may be passed into connect. This gives the user complete control over the creation of the WebSocket and allows them to call any additional setup functions the implementation may provide before handing it over to the service.
-```
+```javascript
 const { Command,Command_error,Error: Rs_error,Utils,Service } = require('realityserver-client');
-const WebSocket = require('websocket').w3cwebsocket;
+Service.websocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 
-const ws = new WebSocket(url, null, null, { 'custom-header': 'value' });
-
-service.connect(ws);
+service.connect(url);
 ```
-Note that you must not process any messages on the WebSocket before passing it to the service otherwise initialization will fail.
+
+This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.
 
 ### Summary
 In this tutorial we have learnt about the differences between initialization in the browser and Node.js and how to connect to RealityServer&reg;.
