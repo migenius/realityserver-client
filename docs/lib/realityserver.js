@@ -281,53 +281,12 @@
         }
         return display_image.bind(bind_to);
     }
-    function html_video_display(video, media_source, url_creator) {
-        const bind_to = {
-            video,
-            buffer: [],
-            data_size: 0
-        };
-        media_source = media_source || MediaSource;
-        url_creator = url_creator ||  (window ? (window.URL || window.webkitURL) : undefined);
-        if (!media_source || !url_creator) {
-            throw 'No nedia source or URL creator available.';
-        }
-        bind_to.source = new media_source();
-        bind_to.source_buffer = undefined;
-        video.src = url_creator.createObjectURL(bind_to.source);
-        bind_to.source.addEventListener('sourceopen', function() {
-            bind_to.source_buffer = bind_to.source.addSourceBuffer('video/mp4; codecs="avc1.64001E"');
-        });
-        bind_to.source.addEventListener('webkitsourceopen', function() {
-            bind_to.source_buffer = bind_to.source.addSourceBuffer('video/mp4;codecs="avc1.64001E"');
-        });
-        function display_video(data) {
-            if (data.image && data.mime_type) {
-                this.buffer.push(data.image);
-                this.data_size += data.image.length;
-                if (!this.source_buffer.updating) {
-                    const accum_buffer = new Uint8Array(this.data_size);
-                    let i=0;
-                    while (this.buffer.length > 0) {
-                        const b = this.buffer.shift();
-                        accum_buffer.set(b, i);
-                        i += b.length;
-                    }
-                    this.data_size = 0;
-                    this.source_buffer.appendBuffer(accum_buffer);
-                }
-            }
-        }
-        video.play();
-        return display_video.bind(bind_to);
-    }
 
     var Utils = /*#__PURE__*/Object.freeze({
         EventEmitter: eventemitter3,
         create_random_string: create_random_string,
         extract_url_details: extract_url_details,
-        html_image_display: html_image_display,
-        html_video_display: html_video_display
+        html_image_display: html_image_display
     });
 
     const ALMOST_ZERO = 10e-5;
