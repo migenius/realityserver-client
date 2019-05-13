@@ -299,7 +299,7 @@
             
             <span class="subtitle">Members</span>
             
-                <li class="parent " data-name="RS.Math.exports.ALMOST_ZERO"><a href="RS.Math.html#.exports.ALMOST_ZERO">exports.ALMOST_ZERO</a></li>
+                <li class="parent " data-name="ALMOST_ZERO"><a href="RS.Math.html">ALMOST_ZERO</a></li>
             
             </ul>
             
@@ -315,9 +315,9 @@
             
             <span class="subtitle">Methods</span>
             
-                <li class="parent  " data-name="RS.Math.exports.degrees"><a href="RS.Math.html#.exports.degrees">exports.degrees</a></li>
+                <li class="parent  " data-name="degrees"><a href="RS.Math.html">degrees</a></li>
             
-                <li class="parent  " data-name="RS.Math.exports.radians"><a href="RS.Math.html#.exports.radians">exports.radians</a></li>
+                <li class="parent  " data-name="radians"><a href="RS.Math.html">radians</a></li>
             
             </ul>
             
@@ -353,13 +353,11 @@
             
             <span class="subtitle">Methods</span>
             
-                <li class="parent  " data-name="RS.Utils.exports.create_random_string"><a href="RS.Utils.html#.exports.create_random_string">exports.create_random_string</a></li>
+                <li class="parent  " data-name="create_random_string"><a href="RS.Utils.html">create_random_string</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.extract_url_details"><a href="RS.Utils.html#.exports.extract_url_details">exports.extract_url_details</a></li>
+                <li class="parent  " data-name="extract_url_details"><a href="RS.Utils.html">extract_url_details</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.html_image_display"><a href="RS.Utils.html#.exports.html_image_display">exports.html_image_display</a></li>
-            
-                <li class="parent  " data-name="RS.Utils.exports.html_video_display"><a href="RS.Utils.html#.exports.html_video_display">exports.html_video_display</a></li>
+                <li class="parent  " data-name="html_image_display"><a href="RS.Utils.html">html_image_display</a></li>
             
             </ul>
             
@@ -1153,84 +1151,28 @@
 </header>  
 
 <article class="content-size">
-    <h1>Migrating</h1><p>A lightweight, modern JavaScript client library to connect to and render using <a href="https://migenius.com" title="migenius">migenius's</a> <a href="https://www.migenius.com/products/realityserver" title="RealityServer">RealityServer</a>®. Natively supports modern evergreen browsers and Node.js.</p>
-<h2>batch commands</h2><h2>add callback</h2><h2>Introduction</h2><p>The legacy JavaScript client library shipped with RealityServer was designed in 2010, back when JavaScript in the browser was mostly unusable without some sort of framework like jQuery, WebSockets were still being designed and JavaScript on the server was virtually unheard of (RealityServer being one of the exceptions). A lot has changed since then, JavaScript has significantly evolved and is supported by a huge module ecosystem, WebSockets are under the hood of everything and Node.js is becoming ubiquitous.</p>
-<p>The RealityServer client library however has barely changed. Until now.</p>
-<p><code>realityserver-client</code> is a Promise based, ES6 RealityServer client library that can be used both in the browser and Node.js. It utilises WebSockets for all communications providing fast and efficient command execution. The WebSocket connection can stream images to the client directly from render loops and provides synchronized command execution, ensuring that no changes are lost and letting you know exactly when changes appear in rendered images.</p>
-<p><code>realityserver-client</code> requires at least RealityServer 5.2 2452.XXX</p>
-<h2>Usage</h2><p>Download the <a href="https://insertlinkhere.example.com" title="RealityServer client library">minified</a> library and include it directly in your HTML, or install via <code>npm install @migenius/realityserver-client</code> and use as a module in <a href="https://nodejs.org" title="Node.js">Node.js</a> directly or via your favorite bundler (EG: <a href="https://rollupjs.org" title="rollup.js">rollup.js</a> <a href="https://webpack.github.io/" title="Webpack">Webpack</a> <a href="https://github.com/substack/node-browserify" title="Browerify">Broswerify</a>). Then simply instantiate <code>RS.Service</code>, connect to your RealityServer and start sending commands.</p>
-<h4>Browser</h4><pre class="prettyprint source lang-html"><code>&lt;script source='/js/realityserver.js'>&lt;/source></code></pre><pre class="prettyprint source lang-javascript"><code>const service = new RS.Service();
-
-service.connect('ws://host.example.com/service/')
-  .then(() => {
-    return service.queue_commands()
-      .queue(new RS.Command('create_scope',{scope_name:'myscope'}))
-      .queue(new RS.Command('use_scope',{scope_name:'myscope'}))
-      .queue(new RS.Command('import_scene',
-        {
-          scene_name:'myscene',
-          block:true,
-          filename: 'scenes/meyemii.mi'
-        }),true) // the response from this will resolve next
-      .execute();
-  })
-  .then(([scene_info]) => {
-    if (scene_info.is_error) {
-      console.log(`Scene load error: ${JSON.stringify(scene_info.error)}`);
-    } else {
-      // scene is loaded, do some more work with it
-      scene_loaded(scene_info.result);
-    }
-  })
-  .catch(err => {
-      // service promises only reject for system errors, not command errors so
-      // this is likely a connection problem.
-      console.error(`Failed to connect to RealityServer: ${err.toString()}`);
-  });</code></pre><h4>Node</h4><pre class="prettyprint source lang-javascript"><code>// Node has no native socket implementation so we use the 'websocket' module from npm
-const WS = require('websocket').w3cwebsocket; // ensure we have the W3C compliant API
-const { Service, Command } = require('realityserver-client');
-
-async () => {
-  const service = new Service();
-  // pass in a websocket implementation to use rather than a URL.
-  try {
-    await service.connect(new WS('ws://host.example.com/service/'));
-  } catch(err) {
-    console.error(`Failed to connect to RealityServer: ${err.toString()}`);
-    return; 
-  }
-  try {
-    const [ scene_info ] = await service.queue_commands()
-      .queue(new Command('create_scope',{scope_name:'myscope'}))
-      .queue(new Command('use_scope',{scope_name:'myscope'}))
-      .queue(new Command('import_scene',
-        {
-          scene_name:'myscene',
-          block:true,
-          filename: 'scenes/meyemii.mi'
-        }),true)
-      .execute();
-    if (scene_info.is_error) {
-      console.log(`Scene load error: ${JSON.stringify(scene_info.error)}`);
-      return;
-    } else {
-      scene_loaded(scene_info.result);
-    }
-  } catch(err) {
-    // In general usage command promises shouldn't reject unless something
-    // went fundanmentally wrong. 
-    console.error(`System error: ${err.toString()}`);
-    service.close();
-    return; 
-  }
-})();</code></pre><h2>Streaming images from a render loop</h2><p>TODO: show how to stream images from a render loop</p>
-<h2>API Documentation</h2><p>TODO: link to live docs go here</p>
-<h2>Demos</h2><ul>
-<li><p><a href="http://github.com/migenius/react-mobx-render-loop" title="render loop demo">React/mobx implementation of the render loop demo</a></p>
-</li>
-<li><p><a href="http://github.com/migenius/node-render" title="node render script">Simple Node.js render script</a></p>
-</li>
-</ul>
+    <p>Unfortunately there is no simple migration path from the legacy client library to the modern. The library structure and concepts have changed too drastically to simply rename a few functions and classes and all will work. In fact, the only API that has not changed is the <a href="RS.Command.html">RS.Command</a> class, but that only ever consisted of a constructor anyway.</p>
+<p>This migration document operates more at the conceptual level, mostly describing how features of the legacy library translate into the new one.</p>
+<h2>Command State</h2><p>The legacy client library has an extensive command state system which allowed the user to add persistent state information to each command request. The system was flexible enough to support all the features used by server side state handlers (via URL path prefixes or HTTP headers) or for vanilla RealityServer&reg; installations by specifying state commands that were prefixed to each command set.</p>
+<p>In practise however the only use made of this system was to prefix a <code>use_scope</code> command at the start of each command set to ensure it was running in the user's session scope.</p>
+<p>Therefore the state system has been reduced to simply allowing for a default scope to be specified via <a href="RS.Service.html#default_scope_name">RS.Service#default_scope_name</a>.</p>
+<p>In the legacy library we would first create the required scopes then create a state data object to set on the service:</p>
+<pre class="prettyprint source"><code>var stateData = new com.mi.rs.StateData(null, null, [new com.mi.rs.Command(&quot;use_scope&quot;, {scope_name:userScope})]);
+service.defaultStateData = stateData;</code></pre><p>In the modern library we simply set the scope name onto the service and it will deal with setting up the <code>use_scope</code> command internally:</p>
+<pre class="prettyprint source"><code>service.default_scope_name = userScope;</code></pre><p>In many cases performing even this step isn't required as most commands are executed on <a href="RS.Stream.html">RS.Stream</a> rather than the <a href="RS.Service.html">RS.Service</a>. All commands executed on <a href="RS.Stream.html">RS.Stream</a> are automatically executed in the scope of the stream's render loop, which is usually the user scope, so explicit scope management is not required.</p>
+<h2>Batch Commands</h2><p>Applications using the legacy client library typically made much use of <code>batch_command</code> to group a sequence of commands together to ensure they were called in a single request. So much so that calls to <code>batch_command</code> were abstracted out to the <code>com.mi.rs.BatchCommand</code> class and responses from this were specifically separated out internally to make response management easier.</p>
+<p>However <code>batch_command</code> has little use in the WebSocket based command system as the underlying framework supports command batching as a first class feature (actually, the old library had native batching as well but it wasn't used very much). Additionally, <code>batch_command</code> has numerous limitations, not least that it could not handle returning binary data. Even native batching in the legacy library could not directly return mixed binary data and text data due to the limitations of JSON-RPC. So complex command handling was required by both the user and the underlying library to separate out commands that returned different data types.</p>
+<p>Use of <code>batch_command</code> is possible it is strongly discouraged. The <a href="RS.Command_queue.html">RS.Command_queue</a> class provides the same command sequencing functionality in a more user friendly manner. <a href="RS.Command_queue.html">RS.Command_queue</a> instances can be created using either <a href="RS.Service.html#queue_commands">RS.Service#queue_commands</a> or <a href="RS.Stream.html#queue_commands">RS.Stream#queue_commands</a>.</p>
+<h2>Render Commands</h2><p>The legacy library had specific <code>com.mi.rs.RenderCommand</code> classes to identify commands that rendered images separately from those that returned JSON-RPC results. Given that the underlying system supports mixed binary and text data natively this distinction is no longer required.</p>
+<h2>addCallback</h2><p><code>com.mi.rs.RSService.addCallback</code> provides a number of levels of functionality in the legacy library. The first is the native command batching mentioned above which has been replaced by <a href="RS.Command_queue.html">RS.Command_queue</a>. The second was part of the browser connection limit management system. Even today web browsers limit how many parallel connections can be made to the same web server. When the legacy library was developed this limit was around 2 connections. So having a render request and a command running simultaneously would saturate the allowance. This was problematic as it was often necessary to send keep alive commands to ensure render loops were not shutdown prematurely. If all connections were taken up by service commands these would get delayed and rendering could be lost.</p>
+<p>To mitigate this the legacy library limited itself to a single connection to RealityServer. If commands were added to the service while other commands were executing they would be queued up and sent once execution completed. Alternatively, <code>addCallback</code> could be called and passed a function. This function would be called once any current execution was complete and commands then added at a time when we knew the connection was idle.</p>
+<p>Given that the WebSocket system does not suffer from this connection limit problem there is no need for <code>addCallback</code> type functionality. Commands sent or executed via the <a href="RS.Service.html">RS.Service</a>, <a href="RS.Stream.html">RS.Stream</a> or <a href="RS.Command_queue.html">RS.Command_queue</a> get sent immediately.</p>
+<p>There was a useful side effect property of <code>addCallback</code> however which was greatly effective when using mouse interaction to navigate a scene. When dragging the mouse many matrix update events occur and if a command was queued for each one you could easily end up with hundreds of <code>instance_set_world_to_obj</code> calls waiting to execute once the connection was clear. And only the last one of these was important since all the earlier ones get overwritten by the latter. Using <code>addCallback</code> you could simply register a callback function on mouse move, and once the service was ready to send commands read the current camera location from state and send a single <code>instance_set_world_to_obj</code> command.</p>
+<p>There is no equivalent functionality in the new API. If a similar system is required implementing a debounce system would be fairly straightforward.</p>
+<h2>Command Debugging</h2><p>Command debugging in the legacy API was fairly straightforward, simply open your browser console and watch the JSON-RPC requests go back and forth. Things are not so simple with all commands going over a binary WebSocket connection however so the client library offers two different forms of command debugging. </p>
+<h3>Developer Console debugging</h3><p>The Chrome debugger does allow WebSocket packet inspection but binary packets are still generally opaque. Setting <a href="RS.Service.html#debug_commands">RS.Service#debug_commands</a> to <code>true</code>  activates text mode and all commands and responses are then sent as JSON text packets rather than binary where possible. You can then inspect these in the console to see what is going back and forth.</p>
+<h3>Request/Response events</h3><p>More detailed inspection can be enabled by setting <a href="RS.Service.html#log_commands">RS.Service#log_commands</a> to <code>true</code>. When this is enabled, <a href="RS.Service.html">RS.Service</a> will emit <a href="RS.Service.html#event:command_requests">RS.Service#event:command_requests</a> and <a href="RS.Service.html#event:command_results">RS.Service#event:command_results</a> events for every set of commands that are executed over the service. Event handlers can then log or parse these as necessary to resolve problems.</p>
+<p>Note that it is not recommended to enable either of these in production systems. For the former the text based requests are much larger than their binary equivalents. For the latter you will get responses sent for every single request made, not just the ones for which you have requested results.</p>
 <hr>
 <table>
 <thead>
@@ -1242,6 +1184,7 @@ async () => {
 <tbody>
 <tr>
 <td style="text-align:left">&lt;&lt;&lt; <a href="tutorial-02-concepts.html">Concepts</a></td>
+<td style="text-align:right">&nbsp;</td>
 </tr>
 </tbody>
 </table>
@@ -1254,7 +1197,7 @@ async () => {
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Apr 13 2019 07:52:19 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon May 13 2019 12:52:09 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

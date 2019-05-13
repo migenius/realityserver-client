@@ -299,7 +299,7 @@
             
             <span class="subtitle">Members</span>
             
-                <li class="parent " data-name="RS.Math.exports.ALMOST_ZERO"><a href="RS.Math.html#.exports.ALMOST_ZERO">exports.ALMOST_ZERO</a></li>
+                <li class="parent " data-name="ALMOST_ZERO"><a href="RS.Math.html">ALMOST_ZERO</a></li>
             
             </ul>
             
@@ -315,9 +315,9 @@
             
             <span class="subtitle">Methods</span>
             
-                <li class="parent  " data-name="RS.Math.exports.degrees"><a href="RS.Math.html#.exports.degrees">exports.degrees</a></li>
+                <li class="parent  " data-name="degrees"><a href="RS.Math.html">degrees</a></li>
             
-                <li class="parent  " data-name="RS.Math.exports.radians"><a href="RS.Math.html#.exports.radians">exports.radians</a></li>
+                <li class="parent  " data-name="radians"><a href="RS.Math.html">radians</a></li>
             
             </ul>
             
@@ -353,13 +353,11 @@
             
             <span class="subtitle">Methods</span>
             
-                <li class="parent  " data-name="RS.Utils.exports.create_random_string"><a href="RS.Utils.html#.exports.create_random_string">exports.create_random_string</a></li>
+                <li class="parent  " data-name="create_random_string"><a href="RS.Utils.html">create_random_string</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.extract_url_details"><a href="RS.Utils.html#.exports.extract_url_details">exports.extract_url_details</a></li>
+                <li class="parent  " data-name="extract_url_details"><a href="RS.Utils.html">extract_url_details</a></li>
             
-                <li class="parent  " data-name="RS.Utils.exports.html_image_display"><a href="RS.Utils.html#.exports.html_image_display">exports.html_image_display</a></li>
-            
-                <li class="parent  " data-name="RS.Utils.exports.html_video_display"><a href="RS.Utils.html#.exports.html_video_display">exports.html_video_display</a></li>
+                <li class="parent  " data-name="html_image_display"><a href="RS.Utils.html">html_image_display</a></li>
             
             </ul>
             
@@ -1153,84 +1151,107 @@
 </header>  
 
 <article class="content-size">
-    <h1>Concepts</h1><p>A lightweight, modern JavaScript client library to connect to and render using <a href="https://migenius.com" title="migenius">migenius's</a> <a href="https://www.migenius.com/products/realityserver" title="RealityServer">RealityServer</a>®. Natively supports modern evergreen browsers and Node.js.</p>
-<h2>Scopes</h2><h2>Send and execute</h2><p>The legacy JavaScript client library shipped with RealityServer was designed in 2010, back when JavaScript in the browser was mostly unusable without some sort of framework like jQuery, WebSockets were still being designed and JavaScript on the server was virtually unheard of (RealityServer being one of the exceptions). A lot has changed since then, JavaScript has significantly evolved and is supported by a huge module ecosystem, WebSockets are under the hood of everything and Node.js is becoming ubiquitous.</p>
-<p>The RealityServer client library however has barely changed. Until now.</p>
-<p><code>realityserver-client</code> is a Promise based, ES6 RealityServer client library that can be used both in the browser and Node.js. It utilises WebSockets for all communications providing fast and efficient command execution. The WebSocket connection can stream images to the client directly from render loops and provides synchronized command execution, ensuring that no changes are lost and letting you know exactly when changes appear in rendered images.</p>
-<p><code>realityserver-client</code> requires at least RealityServer 5.2 2452.XXX</p>
-<h2>Usage</h2><p>Download the <a href="https://insertlinkhere.example.com" title="RealityServer client library">minified</a> library and include it directly in your HTML, or install via <code>npm install @migenius/realityserver-client</code> and use as a module in <a href="https://nodejs.org" title="Node.js">Node.js</a> directly or via your favorite bundler (EG: <a href="https://rollupjs.org" title="rollup.js">rollup.js</a> <a href="https://webpack.github.io/" title="Webpack">Webpack</a> <a href="https://github.com/substack/node-browserify" title="Browerify">Broswerify</a>). Then simply instantiate <code>RS.Service</code>, connect to your RealityServer and start sending commands.</p>
-<h4>Browser</h4><pre class="prettyprint source lang-html"><code>&lt;script source='/js/realityserver.js'>&lt;/source></code></pre><pre class="prettyprint source lang-javascript"><code>const service = new RS.Service();
-
-service.connect('ws://host.example.com/service/')
-  .then(() => {
-    return service.queue_commands()
-      .queue(new RS.Command('create_scope',{scope_name:'myscope'}))
-      .queue(new RS.Command('use_scope',{scope_name:'myscope'}))
-      .queue(new RS.Command('import_scene',
-        {
-          scene_name:'myscene',
-          block:true,
-          filename: 'scenes/meyemii.mi'
-        }),true) // the response from this will resolve next
-      .execute();
-  })
-  .then(([scene_info]) => {
-    if (scene_info.is_error) {
-      console.log(`Scene load error: ${JSON.stringify(scene_info.error)}`);
-    } else {
-      // scene is loaded, do some more work with it
-      scene_loaded(scene_info.result);
-    }
-  })
-  .catch(err => {
-      // service promises only reject for system errors, not command errors so
-      // this is likely a connection problem.
-      console.error(`Failed to connect to RealityServer: ${err.toString()}`);
-  });</code></pre><h4>Node</h4><pre class="prettyprint source lang-javascript"><code>// Node has no native socket implementation so we use the 'websocket' module from npm
-const WS = require('websocket').w3cwebsocket; // ensure we have the W3C compliant API
-const { Service, Command } = require('realityserver-client');
-
-async () => {
-  const service = new Service();
-  // pass in a websocket implementation to use rather than a URL.
-  try {
-    await service.connect(new WS('ws://host.example.com/service/'));
-  } catch(err) {
-    console.error(`Failed to connect to RealityServer: ${err.toString()}`);
-    return; 
+    <p>There are a number of high level concepts in RealityServer&reg; and the client library that need to be understood to make effective use of the system.</p>
+<h2>Scopes</h2><p>RealityServer&reg; is an interactive multi-scene, multi-user renderer. In short this means that you can have multiple users connected rendering multiple scenes simultaneously. Or multiple users rendering the same scene, or simply a single user rendering a single scene. Additionally, each user can make modifications to their scene in isolation from other users. For example users can be rendering the same scene from different camera locations; one can have red chairs and another blue; one can be rendering a bright summer day and another mid-winter twilight. It is even possible to have some scene data shared and some not. Two users can have independent cameras but see all the other scene changes that are made. All this is acheived without making copies of the entire scene but only of the particular elements that are changed.</p>
+<p>All RealityServer&reg; scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name.</p>
+<p>Scopes provide an isolated view into the database and allow different database elements to be stored using the same name. Without scopes, it would not be possible for two users to create an element called <code>camera</code> as they would clash.</p>
+<p>RealityServer&reg; starts with a shared global scope, by default all commands are run in this global scope which results in all scene data being shared by all users. If multiple elements are created with the same name then the last one created shadows all the others. So if two users create an element called <code>camera</code> then both users would see the one that was created last. If either user modified the camera both would see the changes.</p>
+<p>It is possible to create further scopes as children of the global scope. If we create scopes <code>A</code> and <code>B</code> then we can create a <code>camera</code> element within each and edit them independently. Additionally, any elements created within a scope are not visible to parent scopes. So from the global scope's point of view the <code>camera</code> element does not exist. You have to enter either scope <code>A</code> or <code>B</code> to access the <code>camera</code> element. Conversely, the child scopes can see any elements in their parent/ancestor scopes. So if we create an MDL material instance called <code>red</code> in the global scope then both scopes <code>A</code> and <code>B</code> will be able to see the <code>red</code> material. If the color of that material is changed to blue, then both child scopes will see the color change since they are accessing it from the global scope.</p>
+<p>Scopes can be further nested creating a tree structure of database views. Scope <code>A</code> could have child scopes <code>AA</code> and <code>AB</code>. <code>B</code> could have children <code>BA</code> and <code>BB</code> (or whatever you want to call them). These can then have further child scopes up to a depth of 255 scopes. A typical application would never have that deep a scope tree though, a depth of 3 or 4 (including the global scope) is usually sufficient. A standard pattern is to create a single child scope as an 'application' scope to hold scene data that is shared between all users, and then create 'session' scopes below this, one for each active user. For example, if we were running two applications that had two active users each we would create the following:</p>
+<p><img src="images/Nested-Scopes.svg" alt="Nested Scopes" title="Nested Scopes"></p>
+<p>The applications would load their scenes in the application scopes and each user would execute commands and render in their individual user scopes. If your application can dynamically load different scenes then there may also be a per-scene scope between the application and user.</p>
+<p>As described earlier child scopes can see elements in their parent scopes. It is also possible for child scopes to have elements with the same name as elements in their parents. When accessing these elements you will always see the one furthest down the scope tree. By using a process called localization we can easily copy scene elements down the scope tree from whichever scope they are currently accessed from into the current scope.</p>
+<p>For example: when a scene is loaded in the application scope, and the user accesses it in their user scope they see the element in the application scope. So every user is sharing the same elements. By localizing scene elements to their user scope, users are able to have their own individual copies of parts of the scene that they can edit without affecting other users. By localizing a scene's camera and camera instance from the application scope to the users it is possible to move around in a scene independently. Localizing an MDL material instance allows for users to change colors or other propeties of the material without affecting anyone else. All this is acheived withough having to copy the entire scene resulting in a potentially huge saving in memory usage.</p>
+<p>Scoping and localization allows for powerful render time data sharing. Any editable scene element (apart from MDL definitions) can be localized and customized on a per user basis. In additional to the simple pattern described above more complex scenarios such as collaborative editing, where some scene data is shared and edited and some is per user, can easily be acheived. </p>
+<p>Details on creating and using scopes and localization can be found starting in the <a href="tutorial-browser-scene-loading.html">Scene Loading</a> tutorial as well as the <a href="https://www.migenius.com/articles/scopes-in-realityserver" title="Scopes In RealityServer">migenius blog</a>.</p>
+<h2>Send and execute</h2><p>The client library provides a number of entry points where commands can be executed, both the <a href="RS.Service.html">RS.Service</a> and <a href="RS.Stream.html">RS.Stream</a> provide methods to call either single commands or queue up a sequence of commands to be called in a batch. Each of these provides two variants, send and execute. These perform the same core functionality, executing commands on RealityServer&reg; and promising to provide the results of those commands, if requested. However the form of the Promise(s) returned by each variant is subtly different.</p>
+<p>We will be be using <a href="RS.Command_queue.html">RS.Command_queue</a> to demonstrate the differences between send and execute below as it is more informative to see the results of multiple commands. The same concepts apply to the <code>send_command</code> and <code>execute_command</code> functions on <a href="RS.Service.html">RS.Service</a> and <a href="RS.Stream.html">RS.Stream</a>, the only difference is that these will only ever contain a single command result.</p>
+<p>The following contrived command queue will be used:</p>
+<pre class="prettyprint source"><code>const queue = service.queue_commands()
+  .queue(new RS.Command('get_version', {}), true)
+  .queue(new RS.Command('use_scope', { scope_name: 'my_scope' }))
+  .queue(new RS.Command('element_exists', { element_name: 'camera' }), true);</code></pre><p>This queue will execute three commands but only return two results, the first being the version of RealityServer&reg; being used and the second being whether an element called <code>camera</code> exists in the <code>my_scope</code> scope. We assume that <code>my_scope</code> already exists which is why we are not passing <code>true</code> as the second argument to it's <code>queue</code> call since we don't care about it's response.</p>
+<h3>execute</h3><p>The simplest, and most common, way to run this queue is to use the <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> method. This will return a single Promise that will resolve to an iterable containing the results of the commands that we want results for. EG:</p>
+<pre class="prettyprint source"><code>queue.execute().then(([rs_version,camera_exists]) => {
+  console.log(`Connected to RS ${rs_version}`);
+  if (camera_exists instanceof RS.Command_error) {
+    console.log(`camera does not exist.`);
+  } else {
+    console.log(`camera does exist.`);
   }
-  try {
-    const [ scene_info ] = await service.queue_commands()
-      .queue(new Command('create_scope',{scope_name:'myscope'}))
-      .queue(new Command('use_scope',{scope_name:'myscope'}))
-      .queue(new Command('import_scene',
-        {
-          scene_name:'myscene',
-          block:true,
-          filename: 'scenes/meyemii.mi'
-        }),true)
-      .execute();
-    if (scene_info.is_error) {
-      console.log(`Scene load error: ${JSON.stringify(scene_info.error)}`);
-      return;
-    } else {
-      scene_loaded(scene_info.result);
-    }
-  } catch(err) {
-    // In general usage command promises shouldn't reject unless something
-    // went fundanmentally wrong. 
-    console.error(`System error: ${err.toString()}`);
-    service.close();
-    return; 
+}).catch(err => {
+  console.log(`System error: ${err.toString()}`);
+});</code></pre><p>Or if we are in an async function we can use:</p>
+<pre class="prettyprint source"><code>try {
+  const [rs_version,camera_exists] = await queue.execute();
+
+  console.log(`Connected to RS ${rs_version}`);
+  if (camera_exists instanceof RS.Command_error) {
+    console.log(`camera does not exist.`);
+  } else {
+    console.log(`camera does exist.`);
   }
-})();</code></pre><h2>Streaming images from a render loop</h2><p>TODO: show how to stream images from a render loop</p>
-<h2>API Documentation</h2><p>TODO: link to live docs go here</p>
-<h2>Demos</h2><ul>
-<li><p><a href="http://github.com/migenius/react-mobx-render-loop" title="render loop demo">React/mobx implementation of the render loop demo</a></p>
-</li>
-<li><p><a href="http://github.com/migenius/node-render" title="node render script">Simple Node.js render script</a></p>
-</li>
-</ul>
+} catch(err) {
+  console.log(`System error: ${err.toString()}`);
+};</code></pre><p>In both these situations a single Promise is being returned. It is resolving to an iterable and we use array destructuring to extract that into individual variables.</p>
+<p>Note that the Promise does not reject in the case of RealityServer&reg; command errors. Instead the results of the commands are instances of <a href="RS.Command_error.html">RS.Command_error</a>. The Promise will only reject in the case of underlying service errors, EG: you haven't yet connected to RealityServer&reg;.</p>
+<h3>send</h3><p><a href="RS.Command_queue.html#send">RS.Command_queue#send</a> is used in the same was as <code>execute</code> except that it returns an array of Promises, one for each command that requested a result.</p>
+<pre class="prettyprint source"><code>try {
+  const [rs_version_promise, camera_exists_promise] = queue.send();
+  rs_version_promise.then(rs_version => {
+    console.log(`Connected to RS ${rs_version}`);
+  });
+
+  camera_exists_promise.then(camera_exists => {
+    if (camera_exists instanceof RS.Command_error) {
+      console.log(`camera does not exist.`);
+    } else {
+      console.log(`camera does exist.`);
+    }
+  });
+} catch (err) {
+  console.log(`System error: ${err.toString()}`);
+}</code></pre><p>Unlike the <code>execute</code> Promise the Promises returned by send will never reject as they are associated with individual command calls. Instead, on service error the <code>send</code> call throws directly.</p>
+<h3>Which one should I use.</h3><p>On the surface you might think you should just use <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> all the time. There's just a single Promise to deal with that you can either await on it or handle the results in a single <code>then</code> function. This is even more the case when you take into account of the fact that the <code>send</code> Promises will all resolve at the same time since all commands and results in a single queue are processed as a batch. You could make processing <code>send</code> results easier by wrapping it in a <code>Promise.all()</code> however that's effectively what <code>execute</code> does internally.</p>
+<p>There is one special use case however where <code>send</code> is useful which is when you want to know when the result of a particular command has appeared in a rendered image.</p>
+<p>When you queue or execute commands on a stream there is no correlation between when the Promises resolve and when the actual change appears in a rendered image. So in the following:</p>
+<pre class="prettyprint source"><code>const [ set_result ] = await stream.execute_command(
+  new RS.Command('mdl_set_argument', {
+    element_name: 'red',
+    argument_name: 'diffuse',
+    value: { r: 0.4, g: 0.8, b: 0.2 }
+  }), {
+    want_response: true
+  }
+);  </code></pre><p>the <code>await</code> will resume execution once the <code>red.diffuse</code> argument has been set or an error returned. This does not mean that the new color is visible in a render however since it will usually take longer for a scene to reset and pick up the change.</p>
+<p>We can however add the <code>wait_for_render</code> option. In that case an additional Promise is returned that will resolve when a rendered image that contains the color change has been received by the stream.</p>
+<pre class="prettyprint source"><code>const [ set_result, have_image ] = await stream.execute_command(
+  new RS.Command('mdl_set_argument', {
+    element_name: 'red',
+    argument_name: 'diffuse',
+    value: { r: 0.4, g: 0.8, b: 0.2 }
+  }), {
+    want_response: true,
+    wait_for_render: true
+  }
+);  </code></pre><p>So now when <code>await</code> resumes you know that the rendered images from the stream contain the changed color.</p>
+<p>This issue however is that the <code>set_result</code> Promise will have resolved well before the <code>have_image</code> one and our function is locked up waiting for both Promises. We also typically want to do some work immediately in response to the <code>have_image</code> Promise resolving (IE: in the same tick as when the resolution occurs).</p>
+<p>The most typical use case for <code>wait_for_render</code> is pausing the display of image streams until the change you've requested is ready for display. The <code>wait_for_render</code> Promise resolves when the image has arrived and it's <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is about to be fired. Since we need to unpause the stream before the event is fired we need to do this in the Promise's then handler. To do so we have to use <a href="RS.Stream.html#send_command">RS.Stream#send_command</a> so we can access the Promises directly.</p>
+<pre class="prettyprint source"><code>stream.pause(); // pause the stream so we don't see images until the below is complete
+const [ set_result_promise, have_image_promise ] = stream.send_command(
+  new RS.Command('mdl_set_argument', {
+    element_name: 'red',
+    argument_name: 'diffuse',
+    value: { r: 0.4, g: 0.8, b: 0.2 }
+  }), {
+    want_response: true,
+    wait_for_render: true
+  }
+); 
+have_image_promise.then(img => {
+  stream.resume(); // resume the stream once the image is ready to display
+});
+const set_result = await set_result_promise; // we can just await the result here</code></pre><p>In this code block we first pause display of images on the stream, this means that even if images are received the <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is not triggered. We then use <a href="RS.Stream.html#send_command">RS.Stream#send_command</a> so we can access the returned Promises directly rather than just their results. This allows us to add a then handler to <code>have_image_promise</code> to resume the stream once an image with the new color arrives. The event will then be triggered once the handler returns. We can then simply await on the <code>set_result_promise</code> and deal with it's response as we wish.</p>
 <hr>
 <table>
 <thead>
@@ -1255,7 +1276,7 @@ async () => {
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Apr 13 2019 07:52:19 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon May 13 2019 12:52:09 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
