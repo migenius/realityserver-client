@@ -1,5 +1,5 @@
 {
-  "name": "realityserver-client",
+  "name": "@migenius/realityserver-client",
   "version": "1.0.0",
   "description": "Official RealityServer JavaScript client",
   "main": "lib/umd/realityserver.js",
@@ -40,5 +40,15 @@
     "type": "git",
     "url": "git://github.com/migenius/realityserver-client.git"
   },
-  "author": "Brendan Hack <brendan@migenius.com>"
+  "author": "Brendan Hack <brendan@migenius.com>",
+  "bugs": {
+    "url": "https://github.com/migenius/realityserver-client/issues"
+  },
+  "homepage": "https://github.com/migenius/realityserver-client#readme",
+  "keywords": [
+    "realityserver",
+    "client",
+    "api",
+    "javascript"
+  ]
 }
