@@ -3,7 +3,7 @@ Connecting in Node.js requires an extra step since there is no built in WebSocke
 ### Dependencies
 As we need an external WebSocket we have to install it via npm. We also of course need the client API itself and yargs for command line processing.
 ```bash
-$ npm install realityserver-client websocket yargs
+$ npm install --save @migenius/realityserver-client websocket yargs
 ```
 ### Import modules and initialize
 Now we can start the script itself which we'll call `index.js`. As usual at the top we want to pull in our required modules.
@@ -11,7 +11,7 @@ Now we can start the script itself which we'll call `index.js`. As usual at the 
 const
   path = require('path'),
   fs = require('fs'),
-  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client'),
+  { Command, Command_error, Error: Rs_error, Utils, Service } = require('@migenius/realityserver-client'),
   WebSocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
@@ -102,7 +102,7 @@ One thing to note is that in Node.js applications we need to ensure that the ser
 An alternative to passing in a WebSocket instance to {@link RS.Service#connect} is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the {@link RS.Service#websocket} static property to the W3C compatible constructor:
 
 ```javascript
-const { Command,Command_error,Error: Rs_error,Utils,Service } = require('realityserver-client');
+const { Command,Command_error,Error: Rs_error,Utils,Service } = require('@migenius/realityserver-client');
 Service.websocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
