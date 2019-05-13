@@ -141,7 +141,6 @@ export function extract_url_details(url) {
  * @param {Object=} url_creator - an object that implements `URL.createObjectUrl(Blob)` and
  * `URL.revokeObjectURL(String)`. If not provided then `window.URL` or
  * `window.webkitURL` will be used.
- * @see RS.Service#stream
  * @example
  * // Assumptions: There exists a DOM element &lt;img src="" id="rs_display"&gt;
  *
