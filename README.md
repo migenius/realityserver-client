@@ -50,7 +50,7 @@ service.connect('ws://host.example.com/service/')
 ```javascript
 // Node has no native socket implementation so we use the 'websocket' module from npm
 const WS = require('websocket').w3cwebsocket; // ensure we have the W3C compliant API
-const { Service, Command, Error: Rs_error, Utils } = require('realityserver-client');
+const { Service, Command, Error: Rs_error, Utils } = require('@migenius/realityserver-client');
 
 async () => {
   const service = new Service();
