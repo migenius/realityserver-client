@@ -36,7 +36,7 @@ The RealityServer&reg; Client repository can be found on [GitHub](https://github
 
 - [React/mobx implementation of the render loop demo](http://github.com/migenius/render-loop-react-mobx "React/MobX demo")
 
-- [Simple Node.js render script](http://github.com/migenius/render-node "node render script")
+- [Simple Node.js render script](https://github.com/migenius/realityserver-client-node-tutorial "Node render script")
 
 ## Extras
 A [RealityServer Extras](https://github.com/migenius/realityserver-extras "RealityServer Extras") add-on package is available to assist in manipulating scene elements.
