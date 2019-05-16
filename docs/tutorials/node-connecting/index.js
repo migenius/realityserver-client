@@ -1,7 +1,7 @@
 const
   path = require('path'),
   fs = require('fs'),
-  { Command, Command_error, Error: Rs_error, Utils, Service } = require('realityserver-client'),
+  { Command, Command_error, Error: Rs_error, Utils, Service } = require('@migenius/realityserver-client'),
   WebSocket = require('websocket').w3cwebsocket;
 
 const service = new Service();

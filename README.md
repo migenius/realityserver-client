@@ -248,7 +248,7 @@ The RealityServer Client API documentation can be found [here](https://migenius.
 
 - [React/mobx implementation of the render loop demo](https://github.com/migenius/render-loop-react-mobx "React/MobX demo")
 
-- [Simple Node.js render script](https://github.com/migenius/render-node "node render script")
+- [Simple Node.js render script](https://github.com/migenius/realityserver-client-node-tutorial "node render script")
 
 ## Extras
 A [RealityServer Extras](https://github.com/migenius/realityserver-extras "RealityServer Extras") add-on package is available to assist in manipulating scene elements.
