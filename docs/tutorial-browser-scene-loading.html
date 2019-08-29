@@ -1153,8 +1153,9 @@
 </header>  
 
 <article class="content-size">
-    <p>Once connected the next step is to get some content into RealityServer&reg; so we can render it. This can be acheived in a number of ways but the most common is to load it from a file. </p>
-<h3>State</h3><p>We'll update the state to include the filename we want to load and a name for the scene. We'll use the <code>meyemii</code> scene that is used in the standard RealityServer&reg; demos.</p>
+    <p>Once connected the next step is to get some content into RealityServer® so we can render it. This can be acheived in a number of ways but the most common is to load it from a file.</p>
+<h3>State</h3>
+<p>We'll update the state to include the filename we want to load and a name for the scene. We'll use the <code>meyemii</code> scene that is used in the standard RealityServer® demos.</p>
 <pre class="prettyprint source lang-javascript"><code>const state = {
   server: {
     host: 'localhost',
@@ -1163,7 +1164,9 @@
   },
   scene_filename: 'scenes/meyemii.mi',
   scene_name: 'meyemii'
-};</code></pre><p><code>scene_filename</code> is the path to the file to load, relative to the RealityServer&reg; <code>content_root</code> directory. <code>scene_name</code> is the name of the database element to create that will refer to this scene. Note that loading a file into a scene is a one off event. You cannot later load a different file into the same scene, you would have to create a new scene for the new file. You can of course change the contents of the scene, or import another file and manually attach it's contents to your scene. But you cannot simply decide you want <code>scene_name</code> to refer to the file <code>scenes/cornell_box.mi</code> instead.</p>
+};
+</code></pre>
+<p><code>scene_filename</code> is the path to the file to load, relative to the RealityServer® <code>content_root</code> directory. <code>scene_name</code> is the name of the database element to create that will refer to this scene. Note that loading a file into a scene is a one off event. You cannot later load a different file into the same scene, you would have to create a new scene for the new file. You can of course change the contents of the scene, or import another file and manually attach it's contents to your scene. But you cannot simply decide you want <code>scene_name</code> to refer to the file <code>scenes/cornell_box.mi</code> instead.</p>
 <p>Next we'll modify our connection call to return on error and tell the user what scene we are about to load.</p>
 <pre class="prettyprint source lang-javascript"><code>try {
   const url = `${(state.server.secure ? 'wss' : 'ws')}://${state.server.host}:${state.server.port}/service/`;
@@ -1172,12 +1175,16 @@
   set_status(`Failed to connect to RealityServer: ${err.toString()}`);
   return;
 }
-set_status(`Loading scene: ${state.scene_filename}`);</code></pre><h3>Scoping</h3><p>Before actually loading the scene we need to introduce the concept of scoping. Scopes are a core RealityServer concept and a detailed description can be found in the <a href="tutorial-02-concepts.html">Concepts</a> section, some of which is repeated here.</p>
-<p>All RealityServer&reg; scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name. </p>
-<p>Scopes provide an isolated view into the database and allow different database elements stored using the same name. Without scopes, it would not be possible for two users to create an element called <code>camera</code> as they would clash. </p>
-<p>RealityServer&reg; starts with a shared global scope, by default all commands are run in this global scope which results in all scene data being shared by all users. Further scopes can be created as children of the global scope and scopes can also be nested creating a tree structure of database views.</p>
+set_status(`Loading scene: ${state.scene_filename}`);
+</code></pre>
+<h3>Scoping</h3>
+<p>Before actually loading the scene we need to introduce the concept of scoping. Scopes are a core RealityServer concept and a detailed description can be found in the <a href="tutorial-02-concepts.html">Concepts</a> section, some of which is repeated here.</p>
+<p>All RealityServer® scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name.</p>
+<p>Scopes provide an isolated view into the database and allow different database elements stored using the same name. Without scopes, it would not be possible for two users to create an element called <code>camera</code> as they would clash.</p>
+<p>RealityServer® starts with a shared global scope, by default all commands are run in this global scope which results in all scene data being shared by all users. Further scopes can be created as children of the global scope and scopes can also be nested creating a tree structure of database views.</p>
 <p>Commands executed within any given scope can only see database elements within that scope and its parents. Additionally, any elements created are created within that scope and are not visible to parent scopes. Therefore the first step an application usually takes is to create a scope for itself.</p>
-<h3>First commands</h3><p>So the first commands we want to execute are to create an application scope, use it and import the scene. We'll define the application scope name in the state:</p>
+<h3>First commands</h3>
+<p>So the first commands we want to execute are to create an application scope, use it and import the scene. We'll define the application scope name in the state:</p>
 <pre class="prettyprint source lang-javascript"><code>const state = {
   server: {
     host: 'localhost',
@@ -1187,7 +1194,9 @@ set_status(`Loading scene: ${state.scene_filename}`);</code></pre><h3>Scoping</h
   scene_filename: 'scenes/meyemii.mi',
   scene_name: 'meyemii',
   app_scope_name: 'tutorial'
-};</code></pre><p>Then create a command queue, add the commands to it and execute.</p>
+};
+</code></pre>
+<p>Then create a command queue, add the commands to it and execute.</p>
 <pre class="prettyprint source"><code>try {
   const [ scene_info ] = await service.queue_commands()
     .queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
@@ -1212,10 +1221,18 @@ set_status(`Loading scene: ${state.scene_filename}`);</code></pre><h3>Scoping</h
   // went fundamentally wrong.
   set_status(`System error: ${err.toString()}`);
   return;
-}</code></pre><p>There's a lot going on here that we need to unpack. However the above encapsulates the standard pattern of RealityServer&reg; command execution and covers most use cases.</p>
-<pre class="prettyprint source"><code>service.queue_commands()</code></pre><p>The <a href="RS.Service.html#queue_commands">RS.Service#queue_commands</a> call returns a <a href="RS.Command_queue.html">RS.Command_queue</a> object that can be used to queue a sequence of commands for execution as a block. It is possible to just execute single commands directly however typically more than one command is needed to acheive a given result. The command queue has a <a href="RS.Command_queue.html#queue">RS.Command_queue#queue</a> function which adds commands to the queue and <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> and <a href="RS.Command_queue.html#send">RS.Command_queue#send</a> which push the commands for execution. The two latter function both perform the same function but have a subtle difference in how they return results.</p>
-<pre class="prettyprint source"><code>.queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))</code></pre><p>Adds the first command to the queue which will create the application scope. The <a href="RS.Command.html">RS.Command</a> class reprents individual commands. The constructor takes just 2 arguments, the name of the command and an object containing it's named arguments. For convenience <code>queue</code> returns the command queue object so we can chain commands.</p>
-<pre class="prettyprint source"><code>.queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))</code></pre><p>As stated above all commands are executed in the global scope by default so the newly created scope won't automatically be used. Therefore we need to explicitly make this new scope active with the <code>use_scope</code> command so that the import command adds the scene elements to our application scope. Once made activate, all subsequent commands in the queue will use this scope.</p>
+}
+</code></pre>
+<p>There's a lot going on here that we need to unpack. However the above encapsulates the standard pattern of RealityServer® command execution and covers most use cases.</p>
+<pre class="prettyprint source"><code>service.queue_commands()
+</code></pre>
+<p>The <a href="RS.Service.html#queue_commands">RS.Service#queue_commands</a> call returns a <a href="RS.Command_queue.html">RS.Command_queue</a> object that can be used to queue a sequence of commands for execution as a block. It is possible to just execute single commands directly however typically more than one command is needed to acheive a given result. The command queue has a <a href="RS.Command_queue.html#queue">RS.Command_queue#queue</a> function which adds commands to the queue and <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> and <a href="RS.Command_queue.html#send">RS.Command_queue#send</a> which push the commands for execution. The two latter function both perform the same function but have a subtle difference in how they return results.</p>
+<pre class="prettyprint source"><code>.queue(new RS.Command('create_scope', { scope_name: state.app_scope_name }))
+</code></pre>
+<p>Adds the first command to the queue which will create the application scope. The <a href="RS.Command.html">RS.Command</a> class reprents individual commands. The constructor takes just 2 arguments, the name of the command and an object containing it's named arguments. For convenience <code>queue</code> returns the command queue object so we can chain commands.</p>
+<pre class="prettyprint source"><code>.queue(new RS.Command('use_scope', { scope_name: state.app_scope_name }))
+</code></pre>
+<p>As stated above all commands are executed in the global scope by default so the newly created scope won't automatically be used. Therefore we need to explicitly make this new scope active with the <code>use_scope</code> command so that the import command adds the scene elements to our application scope. Once made activate, all subsequent commands in the queue will use this scope.</p>
 <pre class="prettyprint source"><code>.queue(new RS.Command('import_scene',
   {
     filename: state.scene_filename,
@@ -1224,22 +1241,30 @@ set_status(`Loading scene: ${state.scene_filename}`);</code></pre><h3>Scoping</h
     import_options: {
       prefix: `${state.scene_name}::`
     }
-  }), true)</code></pre><p>Imports the actual scene and adds all elements to the scene database. The <code>filename</code> and <code>scene_name</code> arguments come from the state and should be self explanatory. <code>block</code> prevents other users from attempting to load content into <code>scene_name</code> while the current import is taking place. We wouldn't want someone else populating the scene with unexpected content while we're loading. The <code>import_options</code> specify a prefix that will be added to the start of all scene element names. For example: if the scene contains a camera called <code>cam</code> it would be added to the database as <code>meyemii::cam</code>. This is done to prevent name clashes with other scenes that may be imported into the <code>tutorial</code> scope. Note we could accomplish the same thing by creating a per-scene child scope of <code>tutorial</code> and importing the content into there.</p>
+  }), true)
+</code></pre>
+<p>Imports the actual scene and adds all elements to the scene database. The <code>filename</code> and <code>scene_name</code> arguments come from the state and should be self explanatory. <code>block</code> prevents other users from attempting to load content into <code>scene_name</code> while the current import is taking place. We wouldn't want someone else populating the scene with unexpected content while we're loading. The <code>import_options</code> specify a prefix that will be added to the start of all scene element names. For example: if the scene contains a camera called <code>cam</code> it would be added to the database as <code>meyemii::cam</code>. This is done to prevent name clashes with other scenes that may be imported into the <code>tutorial</code> scope. Note we could accomplish the same thing by creating a per-scene child scope of <code>tutorial</code> and importing the content into there.</p>
 <p>The other important factor here is that we are passing a <code>true</code> argument to the <code>queue</code> function after the command. This informs the command queue that we want to get the response to this command call. We need to know that the import worked and want to get the names of the top level elements created. For <code>create_scope</code> and <code>use_scope</code> we don't need to process their responses. <code>create_scope</code> will technically return an error if the scope already exists but this is an error we can safely ignore. And given we just created the scope we also know that the scope name will exist when calling <code>use_scope</code>.</p>
 <pre class="prettyprint source"><code>const [ scene_info ] = await service.queue_commands()
     ...
-    .execute();</code></pre><p>We complete the command queue chaining with an <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> call which collects up the queued commands and executes them as a batch on RealityServer&reg;. <code>execute</code> returns a Promise (which we are awaiting on) that will resolve to an iterable containing the results of all commands that requested a response. Since we only wanted a response for the <code>import_scene</code> command we can use array destructuring to extract the single results.</p>
+    .execute();
+</code></pre>
+<p>We complete the command queue chaining with an <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> call which collects up the queued commands and executes them as a batch on RealityServer®. <code>execute</code> returns a Promise (which we are awaiting on) that will resolve to an iterable containing the results of all commands that requested a response. Since we only wanted a response for the <code>import_scene</code> command we can use array destructuring to extract the single results.</p>
 <pre class="prettyprint source"><code>  if (scene_info instanceof RS.Command_error)) {
     set_status(`Scene load error: ${scene_info.message}`);
   } else {
     set_status(`Loaded scene: ${state.scene_filename}`);
-  }</code></pre><p>Command results will resolve to the result of the command or an <a href="RS.Command_error.html">RS.Command_error</a> if there was an execution error. Note that the execute Promise does not reject due to command execution errors, only for core library errors. So we need to check the result to see if an error occurred. In this case we are simply logging whether the scene import worked or not.</p>
+  }
+</code></pre>
+<p>Command results will resolve to the result of the command or an <a href="RS.Command_error.html">RS.Command_error</a> if there was an execution error. Note that the execute Promise does not reject due to command execution errors, only for core library errors. So we need to check the result to see if an error occurred. In this case we are simply logging whether the scene import worked or not.</p>
 <p>Now load your page and you should get something like the following:</p>
 <p><img src="tutorials/browser-scene-loading/loaded.jpg" alt="scene loaded"></p>
-<h3>Summary</h3><p>In this tutorial we have learnt about scopes, basic scene management and how to queue and execute commands on RealityServer&reg;. The next tutorial covers rendering the scene itself.</p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt about scopes, basic scene management and how to queue and execute commands on RealityServer®. The next tutorial covers rendering the scene itself.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-scene-loading/index.html">GitHub</a></p>
-<p>If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:</p>
+<p>If you have a local checkout and a running RealityServer® you can load the tutorial below:</p>
 <p><a href="tutorials/browser-scene-loading/index.html">Load</a></p>
 <hr>
 <table>
@@ -1265,7 +1290,7 @@ set_status(`Loading scene: ${state.scene_filename}`);</code></pre><h3>Scoping</h
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:33:05 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:23:45 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

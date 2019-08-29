@@ -1153,27 +1153,32 @@
 </header>  
 
 <article class="content-size">
-    <p>There are a number of high level concepts in RealityServer&reg; and the client library that need to be understood to make effective use of the system.</p>
-<h2>Scopes</h2><p>RealityServer&reg; is an interactive multi-scene, multi-user renderer. In short this means that you can have multiple users connected rendering multiple scenes simultaneously. Or multiple users rendering the same scene, or simply a single user rendering a single scene. Additionally, each user can make modifications to their scene in isolation from other users. For example users can be rendering the same scene from different camera locations; one can have red chairs and another blue; one can be rendering a bright summer day and another mid-winter twilight. It is even possible to have some scene data shared and some not. Two users can have independent cameras but see all the other scene changes that are made. All this is acheived without making copies of the entire scene but only of the particular elements that are changed.</p>
-<p>All RealityServer&reg; scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name.</p>
+    <p>There are a number of high level concepts in RealityServer® and the client library that need to be understood to make effective use of the system.</p>
+<h2>Scopes</h2>
+<p>RealityServer® is an interactive multi-scene, multi-user renderer. In short this means that you can have multiple users connected rendering multiple scenes simultaneously. Or multiple users rendering the same scene, or simply a single user rendering a single scene. Additionally, each user can make modifications to their scene in isolation from other users. For example users can be rendering the same scene from different camera locations; one can have red chairs and another blue; one can be rendering a bright summer day and another mid-winter twilight. It is even possible to have some scene data shared and some not. Two users can have independent cameras but see all the other scene changes that are made. All this is acheived without making copies of the entire scene but only of the particular elements that are changed.</p>
+<p>All RealityServer® scene data is stored in the scene database. This is a key-value store which allows for storage of scene elements for later retrieval when they are needed. The keys are the element names and the values the scene elements themselves. All scene elements are accessed by their name.</p>
 <p>Scopes provide an isolated view into the database and allow different database elements to be stored using the same name. Without scopes, it would not be possible for two users to create an element called <code>camera</code> as they would clash.</p>
-<p>RealityServer&reg; starts with a shared global scope, by default all commands are run in this global scope which results in all scene data being shared by all users. If multiple elements are created with the same name then the last one created shadows all the others. So if two users create an element called <code>camera</code> then both users would see the one that was created last. If either user modified the camera both would see the changes.</p>
+<p>RealityServer® starts with a shared global scope, by default all commands are run in this global scope which results in all scene data being shared by all users. If multiple elements are created with the same name then the last one created shadows all the others. So if two users create an element called <code>camera</code> then both users would see the one that was created last. If either user modified the camera both would see the changes.</p>
 <p>It is possible to create further scopes as children of the global scope. If we create scopes <code>A</code> and <code>B</code> then we can create a <code>camera</code> element within each and edit them independently. Additionally, any elements created within a scope are not visible to parent scopes. So from the global scope's point of view the <code>camera</code> element does not exist. You have to enter either scope <code>A</code> or <code>B</code> to access the <code>camera</code> element. Conversely, the child scopes can see any elements in their parent/ancestor scopes. So if we create an MDL material instance called <code>red</code> in the global scope then both scopes <code>A</code> and <code>B</code> will be able to see the <code>red</code> material. If the color of that material is changed to blue, then both child scopes will see the color change since they are accessing it from the global scope.</p>
 <p>Scopes can be further nested creating a tree structure of database views. Scope <code>A</code> could have child scopes <code>AA</code> and <code>AB</code>. <code>B</code> could have children <code>BA</code> and <code>BB</code> (or whatever you want to call them). These can then have further child scopes up to a depth of 255 scopes. A typical application would never have that deep a scope tree though, a depth of 3 or 4 (including the global scope) is usually sufficient. A standard pattern is to create a single child scope as an 'application' scope to hold scene data that is shared between all users, and then create 'session' scopes below this, one for each active user. For example, if we were running two applications that had two active users each we would create the following:</p>
 <p><img src="images/Nested-Scopes.svg" alt="Nested Scopes" title="Nested Scopes"></p>
 <p>The applications would load their scenes in the application scopes and each user would execute commands and render in their individual user scopes. If your application can dynamically load different scenes then there may also be a per-scene scope between the application and user.</p>
 <p>As described earlier child scopes can see elements in their parent scopes. It is also possible for child scopes to have elements with the same name as elements in their parents. When accessing these elements you will always see the one furthest down the scope tree. By using a process called localization we can easily copy scene elements down the scope tree from whichever scope they are currently accessed from into the current scope.</p>
 <p>For example: when a scene is loaded in the application scope, and the user accesses it in their user scope they see the element in the application scope. So every user is sharing the same elements. By localizing scene elements to their user scope, users are able to have their own individual copies of parts of the scene that they can edit without affecting other users. By localizing a scene's camera and camera instance from the application scope to the users it is possible to move around in a scene independently. Localizing an MDL material instance allows for users to change colors or other propeties of the material without affecting anyone else. All this is acheived withough having to copy the entire scene resulting in a potentially huge saving in memory usage.</p>
-<p>Scoping and localization allows for powerful render time data sharing. Any editable scene element (apart from MDL definitions) can be localized and customized on a per user basis. In additional to the simple pattern described above more complex scenarios such as collaborative editing, where some scene data is shared and edited and some is per user, can easily be acheived. </p>
+<p>Scoping and localization allows for powerful render time data sharing. Any editable scene element (apart from MDL definitions) can be localized and customized on a per user basis. In additional to the simple pattern described above more complex scenarios such as collaborative editing, where some scene data is shared and edited and some is per user, can easily be acheived.</p>
 <p>Details on creating and using scopes and localization can be found starting in the <a href="tutorial-browser-scene-loading.html">Scene Loading</a> tutorial as well as the <a href="https://www.migenius.com/articles/scopes-in-realityserver" title="Scopes In RealityServer">migenius blog</a>.</p>
-<h2>Send and execute</h2><p>The client library provides a number of entry points where commands can be executed, both the <a href="RS.Service.html">RS.Service</a> and <a href="RS.Stream.html">RS.Stream</a> provide methods to call either single commands or queue up a sequence of commands to be called in a batch. Each of these provides two variants, send and execute. These perform the same core functionality, executing commands on RealityServer&reg; and promising to provide the results of those commands, if requested. However the form of the Promise(s) returned by each variant is subtly different.</p>
+<h2>Send and execute</h2>
+<p>The client library provides a number of entry points where commands can be executed, both the <a href="RS.Service.html">RS.Service</a> and <a href="RS.Stream.html">RS.Stream</a> provide methods to call either single commands or queue up a sequence of commands to be called in a batch. Each of these provides two variants, send and execute. These perform the same core functionality, executing commands on RealityServer® and promising to provide the results of those commands, if requested. However the form of the Promise(s) returned by each variant is subtly different.</p>
 <p>We will be be using <a href="RS.Command_queue.html">RS.Command_queue</a> to demonstrate the differences between send and execute below as it is more informative to see the results of multiple commands. The same concepts apply to the <code>send_command</code> and <code>execute_command</code> functions on <a href="RS.Service.html">RS.Service</a> and <a href="RS.Stream.html">RS.Stream</a>, the only difference is that these will only ever contain a single command result.</p>
 <p>The following contrived command queue will be used:</p>
 <pre class="prettyprint source"><code>const queue = service.queue_commands()
   .queue(new RS.Command('get_version', {}), true)
   .queue(new RS.Command('use_scope', { scope_name: 'my_scope' }))
-  .queue(new RS.Command('element_exists', { element_name: 'camera' }), true);</code></pre><p>This queue will execute three commands but only return two results, the first being the version of RealityServer&reg; being used and the second being whether an element called <code>camera</code> exists in the <code>my_scope</code> scope. We assume that <code>my_scope</code> already exists which is why we are not passing <code>true</code> as the second argument to it's <code>queue</code> call since we don't care about it's response.</p>
-<h3>execute</h3><p>The simplest, and most common, way to run this queue is to use the <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> method. This will return a single Promise that will resolve to an iterable containing the results of the commands that we want results for. EG:</p>
+  .queue(new RS.Command('element_exists', { element_name: 'camera' }), true);
+</code></pre>
+<p>This queue will execute three commands but only return two results, the first being the version of RealityServer® being used and the second being whether an element called <code>camera</code> exists in the <code>my_scope</code> scope. We assume that <code>my_scope</code> already exists which is why we are not passing <code>true</code> as the second argument to it's <code>queue</code> call since we don't care about it's response.</p>
+<h3>execute</h3>
+<p>The simplest, and most common, way to run this queue is to use the <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> method. This will return a single Promise that will resolve to an iterable containing the results of the commands that we want results for. EG:</p>
 <pre class="prettyprint source"><code>queue.execute().then(([rs_version,camera_exists]) => {
   console.log(`Connected to RS ${rs_version}`);
   if (camera_exists instanceof RS.Command_error) {
@@ -1183,7 +1188,9 @@
   }
 }).catch(err => {
   console.log(`System error: ${err.toString()}`);
-});</code></pre><p>Or if we are in an async function we can use:</p>
+});
+</code></pre>
+<p>Or if we are in an async function we can use:</p>
 <pre class="prettyprint source"><code>try {
   const [rs_version,camera_exists] = await queue.execute();
 
@@ -1195,9 +1202,12 @@
   }
 } catch(err) {
   console.log(`System error: ${err.toString()}`);
-};</code></pre><p>In both these situations a single Promise is being returned. It is resolving to an iterable and we use array destructuring to extract that into individual variables.</p>
-<p>Note that the Promise does not reject in the case of RealityServer&reg; command errors. Instead the results of the commands are instances of <a href="RS.Command_error.html">RS.Command_error</a>. The Promise will only reject in the case of underlying service errors, EG: you haven't yet connected to RealityServer&reg;.</p>
-<h3>send</h3><p><a href="RS.Command_queue.html#send">RS.Command_queue#send</a> is used in the same was as <code>execute</code> except that it returns an array of Promises, one for each command that requested a result.</p>
+};
+</code></pre>
+<p>In both these situations a single Promise is being returned. It is resolving to an iterable and we use array destructuring to extract that into individual variables.</p>
+<p>Note that the Promise does not reject in the case of RealityServer® command errors. Instead the results of the commands are instances of <a href="RS.Command_error.html">RS.Command_error</a>. The Promise will only reject in the case of underlying service errors, EG: you haven't yet connected to RealityServer®.</p>
+<h3>send</h3>
+<p><a href="RS.Command_queue.html#send">RS.Command_queue#send</a> is used in the same was as <code>execute</code> except that it returns an array of Promises, one for each command that requested a result.</p>
 <pre class="prettyprint source"><code>try {
   const [rs_version_promise, camera_exists_promise] = queue.send();
   rs_version_promise.then(rs_version => {
@@ -1213,8 +1223,11 @@
   });
 } catch (err) {
   console.log(`System error: ${err.toString()}`);
-}</code></pre><p>Unlike the <code>execute</code> Promise the Promises returned by send will never reject as they are associated with individual command calls. Instead, on service error the <code>send</code> call throws directly.</p>
-<h3>Which one should I use.</h3><p>On the surface you might think you should just use <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> all the time. There's just a single Promise to deal with that you can either await on it or handle the results in a single <code>then</code> function. This is even more the case when you take into account of the fact that the <code>send</code> Promises will all resolve at the same time since all commands and results in a single queue are processed as a batch. You could make processing <code>send</code> results easier by wrapping it in a <code>Promise.all()</code> however that's effectively what <code>execute</code> does internally.</p>
+}
+</code></pre>
+<p>Unlike the <code>execute</code> Promise the Promises returned by send will never reject as they are associated with individual command calls. Instead, on service error the <code>send</code> call throws directly.</p>
+<h3>Which one should I use.</h3>
+<p>On the surface you might think you should just use <a href="RS.Command_queue.html#execute">RS.Command_queue#execute</a> all the time. There's just a single Promise to deal with that you can either await on it or handle the results in a single <code>then</code> function. This is even more the case when you take into account of the fact that the <code>send</code> Promises will all resolve at the same time since all commands and results in a single queue are processed as a batch. You could make processing <code>send</code> results easier by wrapping it in a <code>Promise.all()</code> however that's effectively what <code>execute</code> does internally.</p>
 <p>There is one special use case however where <code>send</code> is useful which is when you want to know when the result of a particular command has appeared in a rendered image.</p>
 <p>When you queue or execute commands on a stream there is no correlation between when the Promises resolve and when the actual change appears in a rendered image. So in the following:</p>
 <pre class="prettyprint source"><code>const [ set_result ] = await stream.execute_command(
@@ -1225,7 +1238,9 @@
   }), {
     want_response: true
   }
-);  </code></pre><p>the <code>await</code> will resume execution once the <code>red.diffuse</code> argument has been set or an error returned. This does not mean that the new color is visible in a render however since it will usually take longer for a scene to reset and pick up the change.</p>
+);  
+</code></pre>
+<p>the <code>await</code> will resume execution once the <code>red.diffuse</code> argument has been set or an error returned. This does not mean that the new color is visible in a render however since it will usually take longer for a scene to reset and pick up the change.</p>
 <p>We can however add the <code>wait_for_render</code> option. In that case an additional Promise is returned that will resolve when a rendered image that contains the color change has been received by the stream.</p>
 <pre class="prettyprint source"><code>const [ set_result, have_image ] = await stream.execute_command(
   new RS.Command('mdl_set_argument', {
@@ -1236,7 +1251,9 @@
     want_response: true,
     wait_for_render: true
   }
-);  </code></pre><p>So now when <code>await</code> resumes you know that the rendered images from the stream contain the changed color.</p>
+);  
+</code></pre>
+<p>So now when <code>await</code> resumes you know that the rendered images from the stream contain the changed color.</p>
 <p>This issue however is that the <code>set_result</code> Promise will have resolved well before the <code>have_image</code> one and our function is locked up waiting for both Promises. We also typically want to do some work immediately in response to the <code>have_image</code> Promise resolving (IE: in the same tick as when the resolution occurs).</p>
 <p>The most typical use case for <code>wait_for_render</code> is pausing the display of image streams until the change you've requested is ready for display. The <code>wait_for_render</code> Promise resolves when the image has arrived and it's <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is about to be fired. Since we need to unpause the stream before the event is fired we need to do this in the Promise's then handler. To do so we have to use <a href="RS.Stream.html#send_command">RS.Stream#send_command</a> so we can access the Promises directly.</p>
 <pre class="prettyprint source"><code>stream.pause(); // pause the stream so we don't see images until the below is complete
@@ -1253,7 +1270,9 @@ const [ set_result_promise, have_image_promise ] = stream.send_command(
 have_image_promise.then(img => {
   stream.resume(); // resume the stream once the image is ready to display
 });
-const set_result = await set_result_promise; // we can just await the result here</code></pre><p>In this code block we first pause display of images on the stream, this means that even if images are received the <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is not triggered. We then use <a href="RS.Stream.html#send_command">RS.Stream#send_command</a> so we can access the returned Promises directly rather than just their results. This allows us to add a then handler to <code>have_image_promise</code> to resume the stream once an image with the new color arrives. The event will then be triggered once the handler returns. We can then simply await on the <code>set_result_promise</code> and deal with it's response as we wish.</p>
+const set_result = await set_result_promise; // we can just await the result here
+</code></pre>
+<p>In this code block we first pause display of images on the stream, this means that even if images are received the <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is not triggered. We then use <a href="RS.Stream.html#send_command">RS.Stream#send_command</a> so we can access the returned Promises directly rather than just their results. This allows us to add a then handler to <code>have_image_promise</code> to resume the stream once an image with the new color arrives. The event will then be triggered once the handler returns. We can then simply await on the <code>set_result_promise</code> and deal with it's response as we wish.</p>
 <hr>
 <table>
 <thead>
@@ -1278,7 +1297,7 @@ const set_result = await set_result_promise; // we can just await the result her
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:33:05 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:23:45 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

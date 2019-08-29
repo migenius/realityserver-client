@@ -1153,8 +1153,9 @@
 </header>  
 
 <article class="content-size">
-    <p>Rendering images is of course the core purpose of RealityServer&reg; Once a scene is loaded we can start rendering it on the server and stream images back to the client over the WebSocket connection.</p>
-<h3>State</h3><p>We need to add rendering state variables.</p>
+    <p>Rendering images is of course the core purpose of RealityServer® Once a scene is loaded we can start rendering it on the server and stream images back to the client over the WebSocket connection.</p>
+<h3>State</h3>
+<p>We need to add rendering state variables.</p>
 <pre class="prettyprint source lang-javascript"><code>const state = {
   server: {
     host: 'localhost',
@@ -1166,7 +1167,9 @@
   app_scope_name: 'tutorial',
   session_scope_name: `scope_${RS.Utils.create_random_string(8)}`,
   render_loop_name: `render_loop_${RS.Utils.create_random_string(8)}`
-};</code></pre><p>Since we are now going to be be modifying the scene to render it we will need a session scope in addition to the application one. This needs to be unique so we just give it a random name using one of the built in helpers. Server side rendering occurs in a render loop and we need a name for that as well.</p>
+};
+</code></pre>
+<p>Since we are now going to be be modifying the scene to render it we will need a session scope in addition to the application one. This needs to be unique so we just give it a random name using one of the built in helpers. Server side rendering occurs in a render loop and we need a name for that as well.</p>
 <p>We now want to modify the way we handle the <code>import_scene</code> result. On error we'll still set the error status but will return immediately as there's no more work for us to do. On success though we'll store the scene info in the state then call a new <code>scene_loaded</code> function to take the next steps.</p>
 <pre class="prettyprint source lang-javascript"><code>if (scene_info instanceof RS.Command_error) {
   set_status(`Scene load error: ${scene_info.message}`);
@@ -1174,7 +1177,9 @@
 } else {
   state.scene = scene_info;
   scene_loaded();
-}</code></pre><p>The scene info object provides information about the top level elements of the imported scene.</p>
+}
+</code></pre>
+<p>The scene info object provides information about the top level elements of the imported scene.</p>
 <pre class="prettyprint source lang-json"><code>{
   &quot;options&quot;: &quot;meyemii::opt&quot;,
   &quot;rootgroup&quot;: &quot;meyemii::rootgroup&quot;,
@@ -1182,7 +1187,9 @@
   &quot;camera&quot;: &quot;meyemii::cam&quot;,
   &quot;imported_elements&quot;: [],
   &quot;messages&quot;: []
-}</code></pre><ul>
+}
+</code></pre>
+<ul>
 <li><code>options</code> The name of scene options block. Most global rendering options are controlled here.</li>
 <li><code>rootgroup</code> The name of scene rootgroup. This group is the entry point to the scene DAG and contains all elements that will be rendered.</li>
 <li><code>camera_instance</code> The name of the camera instance used for rendering. This instance provides the camera position and orientation.</li>
@@ -1190,14 +1197,18 @@
 <li><code>imported_elements</code> If the <code>list_elements</code> import option was set this contains an array listing all elements added to the database by this import operation.</li>
 <li><code>messages</code> An array of any messages reported by the importer.</li>
 </ul>
-<h3>Image display</h3><p>We need somewhere to actually display the rendered image in the client. We can simply add a standard DOM Image to our html for this:</p>
+<h3>Image display</h3>
+<p>We need somewhere to actually display the rendered image in the client. We can simply add a standard DOM Image to our html for this:</p>
 <pre class="prettyprint source lang-html"><code>&lt;div width=&quot;400&quot;>
   &lt;h1>RealityServer&reg; Client Tutorial&lt;/h1>
   &lt;img id=&quot;rendered_image&quot; width=&quot;400&quot; height=&quot;400&quot;/>
   &lt;div>
     &lt;span id=&quot;status&quot; />
   &lt;/div>
-&lt;/div></code></pre><h3>Starting the render loop</h3><p>The <code>scene_loaded</code> function is defined as:</p>
+&lt;/div>
+</code></pre>
+<h3>Starting the render loop</h3>
+<p>The <code>scene_loaded</code> function is defined as:</p>
 <pre class="prettyprint source lang-javascript"><code>async function scene_loaded() {
   set_status('Initializing render.');
   try {
@@ -1243,19 +1254,27 @@
     // once the web socket is connected
     set_status(`Unexpected service error: ${err.toString()}`);
   }
-}</code></pre><p>Again, there's a lot to be unpacked.</p>
-<pre class="prettyprint source"><code>const img = document.getElementById('rendered_image');</code></pre><p>This is the DOM element that we are going to be using to display images in. We require it here to work out what size image we need to render to.</p>
+}
+</code></pre>
+<p>Again, there's a lot to be unpacked.</p>
+<pre class="prettyprint source"><code>const img = document.getElementById('rendered_image');
+</code></pre>
+<p>This is the DOM element that we are going to be using to display images in. We require it here to work out what size image we need to render to.</p>
 <pre class="prettyprint source"><code>// create a scope for the session
 .queue(new RS.Command('create_scope', 
   {
     scope_name: state.session_scope_name,
     parent_scope: state.app_scope_name
   }))
-.queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))</code></pre><p>We are making another scope, this time for the session. The session scope is used to perform scene changes that only want to be applied for this user in this session. As it wants to be able to access the scene we've just loaded it is created as a child of the application scope by passing it's name is as the parent. We then issue a <code>use_scope</code> command so that the rest of the commands in this sequence are executed in the session scope.</p>
-<p>The <code>localize_element</code> command is the other important scoping related command. You will remember from the <a href="tutorial-browser-scene-loading.html">Scene Loading</a> tutorial that commands can see all elements within their scope, and its parents. The other important factor is that the element the command sees is the one furthest down in the scope tree. For example: after issuing the <code>use_scope</code> command to enter the <code>session_scope_name</code> scope we can access and edit the camera called <code>meyemii::cam</code>. The particular element we edit is the one that was imported into <code>app_scope_name</code>. </p>
+.queue(new RS.Command('use_scope', { scope_name: state.session_scope_name }))
+</code></pre>
+<p>We are making another scope, this time for the session. The session scope is used to perform scene changes that only want to be applied for this user in this session. As it wants to be able to access the scene we've just loaded it is created as a child of the application scope by passing it's name is as the parent. We then issue a <code>use_scope</code> command so that the rest of the commands in this sequence are executed in the session scope.</p>
+<p>The <code>localize_element</code> command is the other important scoping related command. You will remember from the <a href="tutorial-browser-scene-loading.html">Scene Loading</a> tutorial that commands can see all elements within their scope, and its parents. The other important factor is that the element the command sees is the one furthest down in the scope tree. For example: after issuing the <code>use_scope</code> command to enter the <code>session_scope_name</code> scope we can access and edit the camera called <code>meyemii::cam</code>. The particular element we edit is the one that was imported into <code>app_scope_name</code>.</p>
 <p>All the <code>localize_element</code> command does is makes a copy of the given element and store it in the current scope.</p>
 <pre class="prettyprint source"><code>// localize the camera to the session scope
-.queue(new RS.Command('localize_element', { element_name: state.scene.camera }))</code></pre><p>Now there is another camera called 'meyemii::cam' that exists in <code>session_scope_name</code>. Changes we make to that camera are only visible within that scope (and it's children). So we can freely edit that camera without having it affect users in other session. When we reload the page, or another user simultaneously accesses the application a new session scope will be made and a new copy of the scene camera.</p>
+.queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
+</code></pre>
+<p>Now there is another camera called 'meyemii::cam' that exists in <code>session_scope_name</code>. Changes we make to that camera are only visible within that scope (and it's children). So we can freely edit that camera without having it affect users in other session. When we reload the page, or another user simultaneously accesses the application a new session scope will be made and a new copy of the scene camera.</p>
 <pre class="prettyprint source"><code>// set the camera resolution to match the size of the Image element we will display in
 .queue(new RS.Command('camera_set_resolution',
   {
@@ -1266,7 +1285,9 @@
   {
     camera_name: state.scene.camera,
     aspect: img.width / img.height
-  }))</code></pre><p>We set the resolution and aspect ratio of the camera to that of the Image element we are rendering into. Since we've localized the camera the camera visible to <code>app_scope_name</code> is still at it's original resolution and aspect (512x512). However in <code>session_scope_name</code> the resolution is now 400x400.</p>
+  }))
+</code></pre>
+<p>We set the resolution and aspect ratio of the camera to that of the Image element we are rendering into. Since we've localized the camera the camera visible to <code>app_scope_name</code> is still at it's original resolution and aspect (512x512). However in <code>session_scope_name</code> the resolution is now 400x400.</p>
 <pre class="prettyprint source"><code>.queue(new RS.Command('render_loop_start',
   {
     scene_name: state.scene_name,
@@ -1274,12 +1295,14 @@
     render_loop_handler_name: 'default',
     timeout: 10,
   }), true) // want a response for this command
-.execute();</code></pre><p>Adds the start render loop command and executes the sequence. Render loops are the primary mechanism of providing interactive rendering results to the user. Given a scene name they render in a tight loop on the server and can push images back to the client when available. Render loops are named so they can be identified and they behaviour modified. Any changes to the scene are automatically picked up and rendering will automatically begin again with the changes.</p>
+.execute();
+</code></pre>
+<p>Adds the start render loop command and executes the sequence. Render loops are the primary mechanism of providing interactive rendering results to the user. Given a scene name they render in a tight loop on the server and can push images back to the client when available. Render loops are named so they can be identified and they behaviour modified. Any changes to the scene are automatically picked up and rendering will automatically begin again with the changes.</p>
 <p>The command requires the following parameters:</p>
 <ul>
 <li><code>scene_name</code> The name of the scene to render. Note it is not possible to change the scene being rendered once started. You would need to stop this render loop and start a new one on the new scene.</li>
 <li><code>render_loop_name</code> The name to use for the render loop.</li>
-<li><code>render_loop_handler_name</code> Rendering itself is performed by a handler which is specified here. These can be user implemented but in this case we will use the <code>default</code> one that comes with RealityServer&reg;</li>
+<li><code>render_loop_handler_name</code> Rendering itself is performed by a handler which is specified here. These can be user implemented but in this case we will use the <code>default</code> one that comes with RealityServer®</li>
 <li><code>timeout</code> As rendering consumes significant server resource (IE: GPU and CPU cycles) we do not want to be rendering images if there is no-one consuming them. If the render loop has not been accessed in this amount of seconds then it is shutdown automatically. Note that streaming images from a render loop counts as accessing the render loop. What this effectively means is that 10 seconds after leaving the application the render loop will shutdown.</li>
 </ul>
 <p>Note we request a response for this command, both so we can check it starts correctly and so we know when it is running.</p>
@@ -1287,8 +1310,11 @@
   set_status(`Render loop start error: ${start_result.message}`);
   return;
 }
-start_stream();</code></pre><p>We just perform the standard error checking pattern and then call the <code>start_stream</code> function to begin displaying images.</p>
-<h3>Image streaming</h3><p>Now the render loop is running we want to get images from it and display them to the user. RealityServer&reg; provides a system to push rendered images from the server to the client over the WebSocket connection.</p>
+start_stream();
+</code></pre>
+<p>We just perform the standard error checking pattern and then call the <code>start_stream</code> function to begin displaying images.</p>
+<h3>Image streaming</h3>
+<p>Now the render loop is running we want to get images from it and display them to the user. RealityServer® provides a system to push rendered images from the server to the client over the WebSocket connection.</p>
 <pre class="prettyprint source"><code>async function start_stream() {
   set_status('Starting render loop stream');
   try {
@@ -1306,7 +1332,7 @@ start_stream();</code></pre><p>We just perform the standard error checking patte
         set_status(`Iteration count: ${image.statistics.iteration ? image.statistics.iteration : 1} ` +
                                       `${image.result == 1 ? &quot;(converged)&quot; :&quot;&quot;}`);
     });
-
+    
     await state.stream.start(
       {
         render_loop_name: state.render_loop_name,
@@ -1321,9 +1347,13 @@ start_stream();</code></pre><p>We just perform the standard error checking patte
     // once the web socket is connected
     set_status(`Unexpected service error: ${err.toString()}`);
   }
-}</code></pre><p>After updating status we fetch the image display element again, create a stream and store it on the state:</p>
+}
+</code></pre>
+<p>After updating status we fetch the image display element again, create a stream and store it on the state:</p>
 <pre class="prettyprint source"><code>const img = document.getElementById('rendered_image');
-state.stream = service.create_stream();</code></pre><p>A stream is tied to a render loop and every time a render completes it is pushed to the client. When the image is received a <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is emitted on the stream object (and on the service itself) containing the image and various statistics (see <a href="RS.Stream.html#~Rendered_image">RS.Stream~Rendered_image</a>). So all we need to do is listen for these events to handle each image:</p>
+state.stream = service.create_stream();
+</code></pre>
+<p>A stream is tied to a render loop and every time a render completes it is pushed to the client. When the image is received a <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event is emitted on the stream object (and on the service itself) containing the image and various statistics (see <a href="RS.Stream.html#~Rendered_image">RS.Stream~Rendered_image</a>). So all we need to do is listen for these events to handle each image:</p>
 <pre class="prettyprint source"><code>state.stream.on('image', RS.Utils.html_image_display(img));
 state.stream.on('image', (image) => {
     if (image.result &lt; 0) {
@@ -1332,7 +1362,9 @@ state.stream.on('image', (image) => {
     }
     set_status(`Iteration count: ${image.statistics.iteration ? image.statistics.iteration : 1} ` +
                                   `${image.result == 1 ? &quot;(converged)&quot; :&quot;&quot;}`);
-});</code></pre><p>RS.Utils.html_image_display is a utility function for image display. It returns a function that will display a rendered image in the Image element provided. Passing this as an event handler is all that's needed for image display.</p>
+});
+</code></pre>
+<p>RS.Utils.html_image_display is a utility function for image display. It returns a function that will display a rendered image in the Image element provided. Passing this as an event handler is all that's needed for image display.</p>
 <p>We also register a second event handler to display render progress.</p>
 <pre class="prettyprint source"><code>await state.stream.start(
   {
@@ -1340,14 +1372,18 @@ state.stream.on('image', (image) => {
     image_format: 'jpg',
     quality: '100'
   }
-);</code></pre><p>Finally we start streaming from the render loop we started previously. We also specify the image format and quality to use. This must be a format supported by both RealityServer&reg; and the client's image display system.</p>
+);
+</code></pre>
+<p>Finally we start streaming from the render loop we started previously. We also specify the image format and quality to use. This must be a format supported by both RealityServer® and the client's image display system.</p>
 <p>Now load your page and you should get something like the following:</p>
 <p><img src="tutorials/browser-rendering/rendering.jpg" alt="rendering"></p>
 <p>As rendering progresses the iteration count will increase and the quality of the displayed image will improve. If you wait until convergence (100 iterations by default) you will also receive a message indicating this. Once converged, the render loop stops rendering until further changes are made to the scene.</p>
-<h3>Summary</h3><p>In this tutorial we have learnt about scene data, localization, render loops and image streaming. In the next tutorial we will start making changes to the scene while rendering.</p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt about scene data, localization, render loops and image streaming. In the next tutorial we will start making changes to the scene while rendering.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-rendering/index.html">GitHub</a></p>
-<p>If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:</p>
+<p>If you have a local checkout and a running RealityServer® you can load the tutorial below:</p>
 <p><a href="tutorials/browser-rendering/index.html">Load</a></p>
 <hr>
 <table>
@@ -1373,7 +1409,7 @@ state.stream.on('image', (image) => {
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:33:05 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:23:45 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

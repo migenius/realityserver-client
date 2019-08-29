@@ -1154,7 +1154,8 @@
 
 <article class="content-size">
     <p>In our final step we will set up some basic material editing.</p>
-<h3>State</h3><p>You know the drill.</p>
+<h3>State</h3>
+<p>You know the drill.</p>
 <pre class="prettyprint source lang-javascript"><code>const state = {
   server: {
     host: 'localhost',
@@ -1168,15 +1169,20 @@
   render_loop_name: `render_loop_${RS.Utils.create_random_string(8)}`,
   last_mouse: { x: 0, y: 0 },
   material_name: 'material_under_test'
-};</code></pre><p>We added the name of the material we want to update. This does of course hard code this tutorial to only work on the meyemii scene. However to be truly dynamic we would need to query all the MDL materials instances in the scene then provide a mechanism to choose which material to edit. Then we would need to know which arguments are available on the material, and what their types are so it all explodes out of the scope of a simple tutorial pretty quickly. </p>
-<h3>UI</h3><p>For simplicity we'll just add a row of buttons that, when clicked, will change the object's color to a predefined value.</p>
+};
+</code></pre>
+<p>We added the name of the material we want to update. This does of course hard code this tutorial to only work on the meyemii scene. However to be truly dynamic we would need to query all the MDL materials instances in the scene then provide a mechanism to choose which material to edit. Then we would need to know which arguments are available on the material, and what their types are so it all explodes out of the scope of a simple tutorial pretty quickly.</p>
+<h3>UI</h3>
+<p>For simplicity we'll just add a row of buttons that, when clicked, will change the object's color to a predefined value.</p>
 <pre class="prettyprint source lang-html"><code>&lt;img id=&quot;rendered_image&quot; width=&quot;400&quot; height=&quot;400&quot;/>
 &lt;div class=&quot;button-row&quot;>
   &lt;button class=&quot;gold&quot; id=&quot;gold&quot; onclick=&quot;set_color(0.2, 0.135, 0.0463, 'gold')&quot;>gold&lt;/button>
   &lt;button class=&quot;silver&quot; id=&quot;silver&quot; onclick=&quot;set_color(0.753, 0.753, 0.753, 'silver')&quot;>silver&lt;/button>
   &lt;button class=&quot;rose&quot; id=&quot;rose&quot; onclick=&quot;set_color(0.718, 0.431, 0.475, 'rose')&quot;>rose&lt;/button>
   &lt;button class=&quot;copper&quot; id=&quot;copper&quot; onclick=&quot;set_color(0.722, 0.451, 0.2, 'copper')&quot;>copper&lt;/button>
-&lt;/div></code></pre><p>We also add some CSS at the top to make things look pretty:</p>
+&lt;/div>
+</code></pre>
+<p>We also add some CSS at the top to make things look pretty:</p>
 <pre class="prettyprint source lang-html"><code>&lt;script src=&quot;../../lib/realityserver.js&quot;>&lt;/script>
 &lt;style>
   .button-row {
@@ -1198,16 +1204,21 @@
   .copper {
     background-color:#b87333;
   }
-&lt;/style></code></pre><h3>Changing the color</h3><p>We only need to modify the existing JavaScript in one location. This is to localize the material so we are the only ones to see the changes. Update the in <code>scene_loaded</code> command queue as follows:</p>
+&lt;/style>
+</code></pre>
+<h3>Changing the color</h3>
+<p>We only need to modify the existing JavaScript in one location. This is to localize the material so we are the only ones to see the changes. Update the in <code>scene_loaded</code> command queue as follows:</p>
 <pre class="prettyprint source"><code>// localize the camera to the session scope
 .queue(new RS.Command('localize_element', { element_name: state.scene.camera }))
 .queue(new RS.Command('localize_element', { element_name: state.scene.camera_instance }))
-.queue(new RS.Command('localize_element', { element_name: `${state.scene_name}::${state.material_name}` }))</code></pre><p>Note the material name is being prefixed with the scene name due to the import prefix.</p>
-<p>The <code>set_color</code> function is called to change the actual color. It's arguments are the RGB values to change to (in linear floating point 0-&gt;1 format, all RealityServer&reg; colors are represented in this way) and the id of the button that was pressed.</p>
+.queue(new RS.Command('localize_element', { element_name: `${state.scene_name}::${state.material_name}` }))
+</code></pre>
+<p>Note the material name is being prefixed with the scene name due to the import prefix.</p>
+<p>The <code>set_color</code> function is called to change the actual color. It's arguments are the RGB values to change to (in linear floating point 0-&gt;1 format, all RealityServer® colors are represented in this way) and the id of the button that was pressed.</p>
 <pre class="prettyprint source lang-javascript"><code>function set_color(r, g, b, name) {
   const button = document.getElementById(name);
   button.firstChild.textContent = 'setting';
-
+  
   state.stream.pause();
 
   const [ response, available ] = state.stream.send_command(
@@ -1235,29 +1246,41 @@
       button.firstChild.textContent = name,
     2000);
   });
-}</code></pre><p>On the surface this looks just like the previous command execution patterns. However there are some subtle but important differences.</p>
-<pre class="prettyprint source lang-javascript"><code>state.stream</code></pre><p>We are not adding commands to the service here but to the stream. The stream provides the same command execution functionality as the service. However commands executed on the stream are automatically executed in the scope of the render loop so there is no need add a <code>use_scope</code> call (unless you want to execute in a different scope of course). In most use cases you want to execute commands in the render loop scope so this automated scoping is very useful.</p>
-<pre class="prettyprint source lang-javascript"><code>state.stream.send_command</code></pre><p>Since we're only executing one command we don't need to create a command queue. Both the stream and the service provide <code>send_command</code> and <code>execute_command</code> functions that only accept a single command. Also note we have called <code>send_command</code> rather than <code>execute_command</code>, this distinction will be important later.</p>
+}
+</code></pre>
+<p>On the surface this looks just like the previous command execution patterns. However there are some subtle but important differences.</p>
+<pre class="prettyprint source lang-javascript"><code>state.stream
+</code></pre>
+<p>We are not adding commands to the service here but to the stream. The stream provides the same command execution functionality as the service. However commands executed on the stream are automatically executed in the scope of the render loop so there is no need add a <code>use_scope</code> call (unless you want to execute in a different scope of course). In most use cases you want to execute commands in the render loop scope so this automated scoping is very useful.</p>
+<pre class="prettyprint source lang-javascript"><code>state.stream.send_command
+</code></pre>
+<p>Since we're only executing one command we don't need to create a command queue. Both the stream and the service provide <code>send_command</code> and <code>execute_command</code> functions that only accept a single command. Also note we have called <code>send_command</code> rather than <code>execute_command</code>, this distinction will be important later.</p>
 <pre class="prettyprint source"><code>new RS.Command('mdl_set_argument',
     {
       element_name: `${state.scene_name}::${state.material_name}`,
       argument_name: 'metal_color',
       value: { r, g, b }
-    })</code></pre><p>This command sets the <code>metal_color</code> argument of the MDL material instance specified in <code>element_name</code> to the provided color. Again we prefix the name with the import prefix. Maybe we should have just done that in the state.</p>
+    })
+</code></pre>
+<p>This command sets the <code>metal_color</code> argument of the MDL material instance specified in <code>element_name</code> to the provided color. Again we prefix the name with the import prefix. Maybe we should have just done that in the state.</p>
 <pre class="prettyprint source lang-javascript"><code>const [ response, available ] = state.stream.send_command(
   ...
   {
     want_response: true,
     wait_for_render: true
   }
-);</code></pre><p>When executing commands on the stream the 2nd argument takes a different set of options than on the service. In addition to <code>want_response</code> there are options to control execution behaviour on the render loop and the stream specific <code>wait_for_render</code>. Setting <code>wait_for_render</code> causes an additional Promise to be returned that will resolve when the first image that contains this commands effects is available. So we can wait not only for the command response, but for the image that contains the response as well.</p>
-<p><code>send_command</code> is functionality identical to  <code>execute_command</code> (as is <code>send</code> and <code>execute</code> on <a href="RS.Command_queue.html">RS.Command_queue</a>) except that the <code>send</code> variant returns an array of Promises rather than a single Promise that resolves to multiple values. Using <code>send</code> allows us to react in a more fine grained manner than simply waiting for everything to complete.  </p>
+);
+</code></pre>
+<p>When executing commands on the stream the 2nd argument takes a different set of options than on the service. In addition to <code>want_response</code> there are options to control execution behaviour on the render loop and the stream specific <code>wait_for_render</code>. Setting <code>wait_for_render</code> causes an additional Promise to be returned that will resolve when the first image that contains this commands effects is available. So we can wait not only for the command response, but for the image that contains the response as well.</p>
+<p><code>send_command</code> is functionality identical to  <code>execute_command</code> (as is <code>send</code> and <code>execute</code> on <a href="RS.Command_queue.html">RS.Command_queue</a>) except that the <code>send</code> variant returns an array of Promises rather than a single Promise that resolves to multiple values. Using <code>send</code> allows us to react in a more fine grained manner than simply waiting for everything to complete.</p>
 <pre class="prettyprint source lang-javascript"><code>let set_error = false;
 response.then(result => {
   if (result instanceof RS.Command_error) {
     set_error = true;
   }
-});</code></pre><p>Since <code>response</code> is a Promise we can use <code>then</code> to process the command result. In this case we simply want to track whether the color change was successful or not. There's no reason to expect this to fail unless you've loaded a different scene that doesn't contain the hardcoded material name, or if it doesn't have the <code>metal_color</code> argument.</p>
+});
+</code></pre>
+<p>Since <code>response</code> is a Promise we can use <code>then</code> to process the command result. In this case we simply want to track whether the color change was successful or not. There's no reason to expect this to fail unless you've loaded a different scene that doesn't contain the hardcoded material name, or if it doesn't have the <code>metal_color</code> argument.</p>
 <pre class="prettyprint source lang-javascript"><code>const button = document.getElementById(name);
 button.firstChild.textContent = 'setting';
 
@@ -1273,7 +1296,9 @@ available.then(image_data => {
   setTimeout(() =>
     button.firstChild.textContent = name,
   2000);
-});</code></pre><p>The above handles the <code>wait_for_render</code> Promise. Before command execution we change the text on the pressed button to <code>setting</code>, this is to let the user know that the change is currently being made. We also call <a href="RS.Stream.html#pause">RS.Stream#pause</a> on the stream. This stops the stream from emitting <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> events until <a href="RS.Stream.html#resume">RS.Stream#resume</a> is called. We do this so that the user doesn't see any intermediate images that might be rendered while our change is being made.</p>
+});
+</code></pre>
+<p>The above handles the <code>wait_for_render</code> Promise. Before command execution we change the text on the pressed button to <code>setting</code>, this is to let the user know that the change is currently being made. We also call <a href="RS.Stream.html#pause">RS.Stream#pause</a> on the stream. This stops the stream from emitting <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> events until <a href="RS.Stream.html#resume">RS.Stream#resume</a> is called. We do this so that the user doesn't see any intermediate images that might be rendered while our change is being made.</p>
 <p>The <code>available</code> Promise will resolve once the command has been executed, a render has been performed with the updated scene (IE: a render that contains the new color) and the render has been pushed to the client and is ready to display. So in it's <code>then</code> function we resume rendering. In the next tick the <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> event for this image will be emitted and the image displayed. We are also updating the button text to indicate whether the edit worked or not, and 2 seconds later setting it back to the previous value.</p>
 <p>In summary, pressing one of the color buttons triggers the following sequence:</p>
 <ol>
@@ -1289,10 +1314,12 @@ available.then(image_data => {
 </ol>
 <p>Now load your page and hit the <code>rose</code> button and you should get something like the following:</p>
 <p><img src="tutorials/browser-change-color/color-change.jpg" alt="rendering"></p>
-<h3>Summary</h3><p>In this tutorial we have learnt about executing commands on the stream, the difference between sending and executing commands, how to edit materials and controlling the display of images. </p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt about executing commands on the stream, the difference between sending and executing commands, how to edit materials and controlling the display of images.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-change-color/index.html">GitHub</a></p>
-<p>If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:</p>
+<p>If you have a local checkout and a running RealityServer® you can load the tutorial below:</p>
 <p><a href="tutorials/browser-change-color/index.html">Load</a></p>
 <hr>
 <table>
@@ -1318,7 +1345,7 @@ available.then(image_data => {
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:33:05 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:23:45 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
