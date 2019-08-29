@@ -1151,8 +1151,9 @@
 </header>  
 
 <article class="content-size">
-    <p>The first step any application needs to do is load the library and connect to a RealityServer&reg; instance. The library module can be loaded directly from <a href="https://unpkg.com" title="unpkc.com">unpkg.com</a> at <code>https://unpkg.com/@migenius/realityserver-client@1.0.0</code> or you can distribute it yourself. For these tutorials we are distributing it locally.</p>
-<h3>Loading</h3><p>The first step is some simple boiler plate HTML to load the library and display a helpful heading.</p>
+    <p>The first step any application needs to do is load the library and connect to a RealityServer® instance. The library module can be loaded directly from <a href="https://unpkg.com" title="unpkc.com">unpkg.com</a> at <code>https://unpkg.com/@migenius/realityserver-client@1.0.0</code> or you can distribute it yourself. For these tutorials we are distributing it locally.</p>
+<h3>Loading</h3>
+<p>The first step is some simple boiler plate HTML to load the library and display a helpful heading.</p>
 <pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>
 &lt;html>
 &lt;head>
@@ -1165,27 +1166,37 @@
     &lt;h1>RealityServer&reg; Tutorial&lt;/h1>
   &lt;/div>
 &lt;/body>
-&lt;/html></code></pre><p>Not much to see here and nothing too unexpected.</p>
-<h3>Status</h3><p>We're going to want to be able to get status information from the system for debugging and progress purposes. So we'll add another div to contain any text we want to display</p>
+&lt;/html>
+</code></pre>
+<p>Not much to see here and nothing too unexpected.</p>
+<h3>Status</h3>
+<p>We're going to want to be able to get status information from the system for debugging and progress purposes. So we'll add another div to contain any text we want to display</p>
 <pre class="prettyprint source lang-html"><code>&lt;div width=&quot;400&quot;>
   &lt;h1>RealityServer&reg; Client Tutorial&lt;/h1>
   &lt;div>
     &lt;span id=&quot;status&quot; />
   &lt;/div>
-&lt;/div></code></pre><p>We need to be able to populate the status with something so we'll add our first piece of JavaScript in the <code>&lt;head&gt;</code> block</p>
+&lt;/div>
+</code></pre>
+<p>We need to be able to populate the status with something so we'll add our first piece of JavaScript in the <code>&lt;head&gt;</code> block</p>
 <pre class="prettyprint source lang-html"><code>&lt;script src=&quot;../../lib/realityserver.js&quot;>&lt;/script>
 &lt;script type=&quot;text/javascript&quot;>
   function set_status(status) {
     document.getElementById('status').firstChild.textContent = status;
   }
-&lt;/script></code></pre><h3>Create the RealityServer&reg; interface</h3><p>Now we are ready to start working with RealityServer&reg;. The imported module provides a global object <code>RS</code> that contains all the required functionality The main entry point is the <a href="RS.Service.html">RS.Service</a> class so we need to create an instance of that.</p>
+&lt;/script>
+</code></pre>
+<h3>Create the RealityServer® interface</h3>
+<p>Now we are ready to start working with RealityServer®. The imported module provides a global object <code>RS</code> that contains all the required functionality The main entry point is the <a href="RS.Service.html">RS.Service</a> class so we need to create an instance of that.</p>
 <pre class="prettyprint source lang-html"><code>&lt;script type=&quot;text/javascript&quot;>
   const service = new RS.Service();
 
   function set_status(status) {
     document.getElementById('status').firstChild.textContent = status;
   }
-&lt;/script></code></pre><p>Note that from now on we're just going to assume that all JavaScript goes into the initial <code>&lt;script&gt;</code> tag so will omit that for clarity.</p>
+&lt;/script>
+</code></pre>
+<p>Note that from now on we're just going to assume that all JavaScript goes into the initial <code>&lt;script&gt;</code> tag so will omit that for clarity.</p>
 <p>We also need a state object to keep track of what our application is doing.</p>
 <pre class="prettyprint source lang-javascript"><code>const state = {
   server: {
@@ -1193,8 +1204,11 @@
     port: 8080,
     secure: false
   }
-};</code></pre><p>For now this just contains the connection details of the RealityServer&reg; we are connecting to. You should modify these to match your installation. In a real world application these details would be provided by some resource management system or, if your pages are being served from the RealityServer&reg; instance that will also be performing rendering, you can use RS.Utils#extract_url_details to get this information.</p>
-<h3>Connecting</h3><p>Now we have everything we need to connect. A simple <code>start</code> function is all that is needed.</p>
+};
+</code></pre>
+<p>For now this just contains the connection details of the RealityServer® we are connecting to. You should modify these to match your installation. In a real world application these details would be provided by some resource management system or, if your pages are being served from the RealityServer® instance that will also be performing rendering, you can use RS.Utils#extract_url_details to get this information.</p>
+<h3>Connecting</h3>
+<p>Now we have everything we need to connect. A simple <code>start</code> function is all that is needed.</p>
 <pre class="prettyprint source lang-javascript"><code>async function start() {
   set_status('Connecting');
   try {
@@ -1204,17 +1218,24 @@
   } catch (err) {
     set_status(`Failed to connect to RealityServer: ${err.toString()}`);
   }
-}</code></pre><p>As we are using an async/await pattern this function is defined with the <code>async</code> keyword. We first set the status to 'connecting' and construct the URL to connect to from our state data. All communications are performed using WebSockets so a <code>ws</code> or <code>wss</code> scheme is used depending on whether a secure connection is required or not. The path used is <code>/service/</code> which is the standard WebSocket endpoint for RealityServer&reg;</p>
+}
+</code></pre>
+<p>As we are using an async/await pattern this function is defined with the <code>async</code> keyword. We first set the status to 'connecting' and construct the URL to connect to from our state data. All communications are performed using WebSockets so a <code>ws</code> or <code>wss</code> scheme is used depending on whether a secure connection is required or not. The path used is <code>/service/</code> which is the standard WebSocket endpoint for RealityServer®</p>
 <p>This URL is passed into <a href="RS.Service.html#connect">RS.Service#connect</a> and we await the response. If we could not connect an error will be thrown otherwise execution continues and sets a success status.</p>
 <p>Or it would if any of the above code was called. Unless we call the <code>start</code> function nothing is going to happen so update the <code>body</code> tag as below:</p>
-<pre class="prettyprint source"><code>&lt;body onload=&quot;start();&quot;></code></pre><p>Now load your page and you should get something like the following:</p>
+<pre class="prettyprint source"><code>&lt;body onload=&quot;start();&quot;>
+</code></pre>
+<p>Now load your page and you should get something like the following:</p>
 <p><img src="tutorials/browser-connecting/connected.jpg" alt="connected"></p>
-<p>If not check your <code>state.server</code> settings and make sure they are correct. Check that you can connect over HTTP using a web browser to RealityServer&reg; directly and that you have CORS enabled if necessary.</p>
-<h3>A note on rejection</h3><p>The RealityServer&reg; Client API is primarily promise based. Promise rejections will always reject with an instance of <a href="RS.Error.html">RS.Error</a>.</p>
-<h3>Summary</h3><p>In this tutorial we have learnt how to load the client library and connect to a RealityServer&reg; instance. The next tutorial covers loading a scene in preparation for rendering.</p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<p>If not check your <code>state.server</code> settings and make sure they are correct. Check that you can connect over HTTP using a web browser to RealityServer® directly and that you have CORS enabled if necessary.</p>
+<h3>A note on rejection</h3>
+<p>The RealityServer® Client API is primarily promise based. Promise rejections will always reject with an instance of <a href="RS.Error.html">RS.Error</a>.</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt how to load the client library and connect to a RealityServer® instance. The next tutorial covers loading a scene in preparation for rendering.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-connecting/index.html">GitHub</a></p>
-<p>If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:</p>
+<p>If you have a local checkout and a running RealityServer® you can load the tutorial below:</p>
 <p><a href="tutorials/browser-connecting/index.html">Load</a></p>
 <hr>
 <table>
@@ -1240,7 +1261,7 @@
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

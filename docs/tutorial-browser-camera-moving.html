@@ -1152,7 +1152,8 @@
 
 <article class="content-size">
     <p>There's not much point in an interactive rendering sytem if you can't actually change anything. Here we implement simple camera interaction which allows us to dolly the camera forwards and back using the mouse.</p>
-<h3>State</h3><p>Of course we require new state.</p>
+<h3>State</h3>
+<p>Of course we require new state.</p>
 <pre class="prettyprint source lang-javascript"><code>const state = {
   server: {
     host: 'localhost',
@@ -1165,8 +1166,11 @@
   session_scope_name: `scope_${RS.Utils.create_random_string(8)}`,
   render_loop_name: `render_loop_${RS.Utils.create_random_string(8)}`,
   last_mouse: { x: 0, y: 0 }
-};</code></pre><p>OK, it's not that much. Just somewhere to record the last mouse location so we can track movement.</p>
-<h3>Camera initialization</h3><p>To move the camera we first need to know where it is. The scene info has already given us the name of the camera instance. So all we need to do is ask for the camera matrix in the <code>scene_loaded</code> function:</p>
+};
+</code></pre>
+<p>OK, it's not that much. Just somewhere to record the last mouse location so we can track movement.</p>
+<h3>Camera initialization</h3>
+<p>To move the camera we first need to know where it is. The scene info has already given us the name of the camera instance. So all we need to do is ask for the camera matrix in the <code>scene_loaded</code> function:</p>
 <pre class="prettyprint source"><code> const [ camera_matrix, start_result ] = await service.queue_commands()
   // create a scope for the session
   .queue(new RS.Command('create_scope', 
@@ -1214,15 +1218,21 @@ if (start_result instanceof RS.Command_error) {
 
 set_status('Starting render loop stream');
 
-state.camera_matrix = camera_matrix;</code></pre><p>We've inserted 2 new commands here. Since we're going to be editing the camera instance, and we don't want other users to see our changes, we localize the camera instance to the session scope. Then, after setting the camera resolution, we call <code>instance_get_world_to_obj</code> to fetch the matrix used to position the camera. Since we want a result from this command we add the <code>true</code> argument to the <code>queue</code> call and add a variable to receive the result to the array destructuring.</p>
+state.camera_matrix = camera_matrix;
+</code></pre>
+<p>We've inserted 2 new commands here. Since we're going to be editing the camera instance, and we don't want other users to see our changes, we localize the camera instance to the session scope. Then, after setting the camera resolution, we call <code>instance_get_world_to_obj</code> to fetch the matrix used to position the camera. Since we want a result from this command we add the <code>true</code> argument to the <code>queue</code> call and add a variable to receive the result to the array destructuring.</p>
 <p>After execution we check for errors in the result and store the camera matrix in the state.</p>
-<h3>Instances and matrices</h3><p>You will notice that we're actually dealing with two distinct scene elements here to manipulate the camera. We are referencing a camera to set the resolution but there is also a camera instance from which we get it's matrix. RealityServer&reg; separates out an elements definition and it's location in the scene into two separate elements. The first defines the scene element. For a camera this is the resolution, field of view, tonemapping, depth of field etc. For a mesh it defines the polygons or triangles that represent the object; lights contain the light type and MDL material that defines the emission properties. Basically everything except for where the element is in 3D space. To actually use a scene element an instance needs to be created that references it, then we set it's orientation matrix and insert it into the scene. This decoupling of element properties and location allows for many interesting features, not the least of which is instancing where the same object can be placed into the scene multiple times in different locations (and even with different materials) without having to redefine the entire object.</p>
+<h3>Instances and matrices</h3>
+<p>You will notice that we're actually dealing with two distinct scene elements here to manipulate the camera. We are referencing a camera to set the resolution but there is also a camera instance from which we get it's matrix. RealityServer® separates out an elements definition and it's location in the scene into two separate elements. The first defines the scene element. For a camera this is the resolution, field of view, tonemapping, depth of field etc. For a mesh it defines the polygons or triangles that represent the object; lights contain the light type and MDL material that defines the emission properties. Basically everything except for where the element is in 3D space. To actually use a scene element an instance needs to be created that references it, then we set it's orientation matrix and insert it into the scene. This decoupling of element properties and location allows for many interesting features, not the least of which is instancing where the same object can be placed into the scene multiple times in different locations (and even with different materials) without having to redefine the entire object.</p>
 <p>However this does mean that we need two elements to represent any item in the scene. The instance is what is directly available from within the scene graph, from that we can then obtain the element. For convenience the <code>import_scene</code> command returns both the camera instance and the camera element itself since we usually want to start working with both straight away.</p>
-<p>Instance matrices are row major, homogenous world to object transforms. This is the reverse to what many users may be used to seeing where matrices define how to transform an object to it's final location in the world. The reason for this is purely efficiency, internally RealityServer&reg; requires world to object transforms for rendering so it makes more sense for them to be provided in the final format that is needed. It also means that inspecting the matrices can be confusing as the location row does not simply have the object's location as clear numbers. It is necessary to invert and extract the values from the matrix. However for this tutorial this is not required. </p>
-<h3>Mouse interaction</h3><p>We want the user to be able to drag the mouse on the image to move the camera back and forward. We start the operation by registering a mouse down handler on the image after the render stream has started.</p>
+<p>Instance matrices are row major, homogenous world to object transforms. This is the reverse to what many users may be used to seeing where matrices define how to transform an object to it's final location in the world. The reason for this is purely efficiency, internally RealityServer® requires world to object transforms for rendering so it makes more sense for them to be provided in the final format that is needed. It also means that inspecting the matrices can be confusing as the location row does not simply have the object's location as clear numbers. It is necessary to invert and extract the values from the matrix. However for this tutorial this is not required.</p>
+<h3>Mouse interaction</h3>
+<p>We want the user to be able to drag the mouse on the image to move the camera back and forward. We start the operation by registering a mouse down handler on the image after the render stream has started.</p>
 <pre class="prettyprint source"><code>set_status('Render loop stream started');
 
-img.addEventListener('mousedown', mouse_down);</code></pre><p><code>mouse_down</code> and it's associated functions are defined as follows:</p>
+img.addEventListener('mousedown', mouse_down);
+</code></pre>
+<p><code>mouse_down</code> and it's associated functions are defined as follows:</p>
 <pre class="prettyprint source"><code>function mouse_down(event) {
   state.last_mouse.x = event.clientX;
   state.last_mouse.y = event.clientY;
@@ -1246,7 +1256,9 @@ function mouse_up(event) {
   window.removeEventListener('mouseup', mouse_up);
 
   event.preventDefault();
-}</code></pre><p>This is a fairly standard mouse interaction pattern. On mouse down we record the current mouse location and register move and up handlers on the window. This is done on the window so that if the mouse is moved outside of the image these handlers are still called. On move we update the mouse location and on up we remove the window listeners.</p>
+}
+</code></pre>
+<p>This is a fairly standard mouse interaction pattern. On mouse down we record the current mouse location and register move and up handlers on the window. This is done on the window so that if the mouse is moved outside of the image these handlers are still called. On move we update the mouse location and on up we remove the window listeners.</p>
 <p>To move the actual camera we add code to <code>mouse_move</code> to update the camera instance transform.</p>
 <pre class="prettyprint source"><code>function mouse_move(event) {
   const new_wz = state.camera_matrix.wz - (event.clientY - state.last_mouse.y) * 0.001;
@@ -1267,7 +1279,11 @@ function mouse_up(event) {
   state.last_mouse.y = event.clientY;
 
   event.preventDefault();
-}</code></pre><pre class="prettyprint source"><code>const new_wz = state.camera_matrix.wz - (event.clientY - state.last_mouse.y) * 0.001;</code></pre><p>Here we calculate the new <code>wz</code> component of the camera instance matrix. Conceptually, the <code>wz</code> component represents how far back the camera has moved from it's initial position along it's view direction. So to dolly the camera backwards or forwards we simply need to add or subtract a value from that component. We calculate how far the mouse has moved, scale it appropriately for the scene size then subtract from <code>wz</code> to work out the new component value.</p>
+}
+</code></pre>
+<pre class="prettyprint source"><code>const new_wz = state.camera_matrix.wz - (event.clientY - state.last_mouse.y) * 0.001;
+</code></pre>
+<p>Here we calculate the new <code>wz</code> component of the camera instance matrix. Conceptually, the <code>wz</code> component represents how far back the camera has moved from it's initial position along it's view direction. So to dolly the camera backwards or forwards we simply need to add or subtract a value from that component. We calculate how far the mouse has moved, scale it appropriately for the scene size then subtract from <code>wz</code> to work out the new component value.</p>
 <pre class="prettyprint source"><code>if (new_wz > -0.735 && new_wz &lt; -0.072) {
   state.camera_matrix.wz = new_wz;
   state.stream.update_camera(
@@ -1278,14 +1294,18 @@ function mouse_up(event) {
       }
     }
   );
-}</code></pre><p>The if statement is simply a sanity check. The sample <code>meyemii</code> scene is actually quite small (the object itself is only a few centimeters wide) and the room only about 1 meter square. These limits prevent us from moving the camera outside of the room or into the object.</p>
+}
+</code></pre>
+<p>The if statement is simply a sanity check. The sample <code>meyemii</code> scene is actually quite small (the object itself is only a few centimeters wide) and the room only about 1 meter square. These limits prevent us from moving the camera outside of the room or into the object.</p>
 <p>After updating the <code>wz</code> component of our local camera with the new value we call the <a href="RS.Stream.html#update_camera">RS.Stream#update_camera</a> function on the stream. This is a convenience function for moving the camera and changing it's properties on a particular stream. While you could call commands directly to update the camera this would result in a camera change being made for every mouse move. <code>update_camera</code> has the advantage that it only applies a single update between render loop calls on the server, and also automatically makes the changes in the render loop scope. As well as updating the camera transform <code>update_camera</code> can modify many other camera properties and is the prefered way of manipulating cameras.</p>
 <p>Now load your page, drag up on the image and you should get something like the following:</p>
 <p><img src="tutorials/browser-camera-moving/moving.jpg" alt="rendering"></p>
-<h3>Summary</h3><p>In this tutorial we have learnt about instances and matrices and how to move the camera. In the next tutorial we will make some material changes to the scene.</p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt about instances and matrices and how to move the camera. In the next tutorial we will make some material changes to the scene.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="https://github.com/migenius/realityserver-client/blob/master/docs/tutorials/browser-camera-moving/index.html">GitHub</a></p>
-<p>If you have a local checkout and a running RealityServer&reg; you can load the tutorial below:</p>
+<p>If you have a local checkout and a running RealityServer® you can load the tutorial below:</p>
 <p><a href="tutorials/browser-camera-moving/index.html">Load</a></p>
 <hr>
 <table>
@@ -1311,7 +1331,7 @@ function mouse_up(event) {
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

@@ -1152,7 +1152,8 @@
 
 <article class="content-size">
     <p>Batch rendering is a different process to interactive rendering as used in the browser. Here, instead of receiving a stream of images and being able to make changes to the scene at any time we simply want to fire off a render call and get a single response when the result is ready.</p>
-<h3>A bit of prep</h3><pre class="prettyprint source lang-javascript"><code>console.log(`rendering at ${width}x${height} for ${max_samples} iterations`);
+<h3>A bit of prep</h3>
+<pre class="prettyprint source lang-javascript"><code>console.log(`rendering at ${width}x${height} for ${max_samples} iterations`);
 
 try {
   scene_info.scene_name = 'myscene';
@@ -1161,8 +1162,11 @@ try {
   console.log(`image saved to ${filename}`);
 } catch (err) {
   console.error(err);
-}</code></pre><p>So we just transfer some data to the scene info then call our <code>render_scene</code> function to perform the actual render.</p>
-<h3>Rendering</h3><pre class="prettyprint source lang-javascript"><code>function render_scene(scene_info, width, height, max_samples, filename) {
+}
+</code></pre>
+<p>So we just transfer some data to the scene info then call our <code>render_scene</code> function to perform the actual render.</p>
+<h3>Rendering</h3>
+<pre class="prettyprint source lang-javascript"><code>function render_scene(scene_info, width, height, max_samples, filename) {
   return new Promise(async (resolve, reject) => {
     const camera = scene_info.camera;
     const options = scene_info.options;
@@ -1227,7 +1231,9 @@ try {
       }
     });
   });
-}</code></pre><p>The render returns a Promise that resolves when the rendered image has been written to disk or rejects on error.</p>
+}
+</code></pre>
+<p>The render returns a Promise that resolves when the rendered image has been written to disk or rejects on error.</p>
 <p>Similar to the browser tutorial we are creating a user scope to make our changes and render in. However, in addition to localizing the camera we are also localizing the scene options block:</p>
 <pre class="prettyprint source"><code>const options = scene_info.options;
 ...
@@ -1239,17 +1245,19 @@ try {
     attribute_value: max_samples,
     attribute_type: 'Sint32',
     create: true
-  }))</code></pre><p>Like the camera elements the option block is also returned when importing the scene. This element is the main location where global rendering options are set for the scene. In this case we are setting the <code>progressive_rendering_max_samples</code> attribute on the options. In interactive rendering, images are returned every few progressive iterations. So you can watch the quality of the render improve as time goes on. In batch rendering however the render call doesn't return until a converged image is obtained. A converged image is one where one of three refinement metrics is met:</p>
+  }))
+</code></pre>
+<p>Like the camera elements the option block is also returned when importing the scene. This element is the main location where global rendering options are set for the scene. In this case we are setting the <code>progressive_rendering_max_samples</code> attribute on the options. In interactive rendering, images are returned every few progressive iterations. So you can watch the quality of the render improve as time goes on. In batch rendering however the render call doesn't return until a converged image is obtained. A converged image is one where one of three refinement metrics is met:</p>
 <ol>
 <li>Iteration count - the image is converged once it has rendered a given number of iterations.</li>
-<li>Time - the image is converged once it has rendered for a given amount of time. </li>
+<li>Time - the image is converged once it has rendered for a given amount of time.</li>
 <li>Quality - the image is converged once a given quality metric has been obtained in a given percentage of pixels.</li>
 </ol>
 <p>All 3 have default values, 100 iterations, 1 hour and a quality of 1 in 95% of pixels. Whichever of these three criteria is first met terminates rendering and returns the final image. Individual criteria can also be disabled. We really should allow all 3 types to be set however for simplicity we are only exposing max iterations.</p>
-<p>The <code>element_set_attribute</code> command is a generic command that allows any attribute to be set on any element. Most settings on scene elements are controlled by attributes, ones that will have specific RealityServer&reg; commands for controlling them.</p>
-<p>Two important things to note, the <code>element_set_attribute</code> command will not create attributes by default. If the attribute does not already exist on the element the set command will fail. So we provide the <code>create</code> argument so the attribute can be created if it doesn't already exist. Attributes are also strictly typed, so we need to provide the type of the attribute in <code>attribute_type</code> as well. </p>
+<p>The <code>element_set_attribute</code> command is a generic command that allows any attribute to be set on any element. Most settings on scene elements are controlled by attributes, ones that will have specific RealityServer® commands for controlling them.</p>
+<p>Two important things to note, the <code>element_set_attribute</code> command will not create attributes by default. If the attribute does not already exist on the element the set command will fail. So we provide the <code>create</code> argument so the attribute can be created if it doesn't already exist. Attributes are also strictly typed, so we need to provide the type of the attribute in <code>attribute_type</code> as well.</p>
 <p>Note that termination criteria are also honoured when using interactive mode in render loops. When converged, the render loop simply pauses rendering until the scene is changed again.</p>
-<p>Information on how to setup the other 2 criteria, as well as supported attributes in general, can be found in the RealityServer&reg; documentation.</p>
+<p>Information on how to setup the other 2 criteria, as well as supported attributes in general, can be found in the RealityServer® documentation.</p>
 <pre class="prettyprint source lang-javascript"><code>.queue(new Command('render',
 {
   scene_name: scene_info.scene_name,
@@ -1261,10 +1269,14 @@ try {
       type: 'String'
     }
   }
-}),true)</code></pre><p>The command that does the actual work. We supply scene name, renderer and the image format to encode the image to which comes from the filename extension (png/jpg/exr etc.). Render context options are the other main location that rendering options are provided. These however are per render options rather than scene options. In this case we are setting <code>scheduler_mode</code> to <code>batch</code> which enables batch mode as described previously. Like the options block, these options are also strictly typed.</p>
+}),true)
+</code></pre>
+<p>The command that does the actual work. We supply scene name, renderer and the image format to encode the image to which comes from the filename extension (png/jpg/exr etc.). Render context options are the other main location that rendering options are provided. These however are per render options rather than scene options. In this case we are setting <code>scheduler_mode</code> to <code>batch</code> which enables batch mode as described previously. Like the options block, these options are also strictly typed.</p>
 <p>Remember that since we want to get the result of this command (the actual rendered image) we pass <code>true</code> as the second argument.</p>
 <pre class="prettyprint source"><code>.queue(new Command('delete_scope', { scope_name: user_scope_name }))
-.execute().catch(err => [ err ]);</code></pre><p>Since this is a one shot render we clean up after ourselves by deleting the created user scope after rendering. This is the last command for the queue so we execute the commands and resolve any errors.</p>
+.execute().catch(err => [ err ]);
+</code></pre>
+<p>Since this is a one shot render we clean up after ourselves by deleting the created user scope after rendering. This is the last command for the queue so we execute the commands and resolve any errors.</p>
 <pre class="prettyprint source"><code>if (image instanceof Command_error) {
   reject(`render error: ${image.message}`);
   return;
@@ -1284,16 +1296,22 @@ fs.writeFile(filename, image.data, (err) => {
   } else {
     resolve(`image saved to ${filename}`);
   }
-});</code></pre><p>If our error checks pass then the render command will have returned an object containing two properties:</p>
+});
+</code></pre>
+<p>If our error checks pass then the render command will have returned an object containing two properties:</p>
 <ul>
 <li><code>data</code> - a <code>Uint8Array</code> containing the rendered image.</li>
 <li><code>mime_type</code> a <code>String</code> containing the mime-type of the image.</li>
 </ul>
 <p>The final step is to write the image data to disk and resolve or reject the promise.</p>
 <p>We can now perform a render:</p>
-<pre class="prettyprint source"><code>$ node index.js localhost 8080 scenes/meyemii.mi 800 800 500 out.png</code></pre><p>Given this is a generic command you can substitute any scene name that is in the RealityServer&reg; content root and render at any resolution required.</p>
-<h3>Summary</h3><p>In this tutorial we have learnt about setting rendering options, termination critera and how to perform a one shot render.</p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+<pre class="prettyprint source"><code>$ node index.js localhost 8080 scenes/meyemii.mi 800 800 500 out.png
+</code></pre>
+<p>Given this is a generic command you can substitute any scene name that is in the RealityServer® content root and render at any resolution required.</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt about setting rendering options, termination critera and how to perform a one shot render.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="tutorials/node-rendering/index.js">Source</a></p>
 <hr>
 <table>
@@ -1319,7 +1337,7 @@ fs.writeFile(filename, image.data, (err) => {
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
