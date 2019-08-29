@@ -1152,17 +1152,24 @@
 
 <article class="content-size">
     <p>Connecting in Node.js requires an extra step since there is no built in WebSocket implementation.</p>
-<h3>Dependencies</h3><p>As we need an external WebSocket we have to install it via npm. We also of course need the client API itself and yargs for command line processing.</p>
-<pre class="prettyprint source lang-bash"><code>$ npm install --save @migenius/realityserver-client websocket yargs</code></pre><h3>Import modules and initialize</h3><p>Now we can start the script itself which we'll call <code>index.js</code>. As usual at the top we want to pull in our required modules.</p>
+<h3>Dependencies</h3>
+<p>As we need an external WebSocket we have to install it via npm. We also of course need the client API itself and yargs for command line processing.</p>
+<pre class="prettyprint source lang-bash"><code>$ npm install --save @migenius/realityserver-client websocket yargs
+</code></pre>
+<h3>Import modules and initialize</h3>
+<p>Now we can start the script itself which we'll call <code>index.js</code>. As usual at the top we want to pull in our required modules.</p>
 <pre class="prettyprint source lang-javascript"><code>const
   path = require('path'),
   fs = require('fs'),
   { Command, Command_error, Error: Rs_error, Utils, Service } = require('@migenius/realityserver-client'),
   WebSocket = require('websocket').w3cwebsocket;
 
-const service = new Service();</code></pre><p>After the built in modules we require the RealityServer&reg; client itself. The individual components required are destructured out for convenience. Note this requires renaming the Error class else it will clash with the builtin Error class, the same would need to be done if extracting the RS.Math API.</p>
-<p>We then pull in the <code>websocket</code> module and get the W3C compliant interface. This will be used later to directly create a WebSocket object since <code>window.WebSocket</code> is not available in Node.js. </p>
-<h3>Yargs</h3><p>We use the most excellent <a href="https://www.npmjs.com/package/yargs" title="yargs">yargs</a> module to process the command line arguments of this script.</p>
+const service = new Service();
+</code></pre>
+<p>After the built in modules we require the RealityServer® client itself. The individual components required are destructured out for convenience. Note this requires renaming the Error class else it will clash with the builtin Error class, the same would need to be done if extracting the RS.Math API.</p>
+<p>We then pull in the <code>websocket</code> module and get the W3C compliant interface. This will be used later to directly create a WebSocket object since <code>window.WebSocket</code> is not available in Node.js.</p>
+<h3>Yargs</h3>
+<p>We use the most excellent <a href="https://www.npmjs.com/package/yargs" title="yargs">yargs</a> module to process the command line arguments of this script.</p>
 <pre class="prettyprint source lang-javascript"><code>require('yargs')
   .demandCommand(7)
   .usage('$0 [--ssl] &lt;host> &lt;port> &lt;scene_file> &lt;width> &lt;height> &lt;max_samples> &lt;filename>',
@@ -1203,8 +1210,11 @@ const service = new Service();</code></pre><p>After the built in modules we requ
   .describe('ssl', 'if true connect using wss, otherwise ws')
   .help('h')
   .alias('h', 'help')
-  .argv;</code></pre><p>Describing the above in detail is beyond the scope of this tutorial. Suffice to say it processes the command line shown in the <code>usage</code> line and then calls the <code>load_and_render</code> function.</p>
-<h3>Connecting</h3><p>We implement <code>load_and_render</code> initially as below to simply connect to the given RealityServer&reg;</p>
+  .argv;
+</code></pre>
+<p>Describing the above in detail is beyond the scope of this tutorial. Suffice to say it processes the command line shown in the <code>usage</code> line and then calls the <code>load_and_render</code> function.</p>
+<h3>Connecting</h3>
+<p>We implement <code>load_and_render</code> initially as below to simply connect to the given RealityServer®</p>
 <pre class="prettyprint source lang-javascript"><code>async function load_and_render(argv) {
   const { host, port, ssl, scene_file, width, height, max_samples, filename } = argv;
 
@@ -1222,19 +1232,26 @@ const service = new Service();</code></pre><p>After the built in modules we requ
   console.log('connected.');
 
   service.close();
-}</code></pre><p>First, we destructure out the arguments provided by yargs. From those arguments we generate the URL to connect to. We then connect to the service however instead of supplying the URL we pass an instance of the W3C compatible WebSocket interface. The service will use this object directly for communications rather than creating it's own instance.</p>
+}
+</code></pre>
+<p>First, we destructure out the arguments provided by yargs. From those arguments we generate the URL to connect to. We then connect to the service however instead of supplying the URL we pass an instance of the W3C compatible WebSocket interface. The service will use this object directly for communications rather than creating it's own instance.</p>
 <p>Note that you must not process any messages on the WebSocket before passing it to the service otherwise initialization will fail.</p>
 <p>From this point on the API can be used in exactly the same way as in the browser. The only exception is the RS.Utils.html_image_display function which requires an Image DOM object to display. However even that can be used if you can provide a custom <code>Image</code> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL" title="Object URL">Object URL</a> implementation.</p>
 <p>One thing to note is that in Node.js applications we need to ensure that the service gets closed when we're done. Otherwise the open WebSocket connection will prevent the application from exiting on completion.</p>
-<h3>Overriding default WebSocket constructor</h3><p>An alternative to passing in a WebSocket instance to <a href="RS.Service.html#connect">RS.Service#connect</a> is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the RS.Service#websocket static property to the W3C compatible constructor:</p>
+<h3>Overriding default WebSocket constructor</h3>
+<p>An alternative to passing in a WebSocket instance to <a href="RS.Service.html#connect">RS.Service#connect</a> is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the RS.Service#websocket static property to the W3C compatible constructor:</p>
 <pre class="prettyprint source lang-javascript"><code>const { Command,Command_error,Error: Rs_error,Utils,Service } = require('@migenius/realityserver-client');
 Service.websocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 
-service.connect(url);</code></pre><p>This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.</p>
-<h3>Summary</h3><p>In this tutorial we have learnt about the differences between initialization in the browser and Node.js and how to connect to RealityServer&reg;.</p>
-<h3>Source</h3><p>The complete source for this tutorial can be found below:</p>
+service.connect(url);
+</code></pre>
+<p>This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.</p>
+<h3>Summary</h3>
+<p>In this tutorial we have learnt about the differences between initialization in the browser and Node.js and how to connect to RealityServer®.</p>
+<h3>Source</h3>
+<p>The complete source for this tutorial can be found below:</p>
 <p><a href="tutorials/node-connecting/index.js">Source</a></p>
 <hr>
 <table>
@@ -1260,7 +1277,7 @@ service.connect(url);</code></pre><p>This pattern could be more convenient if sh
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

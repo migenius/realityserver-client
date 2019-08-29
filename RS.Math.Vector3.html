@@ -1150,7 +1150,7 @@
     
 <header>
     <div class="header content-size">
-        <h2><span class="ancestors"><a href="RS.html">RS</a><a href="RS.Math.html">.Math</a>.</span>Vector3
+        <h2><span class="ancestors"><a href="RS.html">RS</a><a href="RS.Math.html">.Math</a>~</span>Vector3
         </h2>
         
             <div class="class-description"><p>Class representing a 3D Vector with components x, y and z.</p></div>
@@ -1170,7 +1170,7 @@
         <h4 class="name" id="Vector3">
             <a class="share-icon" href="#Vector3"><span class="glyphicon glyphicon-link"></span></a>
             <span class="">
-                new RS.Math.Vector3
+                new Vector3
             </span>
             <span class="signature">(<span class="optional">initial</span>)</span>
             
@@ -1299,10 +1299,7 @@
         
 
     
-    <pre class="prettyprint"><code>let v = new RS.Math.Vector3();
-v = new RS.Math.Vector3(1,2,3);
-v = new RS.Math.Vector3([0.2,-0.3,0.5]);
-v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2});</code></pre>
+    <pre class="prettyprint"><code>let v = new RS.Math.Vector3();v = new RS.Math.Vector3(1,2,3);v = new RS.Math.Vector3([0.2,-0.3,0.5]);v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2});</code></pre>
     
 
     
@@ -1635,9 +1632,7 @@ v = new RS.Math.Vector3({x: 0.1, y: 0.53, z: -0.2});</code></pre>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);
-vec.add(new RS.Math.Vector3(7,-3,0));
-// vec is now {x:8,y:-1,z:3}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);vec.add(new RS.Math.Vector3(7,-3,0));// vec is now {x:8,y:-1,z:3}</code></pre>
     
 
     
@@ -2194,9 +2189,7 @@ vector and another</p>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);
-vec.divide(new RS.Math.Vector3(7,-3,1));
-// vec is now {x:0.1428,y:-0.6667,z:3}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);vec.divide(new RS.Math.Vector3(7,-3,1));// vec is now {x:0.1428,y:-0.6667,z:3}</code></pre>
     
 
     
@@ -2534,13 +2527,7 @@ vec.divide(new RS.Math.Vector3(7,-3,1));
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector3(0.01,-0.05,0.03);
-vec.equal(vec);
-// returns true
-vec.equal(new RS.Math.Vector3(0.02,-0.05,0.03));
-// returns false
-vec.equal(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);
-// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector3(0.01,-0.05,0.03);vec.equal(vec);// returns truevec.equal(new RS.Math.Vector3(0.02,-0.05,0.03));// returns falsevec.equal(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);// returns true due to tolerance</code></pre>
     
 
     
@@ -2730,15 +2717,7 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector3(0.01,-0.05,0.03);
-vec.equal_with_tolerance(vec);
-// returns true
-vec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03));
-// returns false
-vec.equal_with_tolerance(new RS.Math.Vector3(0.01001,-0.05,0.03));
-// returns true due to default tolerance
-vec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);
-// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector3(0.01,-0.05,0.03);vec.equal_with_tolerance(vec);// returns truevec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03));// returns falsevec.equal_with_tolerance(new RS.Math.Vector3(0.01001,-0.05,0.03));// returns true due to default tolerancevec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);// returns true due to tolerance</code></pre>
     
 
     
@@ -2895,13 +2874,7 @@ vec.equal_with_tolerance(new RS.Math.Vector3(0.02,-0.05,0.03),0.1);
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);
-vec.is_colinear(new RS.Math.Vector3(2,4,6));
-// returns true
-vec.is_colinear(new RS.Math.Vector3(1,0,0));
-// returns false
-vec.is_colinear(new RS.Math.Vector3(-2,-4,-6));
-// returns false since they point in opposite directions</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);vec.is_colinear(new RS.Math.Vector3(2,4,6));// returns truevec.is_colinear(new RS.Math.Vector3(1,0,0));// returns falsevec.is_colinear(new RS.Math.Vector3(-2,-4,-6));// returns false since they point in opposite directions</code></pre>
     
 
     
@@ -3062,14 +3035,7 @@ vec.is_colinear(new RS.Math.Vector3(-2,-4,-6));
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector3(0.01,-0.05,0.03);
-vec.is_null_vector();
-// returns false
-vec.is_null_vector(0.1);
-// returns true due to tolerance
-vec = new RS.Math.Vector3();
-vec.is_null_vector();
-// returns true</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector3(0.01,-0.05,0.03);vec.is_null_vector();// returns falsevec.is_null_vector(0.1);// returns true due to tolerancevec = new RS.Math.Vector3();vec.is_null_vector();// returns true</code></pre>
     
 
     
@@ -3327,9 +3293,7 @@ vec.is_null_vector();
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);
-vec.multiply(new RS.Math.Vector3(7,-3,1));
-// vec is now {x:7,y:-6,z:3}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);vec.multiply(new RS.Math.Vector3(7,-3,1));// vec is now {x:7,y:-6,z:3}</code></pre>
     
 
     
@@ -4246,9 +4210,7 @@ a new vector is created.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);
-vec.scale(2);
-// vec is now {x:2,y:4,z:6}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);vec.scale(2);// vec is now {x:2,y:4,z:6}</code></pre>
     
 
     
@@ -4393,10 +4355,7 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const v = new RS.Math.Vector3();
-v.set(1,2,3);
-v.set([0.2,-0.3,0.5]);
-v.set({x: 0.1, y: 0.53, z: -0.2});</code></pre>
+    <pre class="prettyprint"><code>const v = new RS.Math.Vector3();v.set(1,2,3);v.set([0.2,-0.3,0.5]);v.set({x: 0.1, y: 0.53, z: -0.2});</code></pre>
     
 
     
@@ -4553,9 +4512,7 @@ v.set({x: 0.1, y: 0.53, z: -0.2});</code></pre>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);
-vec.subtract(new RS.Math.Vector3(7,-3,0));
-// vec is now {x:-6,y:5,z:3}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector3(1,2,3);vec.subtract(new RS.Math.Vector3(7,-3,0));// vec is now {x:-6,y:5,z:3}</code></pre>
     
 
     
@@ -5344,7 +5301,7 @@ a new vector is created.</p></td>
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

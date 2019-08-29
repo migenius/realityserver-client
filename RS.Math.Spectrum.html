@@ -1150,7 +1150,7 @@
     
 <header>
     <div class="header content-size">
-        <h2><span class="ancestors"><a href="RS.html">RS</a><a href="RS.Math.html">.Math</a>.</span>Spectrum
+        <h2><span class="ancestors"><a href="RS.html">RS</a><a href="RS.Math.html">.Math</a>~</span>Spectrum
         </h2>
         
             <div class="class-description"><p>Class representing a 3 component color spectrum.</p></div>
@@ -1170,7 +1170,7 @@
         <h4 class="name" id="Spectrum">
             <a class="share-icon" href="#Spectrum"><span class="glyphicon glyphicon-link"></span></a>
             <span class="">
-                new RS.Math.Spectrum
+                new Spectrum
             </span>
             <span class="signature">(<span class="optional">initial</span>)</span>
             
@@ -1302,11 +1302,7 @@
         
 
     
-    <pre class="prettyprint"><code>let s = new RS.Math.Spectrum();
-s = new RS.Math.Spectrum(1,0.5,0.7);
-s = new RS.Math.Spectrum([0.2,0.3,0.5]);
-s = new RS.Math.Spectrum({r: 0.1, r: 0.53, b: 0.2});
-s = new RS.Math.Spectrum(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
+    <pre class="prettyprint"><code>let s = new RS.Math.Spectrum();s = new RS.Math.Spectrum(1,0.5,0.7);s = new RS.Math.Spectrum([0.2,0.3,0.5]);s = new RS.Math.Spectrum({r: 0.1, r: 0.53, b: 0.2});s = new RS.Math.Spectrum(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
     
 
     
@@ -1534,9 +1530,7 @@ s = new RS.Math.Spectrum(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
         
 
     
-    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(0.2,0.2,0.3);
-spec.add(new RS.Math.Spectrum(0.3,0,0.1));
-// spec.c is now [0.5,0.2,0.4]</code></pre>
+    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(0.2,0.2,0.3);spec.add(new RS.Math.Spectrum(0.3,0,0.1));// spec.c is now [0.5,0.2,0.4]</code></pre>
     
 
     
@@ -1927,13 +1921,7 @@ spec.add(new RS.Math.Spectrum(0.3,0,0.1));
         
 
     
-    <pre class="prettyprint"><code>let spec = new RS.Math.Spectrum(0.01,0.05,0.03);
-spec.equal(spec);
-// returns true
-spec.equal(new RS.Math.Spectrum(0.02,0.05,0.03));
-// returns false
-spec.equal(new RS.Math.Spectrum(0.02,0.05,0.03),0.1);
-// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let spec = new RS.Math.Spectrum(0.01,0.05,0.03);spec.equal(spec);// returns truespec.equal(new RS.Math.Spectrum(0.02,0.05,0.03));// returns falsespec.equal(new RS.Math.Spectrum(0.02,0.05,0.03),0.1);// returns true due to tolerance</code></pre>
     
 
     
@@ -2123,15 +2111,7 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let spec = new RS.Math.Spectrum(0.01,0.05,0.03);
-spec.equal_with_tolerance(spec);
-// returns true
-spec.equal_with_tolerance(new RS.Math.Spectrum(0.02,0.05,0.03));
-// returns false
-spec.equal_with_tolerance(new RS.Math.Spectrum(0.01001,0.05,0.03));
-// returns true due to default tolerance
-spec.equal_with_tolerance(new RS.Math.Spectrum(0.02,0.05,0.03),0.1);
-// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let spec = new RS.Math.Spectrum(0.01,0.05,0.03);spec.equal_with_tolerance(spec);// returns truespec.equal_with_tolerance(new RS.Math.Spectrum(0.02,0.05,0.03));// returns falsespec.equal_with_tolerance(new RS.Math.Spectrum(0.01001,0.05,0.03));// returns true due to default tolerancespec.equal_with_tolerance(new RS.Math.Spectrum(0.02,0.05,0.03),0.1);// returns true due to tolerance</code></pre>
     
 
     
@@ -2787,9 +2767,7 @@ spec.equal_with_tolerance(new RS.Math.Spectrum(0.02,0.05,0.03),0.1);
         
 
     
-    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(1,0.5,0.6);
-spec.scale(0.5);
-// spec.c is now [0.5,0.25,0.3]</code></pre>
+    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(1,0.5,0.6);spec.scale(0.5);// spec.c is now [0.5,0.25,0.3]</code></pre>
     
 
     
@@ -2936,11 +2914,7 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const c = new RS.Math.Color();
-c.set(1,0.5,0.7);
-c.set([0.2,0.3,0.5]);
-c.set({r: 0.1, r: 0.53, b: 0.2});
-c.set(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
+    <pre class="prettyprint"><code>const c = new RS.Math.Color();c.set(1,0.5,0.7);c.set([0.2,0.3,0.5]);c.set({r: 0.1, r: 0.53, b: 0.2});c.set(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
     
 
     
@@ -3094,9 +3068,7 @@ c.set(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
         
 
     
-    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(0.2,0.2,0.3);
-spec.subtract(new RS.Math.Spectrum(0.1,0,0.1));
-// spec.c is now [0.1,0.2,0.2]</code></pre>
+    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(0.2,0.2,0.3);spec.subtract(new RS.Math.Spectrum(0.1,0,0.1));// spec.c is now [0.1,0.2,0.2]</code></pre>
     
 
     
@@ -3250,9 +3222,7 @@ spec.subtract(new RS.Math.Spectrum(0.1,0,0.1));
         
 
     
-    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(0.8,0.8,0.8);
-spec.tint(new RS.Math.Spectrum(1,0.5,0.6));
-// spec.c is now [0.8,0.4,0.48]</code></pre>
+    <pre class="prettyprint"><code>const spec = new RS.Math.Spectrum(0.8,0.8,0.8);spec.tint(new RS.Math.Spectrum(1,0.5,0.6));// spec.c is now [0.8,0.4,0.48]</code></pre>
     
 
     
@@ -3379,7 +3349,7 @@ spec.tint(new RS.Math.Spectrum(1,0.5,0.6));
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

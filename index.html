@@ -1163,25 +1163,41 @@
 
 
     <section>
-        <article class="readme content-size"><h1>RealityServer&reg; Client API</h1><p>The RealityServer Client API is a lightweight, modern JavaScript client library to connect to and render using <a target="_blank" href="https://migenius.com" title="migenius">migenius's</a> <a target="_blank" href="https://www.migenius.com/products/realityserver" title="RealityServer">RealityServer</a>®.</p>
-<h2>Supported Environments</h2><p>The API supports any JavaScript ES6 environment that provides a <a target="_blank" href="https://www.w3.org/TR/websockets/" title="W3C WebSocket API">W3C WebSocket API</a> implementation. This includes all evergreen desktop browsers, most mobile browsers and Node.js &gt;= 6.5 (with an appropriate WebSocket module like <a target="_blank" href="https://www.npmjs.com/package/websocket" title="websocket">websocket</a>). The most notable exclusion is IE 11 which supports WebSockets but not ES6. If you need support for IE 11 it is recommended to transpile the API down to ES5.</p>
-<p>RealityServer&reg; 5.2 2272.266 or later is required.</p>
-<h2>Installation</h2><p>For native browser usage download via CDN:</p>
-<pre class="prettyprint source lang-html"><code>&lt;script source='https://unpkg.com/@migenius/realityserver-client@1.0.0'>&lt;/script></code></pre><p>or unminified</p>
-<pre class="prettyprint source lang-html"><code>&lt;script source='https://unpkg.com/@migenius/realityserver-client/1.0.0/lib/umd/realityserver.js'>&lt;/script> </code></pre><p>Although for mission critical deployments it is recommended you serve the client API yourself. </p>
+        <article class="readme content-size"><h1>RealityServer® Client API</h1>
+<p>The RealityServer Client API is a lightweight, modern JavaScript client library to connect to and render using <a target="_blank" href="https://migenius.com" title="migenius">migenius's</a> <a target="_blank" href="https://www.migenius.com/products/realityserver" title="RealityServer">RealityServer</a>®.</p>
+<h2>Supported Environments</h2>
+<p>The API supports any JavaScript ES6 environment that provides a <a target="_blank" href="https://www.w3.org/TR/websockets/" title="W3C WebSocket API">W3C WebSocket API</a> implementation. This includes all evergreen desktop browsers, most mobile browsers and Node.js &gt;= 6.5 (with an appropriate WebSocket module like <a target="_blank" href="https://www.npmjs.com/package/websocket" title="websocket">websocket</a>). The most notable exclusion is IE 11 which supports WebSockets but not ES6. If you need support for IE 11 it is recommended to transpile the API down to ES5.</p>
+<p>RealityServer® 5.2 2272.266 or later is required.</p>
+<h2>Installation</h2>
+<p>For native browser usage download via CDN:</p>
+<pre class="prettyprint source lang-html"><code>&lt;script source='https://unpkg.com/@migenius/realityserver-client@1.0.0'>&lt;/script>
+</code></pre>
+<p>or unminified</p>
+<pre class="prettyprint source lang-html"><code>&lt;script source='https://unpkg.com/@migenius/realityserver-client/1.0.0/lib/umd/realityserver.js'>&lt;/script> 
+</code></pre>
+<p>Although for mission critical deployments it is recommended you serve the client API yourself.</p>
 <p>For Node.js and bundlers simply install the modue:</p>
-<pre class="prettyprint source lang-shell"><code>$ npm install @migenius/realityserver-client</code></pre><h2>Next steps</h2><p>See the <a href="tutorial-01-getting-started.html">Getting Started</a> tutorial to get connected and start rendering. API documentations begins with the <a href="RS.Service.html">RS.Service</a> class which provides the main entry point into the API. The <a href="tutorial-02-concepts.html">Concepts</a> tutorial covers some basic RealitServer&reg; concepts and <a href="tutorial-03-migrating.html">Migration</a> provides information on migrating legacy code to the new API.</p>
-<p>Note that this documentation should be read in conjuction with the <a target="_blank" href="https://rsdoc.migenius.com" title="RealityServer&reg; documentation">RealityServer&reg; documentation</a>.</p>
-<h2>GitHub</h2><p>The RealityServer&reg; Client repository can be found on <a target="_blank" href="https://github.com/migenius/realityserver-client" title="RealityServer Client">GitHub</a>.</p>
-<h2>Sample applications</h2><ul>
-<li><p><a target="_blank" href="http://github.com/migenius/realityserver-client-tutorial" title="Simple demo">A simple rendering demo with camera dolly and material changing</a></p>
+<pre class="prettyprint source lang-shell"><code>$ npm install @migenius/realityserver-client
+</code></pre>
+<h2>Next steps</h2>
+<p>See the <a href="tutorial-01-getting-started.html">Getting Started</a> tutorial to get connected and start rendering. API documentations begins with the <a href="RS.Service.html">RS.Service</a> class which provides the main entry point into the API. The <a href="tutorial-02-concepts.html">Concepts</a> tutorial covers some basic RealitServer® concepts and <a href="tutorial-03-migrating.html">Migration</a> provides information on migrating legacy code to the new API.</p>
+<p>Note that this documentation should be read in conjuction with the <a target="_blank" href="https://rsdoc.migenius.com" title="RealityServer® documentation">RealityServer® documentation</a>.</p>
+<h2>GitHub</h2>
+<p>The RealityServer® Client repository can be found on <a target="_blank" href="https://github.com/migenius/realityserver-client" title="RealityServer Client">GitHub</a>.</p>
+<h2>Sample applications</h2>
+<ul>
+<li>
+<p><a target="_blank" href="http://github.com/migenius/realityserver-client-tutorial" title="Simple demo">A simple rendering demo with camera dolly and material changing</a></p>
 </li>
-<li><p><a target="_blank" href="http://github.com/migenius/render-loop-react-mobx" title="React/MobX demo">React/mobx implementation of the render loop demo</a></p>
+<li>
+<p><a target="_blank" href="http://github.com/migenius/render-loop-react-mobx" title="React/MobX demo">React/mobx implementation of the render loop demo</a></p>
 </li>
-<li><p><a target="_blank" href="https://github.com/migenius/realityserver-client-node-tutorial" title="Node render script">Simple Node.js render script</a></p>
+<li>
+<p><a target="_blank" href="https://github.com/migenius/realityserver-client-node-tutorial" title="Node render script">Simple Node.js render script</a></p>
 </li>
 </ul>
-<h2>Extras</h2><p>A <a target="_blank" href="https://github.com/migenius/realityserver-extras" title="RealityServer Extras">RealityServer Extras</a> add-on package is available to assist in manipulating scene elements.</p></article>
+<h2>Extras</h2>
+<p>A <a target="_blank" href="https://github.com/migenius/realityserver-extras" title="RealityServer Extras">RealityServer Extras</a> add-on package is available to assist in manipulating scene elements.</p></article>
     </section>
 
 
@@ -1193,7 +1209,7 @@
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri May 17 2019 09:43:48 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:38 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
