@@ -123,7 +123,18 @@ async function load_and_render(argv) {
   console.log(`connecting to: ${url}`);
 
   try {
-    await service.connect(new WebSocket(url));
+    // The default configuration for the WebSocket module has settings unsuitable for use
+    // with RealityServer. The RealityServer WebSocket server does not handle fragmented
+    // messages well so we need to disable outgoing fragmentation. Additionally, it limits
+    // incoming messages to 1MiB by default which can easily be exceeded when rendering
+    // large images. Here we up the limit to 10MiB which should cover most situations.
+    await service.connect(new WebSocket(url, undefined, undefined, undefined, undefined,
+      {
+        fragmentOutgoingMessages: false,
+        maxReceivedFrameSize: 10485760,
+        maxReceivedMessageSize: 10485760
+      }
+    ));
   } catch (err) {
     console.error(`Web Socket connection failed: ${err.toString()}`);
     return;
