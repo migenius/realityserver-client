@@ -79,7 +79,18 @@ async function load_and_render(argv) {
   console.log(`connecting to: ${url}`);
 
   try {
-    await service.connect(new WebSocket(url));
+    // The default configuration for the WebSocket module has settings unsuitable for use
+    // with RealityServer. The RealityServer WebSocket server does not handle fragmented
+    // messages well so we need to disable outgoing fragmentation. Additionally, it limits
+    // incoming messages to 1MiB by default which can easily be exceeded when rendering
+    // large images. Here we up the limit to 10MiB which should cover most situations.
+    await service.connect(new WebSocket(url, undefined, undefined, undefined, undefined,
+      {
+        fragmentOutgoingMessages: false,
+        maxReceivedFrameSize: 10485760,
+        maxReceivedMessageSize: 10485760
+      }
+    ));
   } catch (err) {
     console.error(`Web Socket connection failed: ${err.toString()}`);
     return;
@@ -98,6 +109,11 @@ From this point on the API can be used in exactly the same way as in the browser
 
 One thing to note is that in Node.js applications we need to ensure that the service gets closed when we're done. Otherwise the open WebSocket connection will prevent the application from exiting on completion.
 
+### WebSocket best practices.
+You'll note in the code above that we are providing extra arguments to the `WebSocket` constructor. This is because the NPM websocket module being used imposes some limitations on message size, see the [WebSocket Client documentation](https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketClient.md "WebSocket Client documentation"). The default values cause any incoming messages larger than 1MiB to be discarded. In most applications this wouldn't be a problem however rendered images can easily become larger than this, especially when using lossless compression formats (EG: a 512x512 Rgba uncompressed image already hits this limit). So we need to increase both the maximum message and maximum fragment size to compensate. Here we are using 10MiB however you should fine tune the value to suit your application.
+
+Additionally, the RealityServer&reg; WebSocket server does not support fragmented messages so we need to disable outgoing message fragmentation otherwise larger command queues may silently disappear from the stream.
+
 ### Overriding default WebSocket constructor
 An alternative to passing in a WebSocket instance to {@link RS.Service#connect} is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the {@link RS.Service#websocket} static property to the W3C compatible constructor:
 
@@ -107,10 +123,17 @@ Service.websocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 
-service.connect(url);
+service.connect(url,[ undefined, undefined, undefined, undefined,
+  {
+    fragmentOutgoingMessages: false,
+    maxReceivedFrameSize: 10485760,
+    maxReceivedMessageSize: 10485760
+  }
+]);
 ```
 
 This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.
+Note that in this case the additional arguments for the constructor need to be passed in an array as the second argument to the {@link RS.Service#connect} call.
 
 ### Summary
 In this tutorial we have learnt about the differences between initialization in the browser and Node.js and how to connect to RealityServer&reg;.
