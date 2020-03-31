@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
+ * Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 import Web_socket_message_reader from './internal/Web_socket_message_reader';
 import Web_socket_message_writer from './internal/Web_socket_message_writer';
