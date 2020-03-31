@@ -488,7 +488,7 @@ class Service extends EventEmitter {
                                             'does not appear to be a RealityServer connection.'));
                     } else {
                         scope.web_socket_littleendian = data.getUint8(8) === 1 ? true : false;
-                        const protocol_version = data.getUint32(12, scope.web_socket_littleendian);
+                        let protocol_version = data.getUint32(12, scope.web_socket_littleendian);
                         if (protocol_version < 3) {
                             // unsupported, too old
                             scope.web_socket.close(1002, 'RealityServer too old.');
