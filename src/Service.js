@@ -456,6 +456,18 @@ class Service extends EventEmitter {
                             if (scope.debug_commands) {
                                 scope.debug_commands = true;
                             }
+                            // add a close event handler that will send error responses
+                            // for any commands waiting for a response.
+                            scope.on('close',() => {
+                                Object.keys(scope.response_handlers).forEach(id => {
+                                    process_response({
+                                        id,
+                                        error: {
+                                            message: 'WebSocket connection closed.'
+                                        }
+                                    })
+                                });
+                            });
                             resolve();
                         }
                     }
@@ -786,6 +798,14 @@ class Service extends EventEmitter {
                     commands: execute_args.commands,
                     render_loop_name: this.state_data.render_loop_name
                 });
+            }
+            if (response.error) {
+                Object.values(this.commands).forEach(handler => {
+                    if (handler.response_promise) {
+                        handler.response_promise.resolve(new Command_error(response.error));
+                    }
+                });
+                return;
             }
             // this is the command queue
             // state data commands will have results as well so we need to compensate for them
