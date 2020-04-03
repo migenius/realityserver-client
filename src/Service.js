@@ -458,14 +458,14 @@ class Service extends EventEmitter {
                             }
                             // add a close event handler that will send error responses
                             // for any commands waiting for a response.
-                            scope.on('close',() => {
+                            scope.on('close', () => {
                                 Object.keys(scope.response_handlers).forEach(id => {
                                     process_response({
                                         id,
                                         error: {
                                             message: 'WebSocket connection closed.'
                                         }
-                                    })
+                                    });
                                 });
                             });
                             resolve();
