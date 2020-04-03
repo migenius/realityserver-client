@@ -252,3 +252,19 @@ The RealityServer Client API documentation can be found [here](https://migenius.
 
 ## Extras
 A [RealityServer Extras](https://github.com/migenius/realityserver-extras "RealityServer Extras") add-on package is available to assist in manipulating scene elements.
+
+## Release Notes
+
+### 1.0.2
+
+Fix forward compatibility bug when negotiating protocol version with RealityServer.
+
+### 1.0.1
+
+Documentation and demo link fixes.
+
+Dependency updates.
+
+### 1.0.0
+
+Initial Release.
