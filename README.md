@@ -255,6 +255,14 @@ A [RealityServer Extras](https://github.com/migenius/realityserver-extras "Reali
 
 ## Release Notes
 
+### 1.0.3
+
+Ensure that any protocol commands that are expecting responses are called with an error
+if the WebSocket connection closes. This ensures that any pending command execution
+promises get fulfilled.
+
+Dependency updates.
+
 ### 1.0.2
 
 Fix forward compatibility bug when negotiating protocol version with RealityServer.
