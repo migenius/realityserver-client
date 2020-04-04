@@ -281,12 +281,53 @@
         }
         return display_image.bind(bind_to);
     }
+    function html_video_display(video, media_source, url_creator) {
+        const bind_to = {
+            video,
+            buffer: [],
+            data_size: 0
+        };
+        media_source = media_source || MediaSource;
+        url_creator = url_creator ||  (window ? (window.URL || window.webkitURL) : undefined);
+        if (!media_source || !url_creator) {
+            throw 'No nedia source or URL creator available.';
+        }
+        bind_to.source = new media_source();
+        bind_to.source_buffer = undefined;
+        video.src = url_creator.createObjectURL(bind_to.source);
+        bind_to.source.addEventListener('sourceopen', function() {
+            bind_to.source_buffer = bind_to.source.addSourceBuffer('video/mp4; codecs="avc1.64001E"');
+        });
+        bind_to.source.addEventListener('webkitsourceopen', function() {
+            bind_to.source_buffer = bind_to.source.addSourceBuffer('video/mp4;codecs="avc1.64001E"');
+        });
+        function display_video(data) {
+            if (data.image && data.mime_type) {
+                this.buffer.push(data.image);
+                this.data_size += data.image.length;
+                if (!this.source_buffer.updating) {
+                    const accum_buffer = new Uint8Array(this.data_size);
+                    let i=0;
+                    while (this.buffer.length > 0) {
+                        const b = this.buffer.shift();
+                        accum_buffer.set(b, i);
+                        i += b.length;
+                    }
+                    this.data_size = 0;
+                    this.source_buffer.appendBuffer(accum_buffer);
+                }
+            }
+        }
+        video.play();
+        return display_video.bind(bind_to);
+    }
 
     var Utils = /*#__PURE__*/Object.freeze({
         EventEmitter: eventemitter3,
         create_random_string: create_random_string,
         extract_url_details: extract_url_details,
-        html_image_display: html_image_display
+        html_image_display: html_image_display,
+        html_video_display: html_video_display
     });
 
     const ALMOST_ZERO = 10e-5;
@@ -2766,7 +2807,7 @@
                                                 'does not appear to be a RealityServer connection.'));
                         } else {
                             const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                            if (protocol_version < 2 || protocol_version > 3) {
+                            if (protocol_version < 2 || protocol_version > 4) {
                                 scope.web_socket.close(1002, protocol_version < 2 ?
                                     'RealityServer WebSocket protocol too old.' :
                                     'RealityServer WebSocket protocol too new.');
@@ -2825,8 +2866,8 @@
                                                 'client lirary requires at least version 5.2 2272.266.'));
                                 return;
                             }
-                            if (protocol_version > 3) {
-                                protocol_version = 3;
+                            if (protocol_version > 4) {
+                                protocol_version = 4;
                             }
                             scope.protocol_state = 'handshaking';
                             let buffer = new ArrayBuffer(40);
@@ -3057,6 +3098,26 @@
                     rate: max_rate
                 };
                 this.send_ws_command('set_transfer_rate', args, response => {
+                    if (response.error) {
+                        reject(new RealityServerError$1(response.error.message));
+                    } else {
+                        resolve(response.result);
+                    }
+                }
+                );
+            });
+        }
+        associate_scope(scope_name) {
+            return new Promise((resolve, reject) => {
+                if (!this.web_socket) {
+                    reject(new RealityServerError$1('Web socket not connected.'));
+                    return;
+                }
+                if (this.protocol_state !== 'started') {
+                    reject(new RealityServerError$1('Web socket not started.'));
+                    return;
+                }
+                this.send_ws_command('associate_scope', scope_name, response => {
                     if (response.error) {
                         reject(new RealityServerError$1(response.error.message));
                     } else {
