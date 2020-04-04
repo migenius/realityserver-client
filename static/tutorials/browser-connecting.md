@@ -1,4 +1,4 @@
-The first step any application needs to do is load the library and connect to a RealityServer&reg; instance. The library module can be loaded directly from [unpkg.com](https://unpkg.com "unpkc.com") at `https://unpkg.com/@migenius/realityserver-client@1.0.0` or you can distribute it yourself. For these tutorials we are distributing it locally.
+The first step any application needs to do is load the library and connect to a RealityServer&reg; instance. The library module can be loaded directly from [unpkg.com](https://unpkg.com "unpkc.com") at `https://unpkg.com/@migenius/realityserver-client@1.0.3` or you can distribute it yourself. For these tutorials we are distributing it locally.
 
 ### Loading
 The first step is some simple boiler plate HTML to load the library and display a helpful heading.
