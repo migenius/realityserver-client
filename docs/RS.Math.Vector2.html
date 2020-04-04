@@ -1007,6 +1007,8 @@
             
             <span class="subtitle">Methods</span>
             
+                <li class="parent  " data-name="RS.Service#associate_scope"><a href="RS.Service.html#associate_scope">associate_scope</a></li>
+            
                 <li class="parent  " data-name="RS.Service#close"><a href="RS.Service.html#close">close</a></li>
             
                 <li class="parent  " data-name="RS.Service#connect"><a href="RS.Service.html#connect">connect</a></li>
@@ -1301,7 +1303,10 @@
         
 
     
-    <pre class="prettyprint"><code>let v = new RS.Math.Vector2();v = new RS.Math.Vector2(1,2);v = new RS.Math.Vector2([0.2,-0.3]);v = new RS.Math.Vector2({x: 0.1, y: 0.53});</code></pre>
+    <pre class="prettyprint"><code>let v = new RS.Math.Vector2();
+v = new RS.Math.Vector2(1,2);
+v = new RS.Math.Vector2([0.2,-0.3]);
+v = new RS.Math.Vector2({x: 0.1, y: 0.53});</code></pre>
     
 
     
@@ -1586,7 +1591,9 @@
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);vec.add(new RS.Math.Vector2(7,-3));// vec is now {x:8,y:-1}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);
+vec.add(new RS.Math.Vector2(7,-3));
+// vec is now {x:8,y:-1}</code></pre>
     
 
     
@@ -2000,7 +2007,9 @@ vector and another</p>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);vec.divide(new RS.Math.Vector2(7,-3));// vec is now {x:0.1428,y:-0.6667}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);
+vec.divide(new RS.Math.Vector2(7,-3));
+// vec is now {x:0.1428,y:-0.6667}</code></pre>
     
 
     
@@ -2341,7 +2350,13 @@ vector and another</p>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector2(0.01,-0.05);vec.equal(vec);// returns truevec.equal(new RS.Math.Vector2(0.02,-0.05));// returns falsevec.equal(new RS.Math.Vector2(0.02,-0.05),0.1);// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector2(0.01,-0.05);
+vec.equal(vec);
+// returns true
+vec.equal(new RS.Math.Vector2(0.02,-0.05));
+// returns false
+vec.equal(new RS.Math.Vector2(0.02,-0.05),0.1);
+// returns true due to tolerance</code></pre>
     
 
     
@@ -2531,7 +2546,15 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector2(0.01,-0.05);vec.equal_with_tolerance(vec);// returns truevec.equal_with_tolerance(new RS.Math.Vector2(0.02,-0.05));// returns falsevec.equal_with_tolerance(new RS.Math.Vector2(0.01001,-0.05));// returns true due to default tolerancevec.equal_with_tolerance(new RS.Math.Vector2(0.02,-0.05),0.1);// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector2(0.01,-0.05);
+vec.equal_with_tolerance(vec);
+// returns true
+vec.equal_with_tolerance(new RS.Math.Vector2(0.02,-0.05));
+// returns false
+vec.equal_with_tolerance(new RS.Math.Vector2(0.01001,-0.05));
+// returns true due to default tolerance
+vec.equal_with_tolerance(new RS.Math.Vector2(0.02,-0.05),0.1);
+// returns true due to tolerance</code></pre>
     
 
     
@@ -2691,7 +2714,13 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);vec.is_colinear(new RS.Math.Vector2(2,4));// returns truevec.is_colinear(new RS.Math.Vector2(1,0));// returns falsevec.is_colinear(new RS.Math.Vector2(-2,-4));// returns false since they point in opposite directions</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);
+vec.is_colinear(new RS.Math.Vector2(2,4));
+// returns true
+vec.is_colinear(new RS.Math.Vector2(1,0));
+// returns false
+vec.is_colinear(new RS.Math.Vector2(-2,-4));
+// returns false since they point in opposite directions</code></pre>
     
 
     
@@ -2852,7 +2881,14 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector2(0.01,-0.05);vec.is_null_vector();// returns falsevec.is_null_vector(0.1);// returns true due to tolerancevec = new RS.Math.Vector2();vec.is_null_vector();// returns true</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector2(0.01,-0.05);
+vec.is_null_vector();
+// returns false
+vec.is_null_vector(0.1);
+// returns true due to tolerance
+vec = new RS.Math.Vector2();
+vec.is_null_vector();
+// returns true</code></pre>
     
 
     
@@ -3113,7 +3149,9 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);vec.multiply(new RS.Math.Vector2(7,-3);// vec is now {x:7,y:-6}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);
+vec.multiply(new RS.Math.Vector2(7,-3);
+// vec is now {x:7,y:-6}</code></pre>
     
 
     
@@ -3368,7 +3406,9 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);vec.scale(2);// vec is now {x:2,y:4}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);
+vec.scale(2);
+// vec is now {x:2,y:4}</code></pre>
     
 
     
@@ -3513,7 +3553,10 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const v = new RS.Math.Vector2();v.set(1,2);v.set([0.2,-0.3]);v.set({x: 0.1, y: 0.53});</code></pre>
+    <pre class="prettyprint"><code>const v = new RS.Math.Vector2();
+v.set(1,2);
+v.set([0.2,-0.3]);
+v.set({x: 0.1, y: 0.53});</code></pre>
     
 
     
@@ -3673,7 +3716,9 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);vec.subtract(new RS.Math.Vector2(7,-3));// vec is now {x:-6,y:5}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector2(1,2);
+vec.subtract(new RS.Math.Vector2(7,-3));
+// vec is now {x:-6,y:5}</code></pre>
     
 
     
@@ -3800,7 +3845,7 @@ of numbers.</p></td>
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Wed Sep 18 2019 09:58:25 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Sat Apr 04 2020 12:16:07 GMT+1100 (Australian Eastern Daylight Time)
             </div>
         </footer>
     </div>
