@@ -1,5 +1,5 @@
 /******************************************************************************
-* Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
+* Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
 ******************************************************************************/
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -2780,6 +2780,16 @@
                                 if (scope.debug_commands) {
                                     scope.debug_commands = true;
                                 }
+                                scope.on('close', () => {
+                                    Object.keys(scope.response_handlers).forEach(id => {
+                                        process_response({
+                                            id,
+                                            error: {
+                                                message: 'WebSocket connection closed.'
+                                            }
+                                        });
+                                    });
+                                });
                                 resolve();
                             }
                         }
@@ -2808,7 +2818,7 @@
                                                 'does not appear to be a RealityServer connection.'));
                         } else {
                             scope.web_socket_littleendian = data.getUint8(8) === 1 ? true : false;
-                            const protocol_version = data.getUint32(12, scope.web_socket_littleendian);
+                            let protocol_version = data.getUint32(12, scope.web_socket_littleendian);
                             if (protocol_version < 3) {
                                 scope.web_socket.close(1002, 'RealityServer too old.');
                                 reject(new RealityServerError$1('RealityServer version is too old, ' +
@@ -2975,6 +2985,14 @@
                         commands: execute_args.commands,
                         render_loop_name: this.state_data.render_loop_name
                     });
+                }
+                if (response.error) {
+                    Object.values(this.commands).forEach(handler => {
+                        if (handler.response_promise) {
+                            handler.response_promise.resolve(new Command_error(response.error));
+                        }
+                    });
+                    return;
                 }
                 let response_offset = this.state_data.state_commands ? this.state_data.state_commands.length : 0;
                 for (let i=response_offset;i<response.result.length;++i) {

@@ -1299,7 +1299,10 @@
         
 
     
-    <pre class="prettyprint"><code>let v = new RS.Math.Vector4();v = new RS.Math.Vector4(1,2,3);v = new RS.Math.Vector4([0.2,-0.3,0.5,0.4]);v = new RS.Math.Vector4({x: 0.1, y: 0.53, z: -0.2});</code></pre>
+    <pre class="prettyprint"><code>let v = new RS.Math.Vector4();
+v = new RS.Math.Vector4(1,2,3);
+v = new RS.Math.Vector4([0.2,-0.3,0.5,0.4]);
+v = new RS.Math.Vector4({x: 0.1, y: 0.53, z: -0.2});</code></pre>
     
 
     
@@ -1683,7 +1686,9 @@
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);vec.add(new RS.Math.Vector4(7,-3,0));// vec is now {x:8,y:-1,z:3,w:1}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);
+vec.add(new RS.Math.Vector4(7,-3,0));
+// vec is now {x:8,y:-1,z:3,w:1}</code></pre>
     
 
     
@@ -2240,7 +2245,9 @@ vector and another</p>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);vec.divide(new RS.Math.Vector4(7,-3,1));// vec is now {x:0.1428,y:-0.6667,z:3,w:1}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);
+vec.divide(new RS.Math.Vector4(7,-3,1));
+// vec is now {x:0.1428,y:-0.6667,z:3,w:1}</code></pre>
     
 
     
@@ -2578,7 +2585,13 @@ vector and another</p>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector4(0.01,-0.05,0.03);vec.equal(vec);// returns truevec.equal(new RS.Math.Vector4(0.02,-0.05,0.03));// returns falsevec.equal(new RS.Math.Vector4(0.02,-0.05,0.03),0.1);// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector4(0.01,-0.05,0.03);
+vec.equal(vec);
+// returns true
+vec.equal(new RS.Math.Vector4(0.02,-0.05,0.03));
+// returns false
+vec.equal(new RS.Math.Vector4(0.02,-0.05,0.03),0.1);
+// returns true due to tolerance</code></pre>
     
 
     
@@ -2768,7 +2781,15 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector4(0.01,-0.05,0.03);vec.equal_with_tolerance(vec);// returns truevec.equal_with_tolerance(new RS.Math.Vector4(0.02,-0.05,0.03));// returns falsevec.equal_with_tolerance(new RS.Math.Vector4(0.01001,-0.05,0.03));// returns true due to default tolerancevec.equal_with_tolerance(new RS.Math.Vector4(0.02,-0.05,0.03),0.1);// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector4(0.01,-0.05,0.03);
+vec.equal_with_tolerance(vec);
+// returns true
+vec.equal_with_tolerance(new RS.Math.Vector4(0.02,-0.05,0.03));
+// returns false
+vec.equal_with_tolerance(new RS.Math.Vector4(0.01001,-0.05,0.03));
+// returns true due to default tolerance
+vec.equal_with_tolerance(new RS.Math.Vector4(0.02,-0.05,0.03),0.1);
+// returns true due to tolerance</code></pre>
     
 
     
@@ -2925,7 +2946,13 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);vec.is_colinear(new RS.Math.Vector4(2,4,6));// returns truevec.is_colinear(new RS.Math.Vector4(1,0,0));// returns falsevec.is_colinear(new RS.Math.Vector4(-2,-4,-6));// returns false since they point in opposite directions</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);
+vec.is_colinear(new RS.Math.Vector4(2,4,6));
+// returns true
+vec.is_colinear(new RS.Math.Vector4(1,0,0));
+// returns false
+vec.is_colinear(new RS.Math.Vector4(-2,-4,-6));
+// returns false since they point in opposite directions</code></pre>
     
 
     
@@ -3086,7 +3113,14 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let vec = new RS.Math.Vector4(0.01,-0.05,0.03);vec.is_null_vector();// returns falsevec.is_null_vector(0.1);// returns true due to tolerancevec = new RS.Math.Vector4();vec.is_null_vector();// returns true</code></pre>
+    <pre class="prettyprint"><code>let vec = new RS.Math.Vector4(0.01,-0.05,0.03);
+vec.is_null_vector();
+// returns false
+vec.is_null_vector(0.1);
+// returns true due to tolerance
+vec = new RS.Math.Vector4();
+vec.is_null_vector();
+// returns true</code></pre>
     
 
     
@@ -3344,7 +3378,9 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);vec.multiply(new RS.Math.Vector4(7,-3,1));// vec is now {x:7,y:-6,z:3,w:1}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);
+vec.multiply(new RS.Math.Vector4(7,-3,1));
+// vec is now {x:7,y:-6,z:3,w:1}</code></pre>
     
 
     
@@ -4261,7 +4297,9 @@ a new vector is created.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);vec.scale(2);// vec is now {x:2,y:4,z:6,w:1}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);
+vec.scale(2);
+// vec is now {x:2,y:4,z:6,w:1}</code></pre>
     
 
     
@@ -4407,7 +4445,10 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const v = new RS.Math.Vector4();v.set(1,2,3);v.set([0.2,-0.3,0.5]);v.set({x: 0.1, y: 0.53, z: -0.2});</code></pre>
+    <pre class="prettyprint"><code>const v = new RS.Math.Vector4();
+v.set(1,2,3);
+v.set([0.2,-0.3,0.5]);
+v.set({x: 0.1, y: 0.53, z: -0.2});</code></pre>
     
 
     
@@ -4564,7 +4605,9 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);vec.subtract(new RS.Math.Vector4(7,-3,0));// vec is now {x:-6,y:5,z:3,w:1}</code></pre>
+    <pre class="prettyprint"><code>const vec = new RS.Math.Vector4(1,2,3);
+vec.subtract(new RS.Math.Vector4(7,-3,0));
+// vec is now {x:-6,y:5,z:3,w:1}</code></pre>
     
 
     
@@ -5353,7 +5396,7 @@ a new vector is created.</p></td>
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 29 2019 11:47:39 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Sat Apr 04 2020 12:17:31 GMT+1100 (Australian Eastern Daylight Time)
             </div>
         </footer>
     </div>
