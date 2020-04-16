@@ -953,6 +953,12 @@ class Service extends EventEmitter {
                 reject(new RS_error('Web socket not started.'));
                 return;
             }
+            if (this.protocol_version < 4) {
+                reject(new RS_error('Connected RealityServer does not support associating scopes ' +
+                                    'with Service connections. Update to RealityServer 6 to use ' +
+                                    'this feature.'));
+                return;
+            }
 
             this.send_ws_command('associate_scope', scope_name, response => {
                 if (response.error) {
