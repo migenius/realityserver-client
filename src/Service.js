@@ -438,7 +438,7 @@ class Service extends EventEmitter {
                     } else {
                         // check that the protcol version is acceptable
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                        if (protocol_version < 2 || protocol_version > 3) {
+                        if (protocol_version < 2 || protocol_version > 4) {
                             // unsupported protocol, can't go on
                             scope.web_socket.close(1002, protocol_version < 2 ?
                                 'RealityServer WebSocket protocol too old.' :
@@ -508,9 +508,9 @@ class Service extends EventEmitter {
                                             'client lirary requires at least version 5.2 2272.266.'));
                             return;
                         }
-                        if (protocol_version > 3) {
+                        if (protocol_version > 4) {
                             // unsupported protocol, let's ask for what we know
-                            protocol_version = 3;
+                            protocol_version = 4;
                         }
                         // get server time
                         scope.protocol_state = 'handshaking';
@@ -927,6 +927,40 @@ class Service extends EventEmitter {
             };
 
             this.send_ws_command('set_transfer_rate', args, response => {
+                if (response.error) {
+                    reject(new RS_error(response.error.message));
+                } else {
+                    resolve(response.result);
+                }
+            }
+            );
+        });
+    }
+
+    /**
+     * Associates the given scope with this service connection. When the connection closes the scope
+     * will automatically be removed from RealityServer.
+     * @param {String} scope_name - The name of the scope to associate with the service.
+     * @return {Promise} A promise that resolves when the scope has been associated or rejects on error.
+     */
+    associate_scope(scope_name) {
+        return new Promise((resolve, reject) => {
+            if (!this.web_socket) {
+                reject(new RS_error('Web socket not connected.'));
+                return;
+            }
+            if (this.protocol_state !== 'started') {
+                reject(new RS_error('Web socket not started.'));
+                return;
+            }
+            if (this.protocol_version < 4) {
+                reject(new RS_error('Connected RealityServer does not support associating scopes ' +
+                                    'with Service connections. Update to RealityServer 6 to use ' +
+                                    'this feature.'));
+                return;
+            }
+
+            this.send_ws_command('associate_scope', scope_name, response => {
                 if (response.error) {
                     reject(new RS_error(response.error.message));
                 } else {
