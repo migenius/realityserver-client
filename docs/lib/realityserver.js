@@ -3117,6 +3117,12 @@
                     reject(new RealityServerError$1('Web socket not started.'));
                     return;
                 }
+                if (this.protocol_version < 4) {
+                    reject(new RealityServerError$1('Connected RealityServer does not support associating scopes ' +
+                                        'with Service connections. Update to RealityServer 6 to use ' +
+                                        'this feature.'));
+                    return;
+                }
                 this.send_ws_command('associate_scope', scope_name, response => {
                     if (response.error) {
                         reject(new RealityServerError$1(response.error.message));
