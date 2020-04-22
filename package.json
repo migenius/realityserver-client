@@ -1,6 +1,6 @@
 {
   "name": "@migenius/realityserver-client",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Official RealityServer JavaScript client",
   "main": "lib/umd/realityserver.js",
   "browser": "lib/umd/realityserver.js",
