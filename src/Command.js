@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
+ * Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 
 /**
@@ -10,7 +10,8 @@
  * Commands are executed either directly on the Service via
  * {@link RS.Service#send_command}, {@link RS.Service#execute_command} or
  * in a {@link RS.CommandQueue} obtained from {@link RS.Service#queue_commands}.
- * @memberof RS
+ * 
+ * @memberof RS 
  * @example
  * let c = new Command('import_scene',
  *              {
@@ -30,11 +31,31 @@
  *                      }
  *                  }
  *              });
+ *
  */
 class Command {
     /**
      * Creates a new Command. Takes a `name` and a set of `parameters`. Typically
      * once constructed commands are not modified.
+     *
+     * <b>Note</b>: Command parameters should consist of the following JavaScript types only:
+     * <ul>
+     * <li>String</li>
+     * <li>Number</li>
+     * <li>Boolean</li>
+     * <li>Null</li>
+     * <li>Undefined</li>
+     * <li>Array</li>
+     * <li>ArrayBuffer</li>
+     * </ul>
+     *
+     * Any other type provided will be interpreted as an Object and have it's 
+     * enumerable properties sent in a Map using <code>Object.keys(value).forEach()</code>.
+     *
+     * This means if you are using some form of framework that modifies or extends core
+     * JavaScript types, EG: MobX or Immutable.js, you need to ensure you convert these
+     * to native JavaScript types before passing them as command parameters.
+     *
      * @param {String} name - the command name to execute.
      * @param {Object} parameters - the command parameters.
      */
