@@ -135,6 +135,9 @@ Now load your page and you should get something like the following:
 
 ![scene loaded](tutorials/browser-scene-loading/loaded.jpg)
 
+### A note regarding command arguments.
+Only a limited set of JavaScript native types are supported as command arguments. If you are using a framework such as MobX that extends or replaces core types like Objects or Arrays you need to ensure these are converted to native types before using them as command arguments. See {@link RS.Command} for details.
+
 ### Summary
 In this tutorial we have learnt about scopes, basic scene management and how to queue and execute commands on RealityServer&reg;. The next tutorial covers rendering the scene itself.
 
