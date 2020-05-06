@@ -184,6 +184,14 @@ class Service extends EventEmitter {
     };
 
     /**
+     * Max supported protocol version
+     * @access private
+    */
+    static get MAX_SUPPORTED_PROTOCOL() {
+        return 4;
+    };
+
+    /**
      * Connects to RealityServer and performs the initial handshake to ensure
      * streaming functionality is available. Returns a `Promise` that resolves when connected. The promise
      * will reject in the following circumstances:
@@ -438,7 +446,7 @@ class Service extends EventEmitter {
                     } else {
                         // check that the protcol version is acceptable
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                        if (protocol_version < 2 || protocol_version > 4) {
+                        if (protocol_version < 2 || protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
                             // unsupported protocol, can't go on
                             scope.web_socket.close(1002, protocol_version < 2 ?
                                 'RealityServer WebSocket protocol too old.' :
@@ -508,9 +516,9 @@ class Service extends EventEmitter {
                                             'client lirary requires at least version 5.2 2272.266.'));
                             return;
                         }
-                        if (protocol_version > 4) {
+                        if (protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
                             // unsupported protocol, let's ask for what we know
-                            protocol_version = 4;
+                            protocol_version = Service.MAX_SUPPORTED_PROTOCOL;
                         }
                         // get server time
                         scope.protocol_state = 'handshaking';
