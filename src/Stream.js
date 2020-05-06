@@ -5,6 +5,8 @@ import { EventEmitter } from './Utils';
 import RS_error from './Error';
 import Command_queue from './Command_queue';
 import Render_loop_state_data from './internal/Render_loop_state_data';
+import Service from './Service';
+import Delayed_promise from './internal/Delayed_promise';
 
 /**
  * Represents an image stream from a render loop.
@@ -24,7 +26,7 @@ class Stream extends EventEmitter {
     constructor(service) {
         super();
         this.service = service;
-        this.command_promises = [];
+        this.sequence_promises = [];
         this.pause_count = 0;
         this._render_loop_name = undefined;
 
@@ -253,7 +255,7 @@ class Stream extends EventEmitter {
     }
 
     /**
-     * Utility function to update the camera on this stream's render loop
+     * Utility function to update the camera on this stream's render loop.
      *
      * While it is possible to simply use individual commands to update the
      * camera this method is more efficient as changes will be collated on the
@@ -265,9 +267,13 @@ class Stream extends EventEmitter {
      * - this stream is not yet streaming
      * - no data is provided.
      * - updating the camera information failed
+     * - wait for render is true but the connected RealityServer does not support this with
+     * update camera.
      * @endcode
      * @param {Object} data Object specifying the camera to update. Supported format is:
      * @param {Number=} data.cancel_level - Cancel level to use when updating.
+     * @param {Boolean=} data.wait_for_render - If true then the promise will resolve when the new camera
+     * data is available in a rendered image.
      * @param {Object=} data.camera - Properties to update on the camera
      * @param {String} data.camera.name - The name of the camera to update
      * @param {Number=} data.camera.aperture - The aperture width of the camera.
@@ -296,37 +302,57 @@ class Stream extends EventEmitter {
      * names are the attribute names to set. Each property value should be an object containing the following:
      * @param {*} data.camera_instance.attributes.value - The attribute value to set.
      * @param {String} data.camera_instance.attributes.type - The type of the attribute to set.
-     * @return {Promise} A promise that resolves with the result of the camera update.
+     * @return {Promise} A promise that resolves with the result of the camera update or when the camera
+     * data is available in a render if \c wait_for_render is c true.
      */
     update_camera(data) {
-        return new Promise((resolve, reject) => {
-            if (!this.service.validate(reject)) {
-                return;
-            }
-            if (!this.streaming) {
-                reject(new RS_error('Not streaming.'));
-            }
+        const promise = new Delayed_promise();
 
-            if (!data) {
-                reject(new RS_error('No data object provided.'));
-                return;
+        if (!this.service.validate(promise.reject)) {
+            return promise.promise;
+        }
+        if (!this.streaming) {
+            promise.reject(new RS_error('Not streaming.'));
+            return promise.promise;
+        }
+
+        if (!data) {
+            promise.reject(new RS_error('No data object provided.'));
+            return promise.promise;
+        }
+
+        const args = {
+            render_loop_name: this.render_loop_name,
+            camera: data.camera,
+            camera_instance: data.camera_instance,
+            cancel_level: data.cancel_level
+        };
+        if (data.wait_for_render) {
+            if (this.service.protocol_version < 5) {
+                promise.reject(new RS_error('Connected RealityServer does not support wait for render ' +
+                                        'with camera updates. Update to RealityServer 6 to use ' +
+                                        'this feature.'));
+                return promise.promise;
             }
-
-            const args = {
-                render_loop_name: this.render_loop_name,
-                camera: data.camera,
-                camera_instance: data.camera_instance,
-                cancel_level: data.cancel_level
-            };
-
-            this.service.send_ws_command('set_camera', args, response => {
-                if (response.error) {
-                    reject(new RS_error(response.error.message));
-                } else {
-                    resolve(response.result);
-                }
+            args.sequence_id = ++Service.sequence_id;
+            this.sequence_promises.push({
+                sequence_id: args.sequence_id,
+                delayed_promise: promise
             });
+        }
+
+        this.service.send_ws_command('set_camera', args, response => {
+            if (response.error) {
+                promise.reject(new RS_error(response.error.message));
+            } else {
+                // promise will resolve when camera is in the render
+                if (!data.wait_for_render) {
+                    promise.resolve(response.result);
+                }
+            }
         });
+
+        return promise.promise;
     }
 
     /**

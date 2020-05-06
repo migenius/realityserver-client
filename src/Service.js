@@ -188,7 +188,7 @@ class Service extends EventEmitter {
      * @access private
     */
     static get MAX_SUPPORTED_PROTOCOL() {
-        return 4;
+        return 5;
     };
 
     /**
@@ -354,21 +354,21 @@ class Service extends EventEmitter {
                             render_loop_name: stream.render_loop_name
                         };
                         // Process any command promises that are resolved by this render.
-                        const command_promises = [];
+                        const sequence_promises = [];
                         if (stats.sequence_id > 0) {
-                            while (stream.command_promises.length &&
-                              stream.command_promises[0].sequence_id <= stats.sequence_id) {
-                                const handler = stream.command_promises.shift();
+                            while (stream.sequence_promises.length &&
+                              stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
+                                const handler = stream.sequence_promises.shift();
                                 handler.delayed_promise.resolve(data);
-                                command_promises.push(handler.promise);
+                                sequence_promises.push(handler.promise);
                             }
                         }
                         // Any command promises resolved above will not have their resolve
                         // functions called until the next tick. So if there are any we
                         // must wait until they are complete before emitting the image event
                         // giving them a chance to unpause the stream.
-                        if (command_promises.length) {
-                            Promise.all(command_promises).then(() => {
+                        if (sequence_promises.length) {
+                            Promise.all(sequence_promises).then(() => {
                                 emit_image_event(stream, data);
                             });
                         } else {
@@ -762,7 +762,7 @@ class Service extends EventEmitter {
                 if (stream) {
                     const promise = new Delayed_promise();
                     execute_args.sequence_id = ++Service.sequence_id;
-                    stream.command_promises.push({
+                    stream.sequence_promises.push({
                         sequence_id: execute_args.sequence_id,
                         delayed_promise: promise
                     });
