@@ -308,7 +308,7 @@ class Vector4 {
      * @return {RS.Math.Vector4} this
      */
     rotate_transpose(matrix) {
-        let vec = this.clone();
+        const vec = this.clone();
 
         this.x =     vec.x * matrix.xx +
                     vec.y * matrix.xy +
@@ -339,6 +339,7 @@ class Vector4 {
         if (out === undefined || out === null) {
             out = new Vector4();
         }
+        const vec = this.clone();
         out.x =     vec.x * matrix.xx +
                     vec.y * matrix.yx +
                     vec.z * matrix.zx;
@@ -368,6 +369,7 @@ class Vector4 {
         if (out === undefined || out === null) {
             out = new Vector4();
         }
+        const vec = this.clone();
         out.x =     vec.x * matrix.xx +
                     vec.y * matrix.xy +
                     vec.z * matrix.xz;

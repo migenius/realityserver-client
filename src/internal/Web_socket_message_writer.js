@@ -467,8 +467,8 @@ class Web_socket_message_writer {
                                     Web_socket_message_writer.bytes_per_component[value.pixel_format] *
                                     Web_socket_message_writer.components_per_pixel[value.pixel_format];
             for (let l=0;l<value.num_layers;l++) {
-                if (value.layers[i].buffer.byteLength !== expected_length) {
-                    throw 'Canvas layer ' + i + ' incorrect size. Is ' + value.layers[i].buffer.byteLength +
+                if (value.layers[l].buffer.byteLength !== expected_length) {
+                    throw 'Canvas layer ' + l + ' incorrect size. Is ' + value.layers[l].buffer.byteLength +
                           'bytes, expected ' + expected_length;
                 }
                 this.pushArrayBuffer(value.layers[l].buffer);

@@ -227,7 +227,7 @@ class Color {
      * @return {RS.Math.Color} the gamma corrected color
      */
     gamma_correct(factor) {
-        f = 1 / factor;
+        const f = 1 / factor;
         return new Color(
             Math.pow( this.r, f),
             Math.pow( this.g, f),
