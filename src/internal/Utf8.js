@@ -64,7 +64,7 @@
 
     function encodeCodePoint(codePoint) {
         if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
-            return codePoint;
+            return [codePoint];
         }
         let symbol = [];
         if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
@@ -83,14 +83,11 @@
     }
 
     function utf8encode(string) {
-        let codePoints = ucs2decode(string);
-        let length = codePoints.length;
-        let index = -1;
-        let codePoint;
+        const codePoints = ucs2decode(string);
         let byteArray = [];
-        while (++index < length) {
-            codePoint = codePoints[index];
-            byteArray = byteArray.concat(encodeCodePoint(codePoint));
+
+        for (let codePoint of codePoints) {
+            byteArray.push(...encodeCodePoint(codePoint));
         }
         return Uint8Array.from(byteArray);
     }
