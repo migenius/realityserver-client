@@ -226,7 +226,7 @@ class Service extends EventEmitter {
                         this.web_socket = new Websocket_impl(url);
                     }
                 } catch (e) {
-                    reject(e instanceof Error ? e : new RealityServerError(e));
+                    reject(e instanceof Error ? e : new RS_error(e));
                     return;
                 }
             } else {
@@ -376,7 +376,7 @@ class Service extends EventEmitter {
                         }
                     }
                 } else {
-                    emit_image_event(stream, data);
+                    emit_image_event(stream, {result});
                 }
 
             }

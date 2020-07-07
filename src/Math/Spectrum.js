@@ -184,7 +184,7 @@ class Spectrum {
      * @return {RS.Math.Spectrum} the gamma corrected spectrum
      */
     gamma_correct(gamma_factor) {
-        f = 1 / gamma_factor;
+        const f = 1 / gamma_factor;
         return new Spectrum(
             Math.pow( this.c[0], f),
             Math.pow( this.c[1], f),
