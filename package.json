@@ -15,7 +15,7 @@
     "build:doc": "npm run build:doc:preprocess && jsdoc -c .jsdoc.conf.js",
     "eslint": "eslint src scripts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:publish": "sh scripts/publish.sh"
+    "build:publish": "bash scripts/publish.sh"
   },
   "license": "ISC",
   "devDependencies": {
