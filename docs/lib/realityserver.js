@@ -2344,7 +2344,7 @@
         constructor(service) {
             super();
             this.service = service;
-            this.command_promises = [];
+            this.sequence_promises = [];
             this.pause_count = 0;
             this._render_loop_name = undefined;
             this.state_data = new Render_loop_state_data();
@@ -2451,31 +2451,47 @@
             });
         }
         update_camera(data) {
-            return new Promise((resolve, reject) => {
-                if (!this.service.validate(reject)) {
-                    return;
+            const promise = new Delayed_promise();
+            if (!this.service.validate(promise.reject)) {
+                return promise.promise;
+            }
+            if (!this.streaming) {
+                promise.reject(new RealityServerError$1('Not streaming.'));
+                return promise.promise;
+            }
+            if (!data) {
+                promise.reject(new RealityServerError$1('No data object provided.'));
+                return promise.promise;
+            }
+            const args = {
+                render_loop_name: this.render_loop_name,
+                camera: data.camera,
+                camera_instance: data.camera_instance,
+                cancel_level: data.cancel_level
+            };
+            if (data.wait_for_render) {
+                if (this.service.protocol_version < 5) {
+                    promise.reject(new RealityServerError$1('Connected RealityServer does not support wait for render ' +
+                                            'with camera updates. Update to RealityServer 6 to use ' +
+                                            'this feature.'));
+                    return promise.promise;
                 }
-                if (!this.streaming) {
-                    reject(new RealityServerError$1('Not streaming.'));
-                }
-                if (!data) {
-                    reject(new RealityServerError$1('No data object provided.'));
-                    return;
-                }
-                const args = {
-                    render_loop_name: this.render_loop_name,
-                    camera: data.camera,
-                    camera_instance: data.camera_instance,
-                    cancel_level: data.cancel_level
-                };
-                this.service.send_ws_command('set_camera', args, response => {
-                    if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
-                    } else {
-                        resolve(response.result);
-                    }
+                args.sequence_id = ++Service.sequence_id;
+                this.sequence_promises.push({
+                    sequence_id: args.sequence_id,
+                    delayed_promise: promise
                 });
+            }
+            this.service.send_ws_command('set_camera', args, response => {
+                if (response.error) {
+                    promise.reject(new RealityServerError$1(response.error.message));
+                } else {
+                    if (!data.wait_for_render) {
+                        promise.resolve(response.result);
+                    }
+                }
             });
+            return promise.promise;
         }
         get_state_data(cancel_level=null, continue_on_error=null) {
             let state_data = this.state_data;
@@ -2596,6 +2612,9 @@
         static get MESSAGE_ID_PREFER_STRING() {
             return 0x07;
         };
+        static get MAX_SUPPORTED_PROTOCOL() {
+            return 5;
+        };
         connect(url, extra_constructor_args=null) {
             return new Promise((resolve, reject) => {
                 if (url !== undefined && url !== null && url.constructor === String) {
@@ -2691,17 +2710,17 @@
                                 statistics: stats,
                                 render_loop_name: stream.render_loop_name
                             };
-                            const command_promises = [];
+                            const sequence_promises = [];
                             if (stats.sequence_id > 0) {
-                                while (stream.command_promises.length &&
-                                  stream.command_promises[0].sequence_id <= stats.sequence_id) {
-                                    const handler = stream.command_promises.shift();
+                                while (stream.sequence_promises.length &&
+                                  stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
+                                    const handler = stream.sequence_promises.shift();
                                     handler.delayed_promise.resolve(data);
-                                    command_promises.push(handler.promise);
+                                    sequence_promises.push(handler.promise);
                                 }
                             }
-                            if (command_promises.length) {
-                                Promise.all(command_promises).then(() => {
+                            if (sequence_promises.length) {
+                                Promise.all(sequence_promises).then(() => {
                                     emit_image_event(stream, data);
                                 });
                             } else {
@@ -2766,7 +2785,7 @@
                                                 'does not appear to be a RealityServer connection.'));
                         } else {
                             const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                            if (protocol_version < 2 || protocol_version > 4) {
+                            if (protocol_version < 2 || protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
                                 scope.web_socket.close(1002, protocol_version < 2 ?
                                     'RealityServer WebSocket protocol too old.' :
                                     'RealityServer WebSocket protocol too new.');
@@ -2825,8 +2844,8 @@
                                                 'client lirary requires at least version 5.2 2272.266.'));
                                 return;
                             }
-                            if (protocol_version > 4) {
-                                protocol_version = 4;
+                            if (protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
+                                protocol_version = Service.MAX_SUPPORTED_PROTOCOL;
                             }
                             scope.protocol_state = 'handshaking';
                             let buffer = new ArrayBuffer(40);
@@ -2956,7 +2975,7 @@
                     if (stream) {
                         const promise = new Delayed_promise();
                         execute_args.sequence_id = ++Service.sequence_id;
-                        stream.command_promises.push({
+                        stream.sequence_promises.push({
                             sequence_id: execute_args.sequence_id,
                             delayed_promise: promise
                         });
