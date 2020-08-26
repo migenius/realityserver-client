@@ -741,7 +741,7 @@ class Service extends EventEmitter {
 
         if (command_queue.commands.length === 0) {
             // move along, nothing to see here
-            return resolve_all ? Promise.all() : [];
+            return resolve_all ? Promise.all([]) : [];
         }
         let execute_args;
 
