@@ -13,6 +13,7 @@ class Web_socket_message_reader {
         this.data = data;
         this.offset = initial_offset || 0;
         this.le = little_endian || true;
+        this.decoder = Utf8.decoder();
     }
 
     /**
@@ -147,7 +148,7 @@ class Web_socket_message_reader {
         if (char_size === 1) {
             // utf8
             let string_bytes = new Uint8Array(this.data.buffer, this.data.byteOffset+this.offset, length);
-            r = Utf8.decode(string_bytes);
+            r = this.decoder.decode(string_bytes);
             this.offset += length;
         } else if (char_size === 2) {
             for (let i=0;i<length;i++) {
