@@ -14,13 +14,14 @@
     "build:doc:preprocess": "node scripts/preprocess-tutorials.js",
     "build:doc": "npm run build:doc:preprocess && jsdoc -c .jsdoc.conf.js",
     "eslint": "eslint src scripts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cd tests && node -r esm test-utf8.js",
     "build:publish": "bash scripts/publish.sh"
   },
   "license": "ISC",
   "devDependencies": {
     "@migenius/jsdoc-template": "^1.0.1",
     "eslint": "^5.13.0",
+    "esm": "^3.2.25",
     "eventemitter3": "^3.1.0",
     "fs-extra": "^7.0.1",
     "jsdoc": "^3.6.3",
