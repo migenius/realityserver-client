@@ -10,8 +10,8 @@
  * Commands are executed either directly on the Service via
  * {@link RS.Service#send_command}, {@link RS.Service#execute_command} or
  * in a {@link RS.CommandQueue} obtained from {@link RS.Service#queue_commands}.
- * 
- * @memberof RS 
+ *
+ * @memberof RS
  * @example
  * let c = new Command('import_scene',
  *              {
@@ -49,7 +49,7 @@ class Command {
      * <li>ArrayBuffer</li>
      * </ul>
      *
-     * Any other type provided will be interpreted as an Object and have it's 
+     * Any other type provided will be interpreted as an Object and have it's
      * enumerable properties sent in a Map using <code>Object.keys(value).forEach()</code>.
      *
      * This means if you are using some form of framework that modifies or extends core
