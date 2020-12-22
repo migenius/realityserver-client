@@ -88,7 +88,9 @@
         let index = -1;
         let codePoint;
         let byteArray = [];
-        byteArray.length = Math.ceil(length/2);
+        // assume just 7 bit ascii to start with, which
+        // given our use case isn't a bad thing.
+        byteArray.length = Math.ceil(length);
         let byteSize = 0;
         while (++index < length) {
             codePoint = codePoints[index];
