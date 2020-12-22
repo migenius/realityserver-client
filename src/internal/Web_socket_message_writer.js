@@ -15,6 +15,8 @@ class Web_socket_message_writer {
 
         this.totalLength = 0;
         this.le = little_endian || true;
+
+        this.encoder = Utf8.encoder();
     }
 
 
@@ -238,7 +240,7 @@ class Web_socket_message_writer {
    * @param val the string to push
    */
     pushString(val) {
-        let utf8_array = Utf8.encode(val);
+        let utf8_array = this.encoder.encode(val);
         this.validate_data(1 + 4 + utf8_array.byteLength);
         // character size
         this.data.setUint8(this.offset++, 1);

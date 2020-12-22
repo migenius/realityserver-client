@@ -213,8 +213,21 @@
     root.version = '3.0.0';
     root.encode = utf8encode;
     root.decode = utf8decode;
-    root.decoder = () => root;
-    root.encoder = () => root;
+    try {
+        root.text_encoder = new TextEncoder;
+        if (!root.text_encoder.encode) {
+            root.text_encoder = undefined;
+        }
+    } catch(e) {}
+    try {
+        root.text_decoder = new TextDecoder;
+        if (!root.text_decoder.decode) {
+            root.text_decoder = undefined;
+        }
+    } catch(e) {}
+
+    root.decoder = () => root.text_decoder || root;
+    root.encoder = () => root.text_encoder || root;
 
     export default root;
 //}(typeof exports === 'undefined' ? this.utf8 = {} : exports));
