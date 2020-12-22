@@ -1,3 +1,7 @@
+/******************************************************************************
+ * Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
+ *****************************************************************************/
+// A simple test just to ensure basic functionality of the UTF-8 encoding
 import Utf8 from '../src/internal/Utf8';
 const fs = require('fs');
 
