@@ -5,14 +5,14 @@ let str = fs.readFileSync('./utf8test.html','utf-8');
 
 str += str;
 str += str;
-/*str += str;
+str += str;
 str += str;
 str += str;
 str += str;
 str += str;
 str += str;
 str += str; 
-*/
+
 //console.log(str.length);
 let start = new Date();
 // We'll accept TextEncoder as a source of truth
@@ -20,7 +20,7 @@ const check = new TextEncoder().encode(str);
 //console.log(`${new Date() - start}`);
 
 start = new Date();
-let test = Utf8.encode(str);
+let test = Utf8.encoder().encode(str);
 //console.log(`${new Date() - start}`);
 let errs=0;
 if  (test.length != check.length) {
@@ -36,8 +36,8 @@ if  (test.length != check.length) {
 }
 if (!errs) {
     start = new Date();
-    let new_str = Utf8.decode(check);
-  //  console.log(`${new Date() - start}`);
+    let new_str = Utf8.decoder().decode(check);
+    //console.log(`${new Date() - start}`);
     if (new_str != str) {
         console.log('decode failed');
         errs++;

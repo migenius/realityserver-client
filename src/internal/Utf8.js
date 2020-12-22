@@ -64,7 +64,7 @@
 
     function encodeCodePoint(codePoint) {
         if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
-            return codePoint;
+            return [codePoint];
         }
         let symbol = [];
         if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
@@ -88,10 +88,20 @@
         let index = -1;
         let codePoint;
         let byteArray = [];
+        byteArray.length = Math.ceil(length/2);
+        let byteSize = 0;
         while (++index < length) {
             codePoint = codePoints[index];
-            byteArray = byteArray.concat(encodeCodePoint(codePoint));
+            
+            const encoded = encodeCodePoint(codePoint);
+            if (encoded.length + byteSize > byteArray.length) {
+                byteArray.length = byteArray.length + 65536;
+            }
+            while (encoded.length) {
+                byteArray[byteSize++] = encoded.shift();
+            }
         }
+        byteArray.length = byteSize;
         return Uint8Array.from(byteArray);
     }
 
@@ -201,6 +211,8 @@
     root.version = '3.0.0';
     root.encode = utf8encode;
     root.decode = utf8decode;
+    root.decoder = () => root;
+    root.encoder = () => root;
 
     export default root;
 //}(typeof exports === 'undefined' ? this.utf8 = {} : exports));
