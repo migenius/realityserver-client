@@ -257,7 +257,7 @@ A [RealityServer Extras](https://github.com/migenius/realityserver-extras "Reali
 
 ### 1.0.7
 
-Use TextEncoder and TextDecoder for Utf8 conversion when in binary mode (IE: when `Service.debug_commands === false`). If they are not available falls back to the internal Utf8 converters. All modern browsers and Node.js >= 11 support TextEncoder and TextDecoder.
+Use `TextEncoder` and `TextDecoder` for Utf8 conversion when in binary mode (IE: when `Service.debug_commands === false`). If they are not available falls back to the internal Utf8 converters. All modern browsers and Node.js >= 11 support `TextEncoder` and `TextDecoder`.
 
 Improved performance of internal Utf8 encoding by several orders of magnitude.
 
