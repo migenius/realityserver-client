@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2019 migenius pty ltd, Australia. All rights reserved.
+ * Copyright 2010-2021 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 
 /**
@@ -10,10 +10,10 @@
  * Note that all classes and functions on `RS.Math` are also available directly
  * on `RS`. This is to make acessing the classes easier when exposed as ES6 modules.
  * @example
- * const {Vector4,radians} import from 'realityserver';
+ * import { Vector4, radians } from '@migenius/realityserver-client';
  * // as opposed to
- * const {Math as RSMath} import from 'realityserver';
- * const {Vector4,radians} = RSMath;
+ * import { Math as RSMath } from '@migenius/realityserver-client';
+ * const { Vector4, radians } = RSMath;
  * @namespace Math
  * @memberof RS
  */
