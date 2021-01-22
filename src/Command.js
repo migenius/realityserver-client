@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
+ * Copyright 2010-2021 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 
 /**
@@ -44,13 +44,15 @@ class Command {
      * <li>Number</li>
      * <li>Boolean</li>
      * <li>Null</li>
-     * <li>Undefined</li>
      * <li>Array</li>
      * <li>ArrayBuffer</li>
      * </ul>
      *
      * Any other type provided will be interpreted as an Object and have it's
      * enumerable properties sent in a Map using <code>Object.keys(value).forEach()</code>.
+     * 
+     * The provided parameter Object will be copied internally and any properties whose
+     * values is `undefined` will be removed.
      *
      * This means if you are using some form of framework that modifies or extends core
      * JavaScript types, EG: MobX or Immutable.js, you need to ensure you convert these
@@ -70,7 +72,8 @@ class Command {
          * and values are their values.
          * @member {Object}
          */
-        this.params = parameters;
+        this.params = Object.assign({},parameters);
+        Object.keys(this.params).forEach(k => this.params[k] === undefined && delete this.params[k]);
     }
 }
 

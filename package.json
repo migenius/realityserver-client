@@ -14,7 +14,7 @@
     "build:doc:preprocess": "node scripts/preprocess-tutorials.js",
     "build:doc": "npm run build:doc:preprocess && jsdoc -c .jsdoc.conf.js",
     "eslint": "eslint src scripts",
-    "test": "cd tests && node -r esm test-utf8.js",
+    "test": "cd tests && node -r esm test-utf8.js && node -r esm test-command.js",
     "build:publish": "bash scripts/publish.sh"
   },
   "license": "ISC",
