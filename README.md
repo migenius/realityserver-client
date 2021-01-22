@@ -255,6 +255,24 @@ A [RealityServer Extras](https://github.com/migenius/realityserver-extras "Reali
 
 ## Release Notes
 
+### 1.0.7
+
+Use `TextEncoder` and `TextDecoder` for Utf8 conversion when in binary mode (IE: when `Service.debug_commands === false`). If they are not available falls back to the internal Utf8 converters. All modern browsers and Node.js >= 11 support `TextEncoder` and `TextDecoder`.
+
+Improved performance of internal Utf8 encoding by several orders of magnitude.
+
+### 1.0.6
+
+`RS.Stream.update_camera` now supports `wait_for_render` in the same was as command
+execution does.
+
+`RS.Service.MAX_SUPPORTED_PROTOCOL` now returns the maximum protocol version supported
+by this client implementation.
+
+### 1.0.5
+
+Added check that associate scope is supported before trying to use it.
+
 ### 1.0.3
 
 Ensure that any protocol commands that are expecting responses are called with an error

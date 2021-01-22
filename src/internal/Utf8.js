@@ -85,10 +85,22 @@
     function utf8encode(string) {
         const codePoints = ucs2decode(string);
         let byteArray = [];
-
-        for (let codePoint of codePoints) {
-            byteArray.push(...encodeCodePoint(codePoint));
+        // assume just 7 bit ascii to start with, which
+        // given our use case isn't a bad thing.
+        byteArray.length = Math.ceil(length);
+        let byteSize = 0;
+        while (++index < length) {
+            codePoint = codePoints[index];
+            
+            const encoded = encodeCodePoint(codePoint);
+            if (encoded.length + byteSize > byteArray.length) {
+                byteArray.length = byteArray.length + 65536;
+            }
+            while (encoded.length) {
+                byteArray[byteSize++] = encoded.shift();
+            }
         }
+        byteArray.length = byteSize;
         return Uint8Array.from(byteArray);
     }
 
@@ -198,6 +210,21 @@
     root.version = '3.0.0';
     root.encode = utf8encode;
     root.decode = utf8decode;
+    try {
+        root.text_encoder = new TextEncoder;
+        if (!root.text_encoder.encode) {
+            root.text_encoder = undefined;
+        }
+    } catch(e) {}
+    try {
+        root.text_decoder = new TextDecoder;
+        if (!root.text_decoder.decode) {
+            root.text_decoder = undefined;
+        }
+    } catch(e) {}
+
+    root.decoder = () => root.text_decoder || root;
+    root.encoder = () => root.text_encoder || root;
 
     export default root;
 //}(typeof exports === 'undefined' ? this.utf8 = {} : exports));
