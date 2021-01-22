@@ -10,18 +10,19 @@
     class Command {
         constructor(name, parameters) {
             this.name = name;
-            this.params = parameters;
+            this.params = Object.assign({},parameters);
+            Object.keys(this.params).forEach(k => this.params[k] === undefined && delete this.params[k]);
         }
     }
 
-    class RealityServerError$1 extends Error {
+    class RealityServerError extends Error {
         constructor() {
             super(...arguments);
             this.name = 'RealityServerError';
         }
     }
 
-    class Command_error extends RealityServerError$1 {
+    class Command_error extends RealityServerError {
         constructor(error) {
             super(error.message);
             this.error = error;
@@ -413,7 +414,7 @@
             return this.c[0] * 0.212671 + this.c[1] * 0.71516 + this.c[2] * 0.072169;
         }
         gamma_correct(gamma_factor) {
-            f = 1 / gamma_factor;
+            const f = 1 / gamma_factor;
             return new Spectrum(
                 Math.pow( this.c[0], f),
                 Math.pow( this.c[1], f),
@@ -548,7 +549,7 @@
             return this.r * 0.212671 + this.g * 0.715160 + this.b * 0.072169;
         }
         gamma_correct(factor) {
-            f = 1 / factor;
+            const f = 1 / factor;
             return new Color(
                 Math.pow( this.r, f),
                 Math.pow( this.g, f),
@@ -1406,7 +1407,7 @@
             return this;
         }
         rotate_transpose(matrix) {
-            let vec = this.clone();
+            const vec = this.clone();
             this.x =     vec.x * matrix.xx +
                         vec.y * matrix.xy +
                         vec.z * matrix.xz;
@@ -1423,6 +1424,7 @@
             if (out === undefined || out === null) {
                 out = new Vector4();
             }
+            const vec = this.clone();
             out.x =     vec.x * matrix.xx +
                         vec.y * matrix.yx +
                         vec.z * matrix.zx;
@@ -1439,6 +1441,7 @@
             if (out === undefined || out === null) {
                 out = new Vector4();
             }
+            const vec = this.clone();
             out.x =     vec.x * matrix.xx +
                         vec.y * matrix.xy +
                         vec.z * matrix.xz;
@@ -1611,7 +1614,7 @@
         }
         function encodeCodePoint(codePoint) {
             if ((codePoint & 0xFFFFFF80) == 0) {
-                return codePoint;
+                return [codePoint];
             }
             let symbol = [];
             if ((codePoint & 0xFFFFF800) == 0) {
@@ -1634,10 +1637,19 @@
             let index = -1;
             let codePoint;
             let byteArray = [];
+            byteArray.length = Math.ceil(length);
+            let byteSize = 0;
             while (++index < length) {
                 codePoint = codePoints[index];
-                byteArray = byteArray.concat(encodeCodePoint(codePoint));
+                const encoded = encodeCodePoint(codePoint);
+                if (encoded.length + byteSize > byteArray.length) {
+                    byteArray.length = byteArray.length + 65536;
+                }
+                while (encoded.length) {
+                    byteArray[byteSize++] = encoded.shift();
+                }
             }
+            byteArray.length = byteSize;
             return Uint8Array.from(byteArray);
         }
         function readContinuationByte() {
@@ -1722,6 +1734,20 @@
         root.version = '3.0.0';
         root.encode = utf8encode;
         root.decode = utf8decode;
+        try {
+            root.text_encoder = new TextEncoder;
+            if (!root.text_encoder.encode) {
+                root.text_encoder = undefined;
+            }
+        } catch(e) {}
+        try {
+            root.text_decoder = new TextDecoder;
+            if (!root.text_decoder.decode) {
+                root.text_decoder = undefined;
+            }
+        } catch(e) {}
+        root.decoder = () => root.text_decoder || root;
+        root.encoder = () => root.text_encoder || root;
 
     const constructors = {
         'Color': Color,
@@ -1751,6 +1777,7 @@
             this.data = data;
             this.offset = initial_offset || 0;
             this.le = little_endian || true;
+            this.decoder = root.decoder();
         }
         getUint8() {
             let r= this.data.getUint8(this.offset, this.le);
@@ -1831,7 +1858,7 @@
             let r = '';
             if (char_size === 1) {
                 let string_bytes = new Uint8Array(this.data.buffer, this.data.byteOffset+this.offset, length);
-                r = root.decode(string_bytes);
+                r = this.decoder.decode(string_bytes);
                 this.offset += length;
             } else if (char_size === 2) {
                 for (let i=0;i<length;i++) {
@@ -1929,6 +1956,7 @@
             this.push_buffer(0);
             this.totalLength = 0;
             this.le = little_endian || true;
+            this.encoder = root.encoder();
         }
         push_buffer(size) {
             if (this.data) {
@@ -2060,7 +2088,7 @@
             this.offset += 8;
         }
         pushString(val) {
-            let utf8_array = root.encode(val);
+            let utf8_array = this.encoder.encode(val);
             this.validate_data(1 + 4 + utf8_array.byteLength);
             this.data.setUint8(this.offset++, 1);
             this.data.setUint32(this.offset, utf8_array.byteLength, this.le);
@@ -2264,8 +2292,8 @@
                                         Web_socket_message_writer.bytes_per_component[value.pixel_format] *
                                         Web_socket_message_writer.components_per_pixel[value.pixel_format];
                 for (let l=0;l<value.num_layers;l++) {
-                    if (value.layers[i].buffer.byteLength !== expected_length) {
-                        throw 'Canvas layer ' + i + ' incorrect size. Is ' + value.layers[i].buffer.byteLength +
+                    if (value.layers[l].buffer.byteLength !== expected_length) {
+                        throw 'Canvas layer ' + l + ' incorrect size. Is ' + value.layers[l].buffer.byteLength +
                               'bytes, expected ' + expected_length;
                     }
                     this.pushArrayBuffer(value.layers[l].buffer);
@@ -2385,7 +2413,7 @@
         constructor(service) {
             super();
             this.service = service;
-            this.command_promises = [];
+            this.sequence_promises = [];
             this.pause_count = 0;
             this._render_loop_name = undefined;
             this.state_data = new Render_loop_state_data();
@@ -2417,7 +2445,7 @@
                     return;
                 }
                 if (this.streaming) {
-                    reject(new RealityServerError$1('Render loop is already streaming.'));
+                    reject(new RealityServerError('Render loop is already streaming.'));
                 }
                 if (typeof render_loop === 'string' || render_loop instanceof String) {
                     render_loop = {
@@ -2426,7 +2454,7 @@
                 }
                 this.service.send_ws_command('start_stream', render_loop, response => {
                     if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
+                        reject(new RealityServerError(response.error.message));
                     } else {
                         this._render_loop_name = render_loop.render_loop_name;
                         this.state_data.render_loop_name = this.render_loop_name;
@@ -2442,11 +2470,11 @@
                     return;
                 }
                 if (!this.streaming) {
-                    reject(new RealityServerError$1('Not streaming.'));
+                    reject(new RealityServerError('Not streaming.'));
                 }
                 this.service.send_ws_command('stop_stream', { render_loop_name: this.render_loop_name }, response => {
                     if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
+                        reject(new RealityServerError(response.error.message));
                     } else {
                         this.service.remove_stream(this.render_loop_name);
                         this.state_data.render_loop_name = undefined;
@@ -2474,7 +2502,7 @@
                     return;
                 }
                 if (!this.streaming) {
-                    reject(new RealityServerError$1('Not streaming.'));
+                    reject(new RealityServerError('Not streaming.'));
                 }
                 const args = Object.assign(
                     {
@@ -2484,7 +2512,7 @@
                 );
                 this.service.send_ws_command('set_stream_parameters', args, response => {
                     if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
+                        reject(new RealityServerError(response.error.message));
                     } else {
                         resolve(response.result);
                     }
@@ -2492,31 +2520,47 @@
             });
         }
         update_camera(data) {
-            return new Promise((resolve, reject) => {
-                if (!this.service.validate(reject)) {
-                    return;
+            const promise = new Delayed_promise();
+            if (!this.service.validate(promise.reject)) {
+                return promise.promise;
+            }
+            if (!this.streaming) {
+                promise.reject(new RealityServerError('Not streaming.'));
+                return promise.promise;
+            }
+            if (!data) {
+                promise.reject(new RealityServerError('No data object provided.'));
+                return promise.promise;
+            }
+            const args = {
+                render_loop_name: this.render_loop_name,
+                camera: data.camera,
+                camera_instance: data.camera_instance,
+                cancel_level: data.cancel_level
+            };
+            if (data.wait_for_render) {
+                if (this.service.protocol_version < 5) {
+                    promise.reject(new RealityServerError('Connected RealityServer does not support wait for render ' +
+                                            'with camera updates. Update to RealityServer 6 to use ' +
+                                            'this feature.'));
+                    return promise.promise;
                 }
-                if (!this.streaming) {
-                    reject(new RealityServerError$1('Not streaming.'));
-                }
-                if (!data) {
-                    reject(new RealityServerError$1('No data object provided.'));
-                    return;
-                }
-                const args = {
-                    render_loop_name: this.render_loop_name,
-                    camera: data.camera,
-                    camera_instance: data.camera_instance,
-                    cancel_level: data.cancel_level
-                };
-                this.service.send_ws_command('set_camera', args, response => {
-                    if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
-                    } else {
-                        resolve(response.result);
-                    }
+                args.sequence_id = ++Service.sequence_id;
+                this.sequence_promises.push({
+                    sequence_id: args.sequence_id,
+                    delayed_promise: promise
                 });
+            }
+            this.service.send_ws_command('set_camera', args, response => {
+                if (response.error) {
+                    promise.reject(new RealityServerError(response.error.message));
+                } else {
+                    if (!data.wait_for_render) {
+                        promise.resolve(response.result);
+                    }
+                }
             });
+            return promise.promise;
         }
         get_state_data(cancel_level=null, continue_on_error=null) {
             let state_data = this.state_data;
@@ -2637,11 +2681,14 @@
         static get MESSAGE_ID_PREFER_STRING() {
             return 0x07;
         };
+        static get MAX_SUPPORTED_PROTOCOL() {
+            return 5;
+        };
         connect(url, extra_constructor_args=null) {
             return new Promise((resolve, reject) => {
                 if (url !== undefined && url !== null && url.constructor === String) {
                     if (!Service.supported) {
-                        reject(new RealityServerError$1('Websockets not supported.'));
+                        reject(new RealityServerError('Websockets not supported.'));
                         return;
                     }
                     try {
@@ -2681,7 +2728,7 @@
                 };
                 this.web_socket.onerror = error => {
                     scope.emit('error', error);
-                    reject(new RealityServerError$1('WebSocket connection error.'));
+                    reject(new RealityServerError('WebSocket connection error.'));
                 };
                 function process_response(response) {
                     if (scope.response_handlers[response.id] !== undefined) {
@@ -2732,17 +2779,17 @@
                                 statistics: stats,
                                 render_loop_name: stream.render_loop_name
                             };
-                            const command_promises = [];
+                            const sequence_promises = [];
                             if (stats.sequence_id > 0) {
-                                while (stream.command_promises.length &&
-                                  stream.command_promises[0].sequence_id <= stats.sequence_id) {
-                                    const handler = stream.command_promises.shift();
+                                while (stream.sequence_promises.length &&
+                                  stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
+                                    const handler = stream.sequence_promises.shift();
                                     handler.delayed_promise.resolve(data);
-                                    command_promises.push(handler.promise);
+                                    sequence_promises.push(handler.promise);
                                 }
                             }
-                            if (command_promises.length) {
-                                Promise.all(command_promises).then(() => {
+                            if (sequence_promises.length) {
+                                Promise.all(sequence_promises).then(() => {
                                     emit_image_event(stream, data);
                                 });
                             } else {
@@ -2750,7 +2797,7 @@
                             }
                         }
                     } else {
-                        emit_image_event(stream, data);
+                        emit_image_event(stream, {result});
                     }
                 }
                 function web_socket_stream(event) {
@@ -2803,15 +2850,15 @@
                             data.getUint8(6), data.getUint8(7));
                         if (hs_header !== 'RSWSRLIS') {
                             scope.web_socket.close(1002, 'Invalid handshake response');
-                            reject(new RealityServerError$1('Unexpected handshake header, ' +
+                            reject(new RealityServerError('Unexpected handshake header, ' +
                                                 'does not appear to be a RealityServer connection.'));
                         } else {
                             const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
-                            if (protocol_version < 2 || protocol_version > 4) {
+                            if (protocol_version < 2 || protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
                                 scope.web_socket.close(1002, protocol_version < 2 ?
                                     'RealityServer WebSocket protocol too old.' :
                                     'RealityServer WebSocket protocol too new.');
-                                reject(new RealityServerError$1(protocol_version < 2 ?
+                                reject(new RealityServerError(protocol_version < 2 ?
                                     'RealityServer version unsupported, upgrade your RealityServer.' :
                                     'RealityServer WebSocket protocol version not supported.'));
                             } else {
@@ -2836,7 +2883,7 @@
                         }
                     } else {
                         scope.web_socket.close(1002, 'Handshake response not binary');
-                        reject(new RealityServerError$1('unexpected data during handshake'));
+                        reject(new RealityServerError('unexpected data during handshake'));
                     }
                 }
                 function web_socket_prestart(event) {
@@ -2845,7 +2892,7 @@
                         let now = Service.now();
                         if (event.data.byteLength !== 40) {
                             scope.web_socket.close(1002, 'Invalid handshake size');
-                            reject(new RealityServerError$1('Invalid handshake header size'));
+                            reject(new RealityServerError('Invalid handshake header size'));
                             return;
                         }
                         let data = new DataView(event.data);
@@ -2855,19 +2902,19 @@
                             data.getUint8(6), data.getUint8(7));
                         if (hs_header !== 'RSWSRLIS') {
                             scope.web_socket.close(1002, 'Not a RealityServer handshake');
-                            reject(new RealityServerError$1('Invalid handshake header, ' +
+                            reject(new RealityServerError('Invalid handshake header, ' +
                                                 'does not appear to be a RealityServer connection.'));
                         } else {
                             scope.web_socket_littleendian = data.getUint8(8) === 1 ? true : false;
                             let protocol_version = data.getUint32(12, scope.web_socket_littleendian);
                             if (protocol_version < 3) {
                                 scope.web_socket.close(1002, 'RealityServer too old.');
-                                reject(new RealityServerError$1('RealityServer version is too old, ' +
+                                reject(new RealityServerError('RealityServer version is too old, ' +
                                                 'client lirary requires at least version 5.2 2272.266.'));
                                 return;
                             }
-                            if (protocol_version > 4) {
-                                protocol_version = 4;
+                            if (protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
+                                protocol_version = Service.MAX_SUPPORTED_PROTOCOL;
                             }
                             scope.protocol_state = 'handshaking';
                             let buffer = new ArrayBuffer(40);
@@ -2886,7 +2933,7 @@
                         }
                     } else {
                         scope.web_socket.close(1002, 'Handshake header not binary');
-                        reject(new RealityServerError$1('Unexpected data during handshake, ' +
+                        reject(new RealityServerError('Unexpected data during handshake, ' +
                                                 'does not appear to be a RealityServer connection.'));
                     }
                 }
@@ -2923,13 +2970,13 @@
         validate(reject=null) {
             if (!this.web_socket) {
                 if (reject) {
-                    reject(new RealityServerError$1('Web socket not connected.'));
+                    reject(new RealityServerError('Web socket not connected.'));
                 }
                 return false;
             }
             if (this.protocol_state !== 'started') {
                 if (reject) {
-                    reject(new RealityServerError$1('Web socket not started.'));
+                    reject(new RealityServerError('Web socket not started.'));
                 }
                 return false;
             }
@@ -2966,16 +3013,16 @@
                 throw arg;
             }
             if (!command_queue) {
-                return throw_or_reject(new RealityServerError$1('No command queue provided'));
+                return throw_or_reject(new RealityServerError('No command queue provided'));
             }
             if (!this.web_socket) {
-                return throw_or_reject(new RealityServerError$1('Web socket not connected.'));
+                return throw_or_reject(new RealityServerError('Web socket not connected.'));
             }
             if (this.protocol_state !== 'started') {
-                return throw_or_reject(new RealityServerError$1('Web socket not started.'));
+                return throw_or_reject(new RealityServerError('Web socket not started.'));
             }
             if (command_queue.commands.length === 0) {
-                return resolve_all ? Promise.all() : [];
+                return resolve_all ? Promise.all([]) : [];
             }
             let execute_args;
             const commands = command_queue.commands.map(c => c.command);
@@ -2997,7 +3044,7 @@
                     if (stream) {
                         const promise = new Delayed_promise();
                         execute_args.sequence_id = ++Service.sequence_id;
-                        stream.command_promises.push({
+                        stream.sequence_promises.push({
                             sequence_id: execute_args.sequence_id,
                             delayed_promise: promise
                         });
@@ -3008,7 +3055,7 @@
                 }
             } else {
                 if (wait_for_render) {
-                    return throw_or_reject(new RealityServerError$1('Commands want to wait for a rendered image but ' +
+                    return throw_or_reject(new RealityServerError('Commands want to wait for a rendered image but ' +
                                                         'are not executing on a render loop'));
                 }
                 execute_args = {
@@ -3084,11 +3131,11 @@
         set_max_rate(max_rate) {
             return new Promise((resolve, reject) => {
                 if (!this.web_socket) {
-                    reject(new RealityServerError$1('Web socket not connected.'));
+                    reject(new RealityServerError('Web socket not connected.'));
                     return;
                 }
                 if (this.protocol_state !== 'started') {
-                    reject(new RealityServerError$1('Web socket not started.'));
+                    reject(new RealityServerError('Web socket not started.'));
                     return;
                 }
                 if (!max_rate) {
@@ -3099,7 +3146,7 @@
                 };
                 this.send_ws_command('set_transfer_rate', args, response => {
                     if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
+                        reject(new RealityServerError(response.error.message));
                     } else {
                         resolve(response.result);
                     }
@@ -3110,22 +3157,22 @@
         associate_scope(scope_name) {
             return new Promise((resolve, reject) => {
                 if (!this.web_socket) {
-                    reject(new RealityServerError$1('Web socket not connected.'));
+                    reject(new RealityServerError('Web socket not connected.'));
                     return;
                 }
                 if (this.protocol_state !== 'started') {
-                    reject(new RealityServerError$1('Web socket not started.'));
+                    reject(new RealityServerError('Web socket not started.'));
                     return;
                 }
                 if (this.protocol_version < 4) {
-                    reject(new RealityServerError$1('Connected RealityServer does not support associating scopes ' +
+                    reject(new RealityServerError('Connected RealityServer does not support associating scopes ' +
                                         'with Service connections. Update to RealityServer 6 to use ' +
                                         'this feature.'));
                     return;
                 }
                 this.send_ws_command('associate_scope', scope_name, response => {
                     if (response.error) {
-                        reject(new RealityServerError$1(response.error.message));
+                        reject(new RealityServerError(response.error.message));
                     } else {
                         resolve(response.result);
                     }
@@ -3139,7 +3186,7 @@
     exports.Math = index;
     exports.Command = Command;
     exports.Command_error = Command_error;
-    exports.Error = RealityServerError$1;
+    exports.Error = RealityServerError;
     exports.Service = Service;
     exports.Stream = Stream;
     exports.Color = Color;
