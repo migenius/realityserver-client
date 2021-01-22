@@ -83,7 +83,10 @@
     }
 
     function utf8encode(string) {
-        const codePoints = ucs2decode(string);
+        let codePoints = ucs2decode(string);
+        let length = codePoints.length;
+        let index = -1;
+        let codePoint;
         let byteArray = [];
         // assume just 7 bit ascii to start with, which
         // given our use case isn't a bad thing.
