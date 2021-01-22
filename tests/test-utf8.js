@@ -4,6 +4,12 @@
 // A simple test just to ensure basic functionality of the UTF-8 encoding
 import Utf8 from '../src/internal/Utf8';
 const fs = require('fs');
+let text_encoder;
+try {
+    text_encoder = TextEncoder;
+} catch(e) {
+    text_encoder = require('util').TextEncoder;
+}
 
 let str = fs.readFileSync('./utf8test.html','utf-8');
 
@@ -20,7 +26,7 @@ str += str;
 //console.log(str.length);
 let start = new Date();
 // We'll accept TextEncoder as a source of truth
-const check = new TextEncoder().encode(str);
+const check = new text_encoder().encode(str);
 //console.log(`${new Date() - start}`);
 
 start = new Date();
