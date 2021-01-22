@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
+ * Copyright 2010-2021 migenius pty ltd, Australia. All rights reserved.
  *****************************************************************************/
 // A simple test just to ensure basic functionality of the UTF-8 encoding
 import Utf8 from '../src/internal/Utf8';
@@ -54,6 +54,6 @@ if (!errs) {
     }
 }
 if (!errs) {
-    console.log('Passed');
+    console.log('Utf8 Passed');
 }
 //console.log(str);
