@@ -359,6 +359,8 @@
             
                 <li class="parent  " data-name="html_image_display"><a href="RS.Utils.html">html_image_display</a></li>
             
+                <li class="parent  " data-name="html_video_display"><a href="RS.Utils.html">html_video_display</a></li>
+            
             </ul>
             
             <ul class="events itemMembers">
@@ -1225,7 +1227,18 @@ const service = new Service();
   console.log(`connecting to: ${url}`);
 
   try {
-    await service.connect(new WebSocket(url));
+    // The default configuration for the WebSocket module has settings unsuitable for use
+    // with RealityServer. The RealityServer WebSocket server does not handle fragmented
+    // messages well so we need to disable outgoing fragmentation. Additionally, it limits
+    // incoming messages to 1MiB by default which can easily be exceeded when rendering
+    // large images. Here we up the limit to 10MiB which should cover most situations.
+    await service.connect(new WebSocket(url, undefined, undefined, undefined, undefined,
+      {
+        fragmentOutgoingMessages: false,
+        maxReceivedFrameSize: 10485760,
+        maxReceivedMessageSize: 10485760
+      }
+    ));
   } catch (err) {
     console.error(`Web Socket connection failed: ${err.toString()}`);
     return;
@@ -1240,6 +1253,9 @@ const service = new Service();
 <p>Note that you must not process any messages on the WebSocket before passing it to the service otherwise initialization will fail.</p>
 <p>From this point on the API can be used in exactly the same way as in the browser. The only exception is the RS.Utils.html_image_display function which requires an Image DOM object to display. However even that can be used if you can provide a custom <code>Image</code> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL" title="Object URL">Object URL</a> implementation.</p>
 <p>One thing to note is that in Node.js applications we need to ensure that the service gets closed when we're done. Otherwise the open WebSocket connection will prevent the application from exiting on completion.</p>
+<h3>WebSocket best practices.</h3>
+<p>You'll note in the code above that we are providing extra arguments to the <code>WebSocket</code> constructor. This is because the NPM websocket module being used imposes some limitations on message size, see the <a href="https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketClient.md" title="WebSocket Client documentation">WebSocket Client documentation</a>. The default values cause any incoming messages larger than 1MiB to be discarded. In most applications this wouldn't be a problem however rendered images can easily become larger than this, especially when using lossless compression formats (EG: a 512x512 Rgba uncompressed image already hits this limit). So we need to increase both the maximum message and maximum fragment size to compensate. Here we are using 10MiB however you should fine tune the value to suit your application.</p>
+<p>Additionally, the RealityServer® WebSocket server does not support fragmented messages so we need to disable outgoing message fragmentation otherwise larger command queues may silently disappear from the stream.</p>
 <h3>Overriding default WebSocket constructor</h3>
 <p>An alternative to passing in a WebSocket instance to <a href="RS.Service.html#connect">RS.Service#connect</a> is to override the WebSocket constructor used by the service. You can then simply use the service URL when connecting in the same was as in the browser. To do this simply set the RS.Service#websocket static property to the W3C compatible constructor:</p>
 <pre class="prettyprint source lang-javascript"><code>const { Command,Command_error,Error: Rs_error,Utils,Service } = require('@migenius/realityserver-client');
@@ -1247,9 +1263,16 @@ Service.websocket = require('websocket').w3cwebsocket;
 
 const service = new Service();
 
-service.connect(url);
+service.connect(url,[ undefined, undefined, undefined, undefined,
+  {
+    fragmentOutgoingMessages: false,
+    maxReceivedFrameSize: 10485760,
+    maxReceivedMessageSize: 10485760
+  }
+]);
 </code></pre>
-<p>This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.</p>
+<p>This pattern could be more convenient if sharing code between Node.js and the browser or if you are making multiple service connections within an application.
+Note that in this case the additional arguments for the constructor need to be passed in an array as the second argument to the <a href="RS.Service.html#connect">RS.Service#connect</a> call.</p>
 <h3>Summary</h3>
 <p>In this tutorial we have learnt about the differences between initialization in the browser and Node.js and how to connect to RealityServer®.</p>
 <h3>Source</h3>
@@ -1279,7 +1302,7 @@ service.connect(url);
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Wed Aug 12 2020 13:24:06 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Fri Jan 22 2021 14:46:44 GMT+1100 (Australian Eastern Daylight Time)
             </div>
         </footer>
     </div>
