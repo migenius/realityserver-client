@@ -556,7 +556,9 @@ class Service extends EventEmitter {
      * @see [WebSocket Status Codes](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes)
      */
     close(code=1000, reason='User request') {
-        this.web_socket.close(code, reason);
+        if (this.web_socket) {
+            this.web_socket.close(code, reason);
+        }
     }
 
     /**
