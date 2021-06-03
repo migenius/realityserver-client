@@ -28,7 +28,7 @@ service.connect('ws://host.example.com/service/')
         {
           scene_name:'myscene',
           block:true,
-          filename: 'scenes/meyemii.mi'
+          filename: 'scenes/meyemII.mi'
         }),true) // the response from this will resolve next
       .execute();
   })
@@ -69,7 +69,7 @@ async () => {
         {
           scene_name:'myscene',
           block:true,
-          filename: 'scenes/meyemii.mi'
+          filename: 'scenes/meyemII.mi'
         }),true)
       .execute();
     if (scene_info instanceof Rs_error ) {

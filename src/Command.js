@@ -17,7 +17,7 @@
  *              {
  *                  scene_name:'meyemii',
  *                  block:true,
- *                  filename: 'scenes/meyemii.mi'
+ *                  filename: 'scenes/meyemII.mi'
  *              });
  * c = new Command('render',
  *              {
