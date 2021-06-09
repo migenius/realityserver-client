@@ -255,6 +255,14 @@ A [RealityServer Extras](https://github.com/migenius/realityserver-extras "Reali
 
 ## Release Notes
 
+### 1.0.8
+
+Fixed a reference to an `undefined` variable error if `RS.Service.close` was called when no web socket connection existed.
+
+Command parameters are now copied internally and those whose value is `undefined` are removed. This is to ensure that the same parameter set is used in both binary and ascii modes.
+
+Fix scene filename case issue in documentation and other minor documentation issues.
+
 ### 1.0.7
 
 Use `TextEncoder` and `TextDecoder` for Utf8 conversion when in binary mode (IE: when `Service.debug_commands === false`). If they are not available falls back to the internal Utf8 converters. All modern browsers and Node.js >= 11 support `TextEncoder` and `TextDecoder`.
