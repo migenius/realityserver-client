@@ -359,8 +359,6 @@
             
                 <li class="parent  " data-name="html_image_display"><a href="RS.Utils.html">html_image_display</a></li>
             
-                <li class="parent  " data-name="html_video_display"><a href="RS.Utils.html">html_video_display</a></li>
-            
             </ul>
             
             <ul class="events itemMembers">
@@ -1007,6 +1005,8 @@
             
             <span class="subtitle">Methods</span>
             
+                <li class="parent  " data-name="RS.Service#associate_scope"><a href="RS.Service.html#associate_scope">associate_scope</a></li>
+            
                 <li class="parent  " data-name="RS.Service#close"><a href="RS.Service.html#close">close</a></li>
             
                 <li class="parent  " data-name="RS.Service#connect"><a href="RS.Service.html#connect">connect</a></li>
@@ -1304,7 +1304,11 @@
         
 
     
-    <pre class="prettyprint"><code>let c = new RS.Math.Color();c = new RS.Math.Color(1,0.5,0.7);c = new RS.Math.Color([0.2,0.3,0.5]);c = new RS.Math.Color({r: 0.1, r: 0.53, b: 0.2});c = new RS.Math.Color(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
+    <pre class="prettyprint"><code>let c = new RS.Math.Color();
+c = new RS.Math.Color(1,0.5,0.7);
+c = new RS.Math.Color([0.2,0.3,0.5]);
+c = new RS.Math.Color({r: 0.1, r: 0.53, b: 0.2});
+c = new RS.Math.Color(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
     
 
     
@@ -1685,7 +1689,9 @@
         
 
     
-    <pre class="prettyprint"><code>const col = new RS.Math.Color(0.2,0.2,0.3);col.add(new RS.Math.Color(0.3,0,0.1));// col is now {r:0.5,g:0.2,b:0.4,a:1}</code></pre>
+    <pre class="prettyprint"><code>const col = new RS.Math.Color(0.2,0.2,0.3);
+col.add(new RS.Math.Color(0.3,0,0.1));
+// col is now {r:0.5,g:0.2,b:0.4,a:1}</code></pre>
     
 
     
@@ -2076,7 +2082,13 @@
         
 
     
-    <pre class="prettyprint"><code>let col = new RS.Math.Color(0.01,0.05,0.03);col.equal(col);// returns truecol.equal(new RS.Math.Color(0.02,0.05,0.03));// returns falsecol.equal(new RS.Math.Color(0.02,0.05,0.03),0.1);// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let col = new RS.Math.Color(0.01,0.05,0.03);
+col.equal(col);
+// returns true
+col.equal(new RS.Math.Color(0.02,0.05,0.03));
+// returns false
+col.equal(new RS.Math.Color(0.02,0.05,0.03),0.1);
+// returns true due to tolerance</code></pre>
     
 
     
@@ -2266,7 +2278,15 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>let col = new RS.Math.Color(0.01,0.05,0.03);col.equal_with_tolerance(col);// returns truecol.equal_with_tolerance(new RS.Math.Color(0.02,0.05,0.03));// returns falsecol.equal_with_tolerance(new RS.Math.Color(0.01001,0.05,0.03));// returns true due to default tolerancecol.equal_with_tolerance(new RS.Math.Color(0.02,0.05,0.03),0.1);// returns true due to tolerance</code></pre>
+    <pre class="prettyprint"><code>let col = new RS.Math.Color(0.01,0.05,0.03);
+col.equal_with_tolerance(col);
+// returns true
+col.equal_with_tolerance(new RS.Math.Color(0.02,0.05,0.03));
+// returns false
+col.equal_with_tolerance(new RS.Math.Color(0.01001,0.05,0.03));
+// returns true due to default tolerance
+col.equal_with_tolerance(new RS.Math.Color(0.02,0.05,0.03),0.1);
+// returns true due to tolerance</code></pre>
     
 
     
@@ -2922,7 +2942,9 @@ tolerance is <code>10e-5</code></p></td>
         
 
     
-    <pre class="prettyprint"><code>const col = new RS.Math.Color(1,0.5,0.6);col.scale(0.5);// col is now {r:0.5,g:0.25,z:0.3,a:1}</code></pre>
+    <pre class="prettyprint"><code>const col = new RS.Math.Color(1,0.5,0.6);
+col.scale(0.5);
+// col is now {r:0.5,g:0.25,z:0.3,a:1}</code></pre>
     
 
     
@@ -3072,7 +3094,11 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const c = new RS.Math.Color();c.set(1,0.5,0.7);c.set([0.2,0.3,0.5]);c.set({r: 0.1, r: 0.53, b: 0.2});c.set(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
+    <pre class="prettyprint"><code>const c = new RS.Math.Color();
+c.set(1,0.5,0.7);
+c.set([0.2,0.3,0.5]);
+c.set({r: 0.1, r: 0.53, b: 0.2});
+c.set(new RS.Math.Spectrum([0.2,0.7,0.5]);</code></pre>
     
 
     
@@ -3226,7 +3252,9 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const col = new RS.Math.Color(0.2,0.2,0.3);col.subtract(new RS.Math.Color(0.1,0,0.1));// col is now {r:0.1,g:0.2,b:0.2,a:1}</code></pre>
+    <pre class="prettyprint"><code>const col = new RS.Math.Color(0.2,0.2,0.3);
+col.subtract(new RS.Math.Color(0.1,0,0.1));
+// col is now {r:0.1,g:0.2,b:0.2,a:1}</code></pre>
     
 
     
@@ -3380,7 +3408,9 @@ of numbers.</p></td>
         
 
     
-    <pre class="prettyprint"><code>const col = new RS.Math.Color(0.8,0.8,0.8);col.tint(new RS.Math.Color(1,0.5,0.6));// col is now {r:0.8,g:0.4,b:0.48,a:1}</code></pre>
+    <pre class="prettyprint"><code>const col = new RS.Math.Color(0.8,0.8,0.8);
+col.tint(new RS.Math.Color(1,0.5,0.6));
+// col is now {r:0.8,g:0.4,b:0.48,a:1}</code></pre>
     
 
     
@@ -3507,7 +3537,7 @@ of numbers.</p></td>
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Wed Sep 18 2019 09:58:25 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Jun 10 2021 10:21:15 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
