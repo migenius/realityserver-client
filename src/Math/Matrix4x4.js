@@ -16,7 +16,7 @@ import * as Const from './Functions';
  *                [31, 32, 33, 34],
  *                [41, 42, 43, 44]
  * ]);
-* m = new RS.Math.Matrix4x4({
+ * m = new RS.Math.Matrix4x4({
  *                xx:11, xy: 12, xz: 13, xw: 14,
  *                yx:21, yy: 22, yz: 23, yw: 24,
  *                zx:31, zy: 32, zz: 33, zw: 34,
@@ -243,7 +243,7 @@ class Matrix4x4 {
 
     /**
      * Clear this matrix by setting all elements to 0.
-    */
+     */
     clear() {
         this.xx = this.xy = this.xz = this.xw =
         this.yx = this.yy = this.yz = this.yw =
@@ -254,7 +254,7 @@ class Matrix4x4 {
 
     /**
      * Sets this matrix to the identity matrix.
-    */
+     */
     set_identity() {
         this.clear();
         this.xx = this.yy = this.zz = this.ww = 1;
@@ -293,9 +293,9 @@ class Matrix4x4 {
     /**
      * Sets this matrix to a scaling matrix.
      * @param {Number} x The amount to scale in the x axis.
-    * @param {Number} y The amount to scale in the y axis.
-    * @param {Number} z The amount to scale in the z axis.
-    */
+     * @param {Number} y The amount to scale in the y axis.
+     * @param {Number} z The amount to scale in the z axis.
+     */
     set_scaling(x, y, z) {
         this.set_identity();
 
