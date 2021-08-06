@@ -188,7 +188,7 @@ class Service extends EventEmitter {
      * @access private
     */
     static get MAX_SUPPORTED_PROTOCOL() {
-        return 5;
+        return 6;
     };
 
     /**
