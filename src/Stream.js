@@ -354,7 +354,7 @@ class Stream extends EventEmitter {
 
         return promise.promise;
     }
-	
+
     /**
      * Executes a pick operation on the render loop. The returned promise resolves with an array of
      * pick results. If no objects were under the point then the array will be empty.
@@ -374,53 +374,53 @@ class Stream extends EventEmitter {
 	 *                   in the pick result array will be an object containing the following properties:
 	 *                   world_point (Vector3), picked_object_name (String), path (String[]).
      */
-	pick(position, size = null, cancel_level = null) {
-		
-		const promise = new Delayed_promise();
-		if (!this.service.validate(promise.reject)) {
-			return promise.promise;
-		}
-	
-		if (this.service.protocol_version < 6) {
-			promise.reject(new RS_error(
-				'Connected RealityServer does not support pick command. ' +
+    pick(position, size = null, cancel_level = null) {
+
+        const promise = new Delayed_promise();
+        if (!this.service.validate(promise.reject)) {
+            return promise.promise;
+        }
+
+        if (this.service.protocol_version < 6) {
+            promise.reject(new RS_error(
+                'Connected RealityServer does not support pick command. ' +
 				'Update to RealityServer 6.2 to use this feature.'));
-			return promise.promise;
-		}
-		
-		if (!this.streaming) {
-			promise.reject(new RS_error('Not streaming.'));
-			return promise.promise;
-		}
-		if (!position) {
-			promise.reject(new RS_error('No position provided.'));
-			return promise.promise;
-		}
-		
-		const args = {
-			render_loop_name: this.render_loop_name,
-			position: position
-		};
-		
-		if (size !== null && size !== undefined) {
-			args.size = size;
-		}
-		
-		if (cancel_level !== null && cancel_level !== undefined) {
-			args.cancel_level = cancel_level;
-		}
-		
-		this.service.send_ws_command('pick', args, response => {
-			if (response.error) {
-				promise.reject(new RS_error(response.error.message));
-			} else {
-				promise.resolve(response.result);
-			}
-		});
-		
-		return promise.promise;
-	}
-	
+            return promise.promise;
+        }
+
+        if (!this.streaming) {
+            promise.reject(new RS_error('Not streaming.'));
+            return promise.promise;
+        }
+        if (!position) {
+            promise.reject(new RS_error('No position provided.'));
+            return promise.promise;
+        }
+
+        const args = {
+            render_loop_name: this.render_loop_name,
+            position: position
+        };
+
+        if (size !== null && size !== undefined) {
+            args.size = size;
+        }
+
+        if (cancel_level !== null && cancel_level !== undefined) {
+            args.cancel_level = cancel_level;
+        }
+
+        this.service.send_ws_command('pick', args, response => {
+            if (response.error) {
+                promise.reject(new RS_error(response.error.message));
+            } else {
+                promise.resolve(response.result);
+            }
+        });
+
+        return promise.promise;
+    }
+
     /**
      * Returns the state data to use.
      * @param {Number=} cancel_level - cancel level override

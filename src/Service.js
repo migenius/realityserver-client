@@ -376,7 +376,7 @@ class Service extends EventEmitter {
                         }
                     }
                 } else {
-                    emit_image_event(stream, {result});
+                    emit_image_event(stream, { result });
                 }
 
             }

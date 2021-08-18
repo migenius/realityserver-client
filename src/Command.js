@@ -50,7 +50,7 @@ class Command {
      *
      * Any other type provided will be interpreted as an Object and have it's
      * enumerable properties sent in a Map using <code>Object.keys(value).forEach()</code>.
-     * 
+     *
      * The provided parameter Object will be copied internally and any properties whose
      * values is `undefined` will be removed.
      *
@@ -72,7 +72,7 @@ class Command {
          * and values are their values.
          * @member {Object}
          */
-        this.params = Object.assign({},parameters);
+        this.params = Object.assign({}, parameters);
         Object.keys(this.params).forEach(k => this.params[k] === undefined && delete this.params[k]);
     }
 }
