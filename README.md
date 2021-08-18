@@ -255,6 +255,12 @@ A [RealityServer Extras](https://github.com/migenius/realityserver-extras "Reali
 
 ## Release Notes
 
+### 1.0.9
+
+Added experimental support for streaming H.264 video to Chrome based browsers via `RS.Utils.html_video_display`.
+
+Added `RS.Stream.pick` to allow picking on the stream.
+
 ### 1.0.8
 
 Fixed a reference to an `undefined` variable error if `RS.Service.close` was called when no web socket connection existed.

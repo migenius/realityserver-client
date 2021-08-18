@@ -9,11 +9,11 @@ RealityServer&reg; 5.2 2272.266 or later is required.
 ## Installation
 For native browser usage download via CDN:
 ```html
-<script src='https://unpkg.com/@migenius/realityserver-client@1.0.6'></script>
+<script src='https://unpkg.com/@migenius/realityserver-client@1.0.9'></script>
 ```
 or unminified
 ```html
-<script src='https://unpkg.com/@migenius/realityserver-client@1.0.6/lib/umd/realityserver.js'></script> 
+<script src='https://unpkg.com/@migenius/realityserver-client@1.0.9/lib/umd/realityserver.js'></script> 
 ```
 Although for mission critical deployments it is recommended you serve the client API yourself. 
 
