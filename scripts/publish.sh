@@ -5,10 +5,11 @@ if [ "$npm_package_version" == "" ]; then
     exit 1
 fi
 
+RELEASE_BRANCH="release-$npm_package_version"
 # check we're on the release branch
-BRANCH=$(git branch --list release)
+BRANCH=$(git branch --list "$RELEASE_BRANCH")
 
-if [ "$BRANCH" != "* release" ]; then
+if [ "$BRANCH" != "* $RELEASE_BRANCH" ]; then
     echo "Not on release branch, not publishing"
     exit 0 # exit 0 so we don't cause npm to show errors
 fi

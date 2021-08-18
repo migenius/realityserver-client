@@ -15,7 +15,8 @@
     "build:doc": "npm run build:doc:preprocess && jsdoc -c .jsdoc.conf.js",
     "eslint": "eslint src scripts",
     "test": "cd tests && node -r esm test-utf8.js && node -r esm test-command.js",
-    "build:publish": "bash scripts/publish.sh"
+    "build:publish": "bash scripts/publish.sh",
+    "mk-release-branch": "bash scripts/mk-release-branch.sh"
   },
   "license": "ISC",
   "devDependencies": {
