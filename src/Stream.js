@@ -354,7 +354,66 @@ class Stream extends EventEmitter {
 
         return promise.promise;
     }
-
+	
+    /**
+     * Executes a pick operation on the render loop. Returns pick results once the promise
+	 * resolves.
+     *
+     * @position {Vector2} The screen space position of the pick.
+     * @size {Vector2=} The screen space rectangular size of the pick.
+     * @param {Number=} cancel_level - The cancel level override.
+     * @return {Promise} A `Promise` that resolves to an array of pick results. Each element
+	 *                   in the pick result array will be an object containing the following properties:
+	 *                   world_point (Vector3), picked_object_name (String), path (String[]).
+	 *                   
+     */
+	pick(position, size = null, cancel_level = null) {
+		
+		const promise = new Delayed_promise();
+	
+		if (this.service.protocol_version < 6) {
+			promise.reject(new RS_error(
+				'Connected RealityServer does not support pick command. ' +
+				'Update to RealityServer 6.2 to use this feature.'));
+			return promise.promise;
+		}
+		
+		if (!this.service.validate(promise.reject)) {
+			return promise.promise;
+		}
+		if (!this.streaming) {
+			promise.reject(new RS_error('Not streaming.'));
+			return promise.promise;
+		}
+		if (!position) {
+			promise.reject(new RS_error('No position provided.'));
+			return promise.promise;
+		}
+		
+		const args = {
+			render_loop_name: this.render_loop_name,
+			position: position
+		};
+		
+		if (size !== null) {
+			args.size = size;
+		}
+		
+		if (cancel_level !== null) {
+			args.cancel_level = cancel_level;
+		}
+		
+		this.service.send_ws_command('pick', args, response => {
+			if (response.error) {
+				promise.reject(new RS_error(response.error.message));
+			} else {
+				promise.resolve(response.result);
+			}
+		});
+		
+		return promise.promise;
+	}
+	
     /**
      * Returns the state data to use.
      * @param {Number=} cancel_level - cancel level override
