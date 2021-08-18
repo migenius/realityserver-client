@@ -10,7 +10,7 @@
     class Command {
         constructor(name, parameters) {
             this.name = name;
-            this.params = Object.assign({},parameters);
+            this.params = Object.assign({}, parameters);
             Object.keys(this.params).forEach(k => this.params[k] === undefined && delete this.params[k]);
         }
     }
@@ -2562,6 +2562,44 @@
             });
             return promise.promise;
         }
+        pick(position, size = null, cancel_level = null) {
+            const promise = new Delayed_promise();
+            if (!this.service.validate(promise.reject)) {
+                return promise.promise;
+            }
+            if (this.service.protocol_version < 6) {
+                promise.reject(new RealityServerError(
+                    'Connected RealityServer does not support pick command. ' +
+    				'Update to RealityServer 6.2 to use this feature.'));
+                return promise.promise;
+            }
+            if (!this.streaming) {
+                promise.reject(new RealityServerError('Not streaming.'));
+                return promise.promise;
+            }
+            if (!position) {
+                promise.reject(new RealityServerError('No position provided.'));
+                return promise.promise;
+            }
+            const args = {
+                render_loop_name: this.render_loop_name,
+                position: position
+            };
+            if (size !== null && size !== undefined) {
+                args.size = size;
+            }
+            if (cancel_level !== null && cancel_level !== undefined) {
+                args.cancel_level = cancel_level;
+            }
+            this.service.send_ws_command('pick', args, response => {
+                if (response.error) {
+                    promise.reject(new RealityServerError(response.error.message));
+                } else {
+                    promise.resolve(response.result);
+                }
+            });
+            return promise.promise;
+        }
         get_state_data(cancel_level=null, continue_on_error=null) {
             let state_data = this.state_data;
             if ((cancel_level !== null && cancel_level !== this.cancel_level) ||
@@ -2682,7 +2720,7 @@
             return 0x07;
         };
         static get MAX_SUPPORTED_PROTOCOL() {
-            return 5;
+            return 6;
         };
         connect(url, extra_constructor_args=null) {
             return new Promise((resolve, reject) => {
@@ -2797,7 +2835,7 @@
                             }
                         }
                     } else {
-                        emit_image_event(stream, {result});
+                        emit_image_event(stream, { result });
                     }
                 }
                 function web_socket_stream(event) {
@@ -2941,7 +2979,9 @@
             });
         }
         close(code=1000, reason='User request') {
-            this.web_socket.close(code, reason);
+            if (this.web_socket) {
+                this.web_socket.close(code, reason);
+            }
         }
         send_ws_command(command, args, handler, scope) {
             let command_id = handler !== undefined ? this.command_id : undefined;

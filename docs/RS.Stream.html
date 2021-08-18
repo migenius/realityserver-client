@@ -1087,6 +1087,8 @@
             
                 <li class="parent  " data-name="RS.Stream#pause"><a href="RS.Stream.html#pause">pause</a></li>
             
+                <li class="parent  " data-name="RS.Stream#pick"><a href="RS.Stream.html#pick">pick</a></li>
+            
                 <li class="parent  " data-name="RS.Stream#queue_commands"><a href="RS.Stream.html#queue_commands">queue_commands</a></li>
             
                 <li class="parent  " data-name="RS.Stream#resume"><a href="RS.Stream.html#resume">resume</a></li>
@@ -1927,6 +1929,249 @@ the server, the callback is just not called. Pause calls are counted so you need
             </td>
             <td class="description last">The pause count, IE: the number of times resume will need to be called to
 start emitting events again.</td>
+        </tr>
+    
+    </tbody>
+</table>
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="pick">
+            <a class="share-icon" href="#pick"><span class="glyphicon glyphicon-link"></span></a>
+            <span class="">
+                pick
+            </span>
+            <span class="signature">(position, <span class="optional">size</span>, <span class="optional">cancel_level</span>)</span><span class="type-signature">Promise</span>
+            
+            
+            
+            
+        </h4>
+    
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Executes a pick operation on the render loop. The returned promise resolves with an array of
+pick results. If no objects were under the point then the array will be empty.</p>
+<p>Note that stream picking is only supported in RealityServer 6.2 and above.</p>
+<p>The returned promise will reject in the following circumstances:</p>
+<ul>
+<li>there is no WebSocket connection.</li>
+<li>the WebSocket connection has not started (IE: <a href="RS.Service.html#connect">RS.Service#connect</a> has not yet resolved).</li>
+<li>this stream is not yet streaming</li>
+<li>no position is provided.</li>
+<li>arguments are the wrong type or \p position has a negative coordinate</li>
+<li>the render loop is no longer available.</li>
+<li>the connected RealityServer does not support picking on a stream.</li>
+</ul>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>position</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Vector2</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                <p>The screen space position of the pick.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>size</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Vector2</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                <p>The screen space rectangular size of the pick. Defaults to a 1x1 pixel area.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>cancel_level</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                <p>The cancel level override. Defaults to 1.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr>
+            
+            <td class="type">
+            
+                        Promise
+                        
+                    
+            </td>
+            <td class="description last">A <code>Promise</code> that resolves to an array of pick results. Each element
+in the pick result array will be an object containing the following properties:
+world_point (Vector3), picked_object_name (String), path (String[]).</td>
         </tr>
     
     </tbody>
@@ -4866,7 +5111,7 @@ and on each individual <a href="RS.Stream.html">RS.Stream</a></p>
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Jun 10 2021 09:46:32 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Aug 19 2021 08:42:05 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
