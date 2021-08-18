@@ -356,9 +356,17 @@ class Stream extends EventEmitter {
     }
 	
     /**
-     * Executes a pick operation on the render loop. Returns pick results once the promise
-	 * resolves.
+     * Executes a pick operation on the render loop. The returned promise resolves with an array of
+     * pick results. If no objects were under the point then the array will be empty.
      *
+     * The returned promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - this stream is not yet streaming
+     * - no position is provided.
+     * - arguments are the wrong type or \p position has a negative coordinate
+     * - the render loop is no longer available.
+     * - the connected RealityServer does not support picking on a stream.
      * @position {Vector2} The screen space position of the pick.
      * @size {Vector2=} The screen space rectangular size of the pick.
      * @param {Number=} cancel_level - The cancel level override.
@@ -370,6 +378,9 @@ class Stream extends EventEmitter {
 	pick(position, size = null, cancel_level = null) {
 		
 		const promise = new Delayed_promise();
+		if (!this.service.validate(promise.reject)) {
+			return promise.promise;
+		}
 	
 		if (this.service.protocol_version < 6) {
 			promise.reject(new RS_error(
@@ -378,9 +389,6 @@ class Stream extends EventEmitter {
 			return promise.promise;
 		}
 		
-		if (!this.service.validate(promise.reject)) {
-			return promise.promise;
-		}
 		if (!this.streaming) {
 			promise.reject(new RS_error('Not streaming.'));
 			return promise.promise;
@@ -395,11 +403,11 @@ class Stream extends EventEmitter {
 			position: position
 		};
 		
-		if (size !== null) {
+		if (size !== null && size !== undefined) {
 			args.size = size;
 		}
 		
-		if (cancel_level !== null) {
+		if (cancel_level !== null && cancel_level !== undefined) {
 			args.cancel_level = cancel_level;
 		}
 		
