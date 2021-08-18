@@ -367,13 +367,12 @@ class Stream extends EventEmitter {
      * - arguments are the wrong type or \p position has a negative coordinate
      * - the render loop is no longer available.
      * - the connected RealityServer does not support picking on a stream.
-     * @position {Vector2} The screen space position of the pick.
-     * @size {Vector2=} The screen space rectangular size of the pick.
-     * @param {Number=} cancel_level - The cancel level override.
+     * @param {Vector2} position The screen space position of the pick.
+     * @param {Vector2=} size The screen space rectangular size of the pick. Defaults to a 1x1 pixel area.
+     * @param {Number=} cancel_level - The cancel level override. Defaults to 1.
      * @return {Promise} A `Promise` that resolves to an array of pick results. Each element
 	 *                   in the pick result array will be an object containing the following properties:
 	 *                   world_point (Vector3), picked_object_name (String), path (String[]).
-	 *                   
      */
 	pick(position, size = null, cancel_level = null) {
 		
