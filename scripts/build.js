@@ -42,7 +42,7 @@ function generate_bundled_module(input_file, root_path, basename, formats, plugi
                         file: path.join(root_path, format.format, basename),
                         sourcemap: true,
                         banner: '/******************************************************************************\n' +
-                                '* Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.\n' +
+                                '* Copyright 2010-2021 migenius pty ltd, Australia. All rights reserved.\n' +
                                 '******************************************************************************/'
                     });
                 })
