@@ -359,6 +359,8 @@ class Stream extends EventEmitter {
      * Executes a pick operation on the render loop. The returned promise resolves with an array of
      * pick results. If no objects were under the point then the array will be empty.
      *
+     * Note that stream picking is only supported in RealityServer 6.2 and above.
+     * 
      * The returned promise will reject in the following circumstances:
      * - there is no WebSocket connection.
      * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
