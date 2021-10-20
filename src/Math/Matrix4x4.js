@@ -495,8 +495,8 @@ class Matrix4x4 {
      */
     invert() {
         let det = this.get_determinant();
-        if (det === 0) {
-            throw new Error('Determinant is 0');
+        if (det === 0 || Number.isNaN(det)) {
+            throw new Error('Determinant is 0 or NaN');
         }
         let mat = this.clone();
 
