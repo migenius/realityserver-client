@@ -34,6 +34,14 @@ class Command_queue {
     }
 
     /**
+     * The length of the current command queue.
+     * @return {Number}
+     */
+    get length() {
+        return this.commands.length;
+    }
+
+    /**
      * Adds a command to the command queue.
      * @param {Command} command - The command to add.
      * @param {Boolean} [want_response=false] - Whether we want a response from this command or not
