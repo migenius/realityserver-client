@@ -163,3 +163,19 @@ const set_result = await set_result_promise; // we can just await the result her
 ```
 
 In this code block we first pause display of images on the stream, this means that even if images are received the {@link RS.Stream#event:image} event is not triggered. We then use {@link RS.Stream#send_command} so we can access the returned Promises directly rather than just their results. This allows us to add a then handler to `have_image_promise` to resume the stream once an image with the new color arrives. The event will then be triggered once the handler returns. We can then simply await on the `set_result_promise` and deal with it's response as we wish.
+
+## Long running commands
+
+The Web Socket implementation within RealityServer&reg; has a limitation where it processes all messages consecutively. This means that if executing a long running command on {@link RS.Service} any other messages sent (eg: other commands or operations on either the service or a {@link RS.Stream}) will be queued up and not processed until that command completes. This can cause issues particularly if keep alive commands need to be sent to prevent session expiry.
+
+To mitigate this the option `longrunning: true` can be passed to the following command execution functions:
+
+- {@link RS.Service#queue_commands}
+- {@link RS.Service#execute_command}
+- {@link RS.Service#send_command}
+
+When this is passed RealityServer&reg; will prepare the command execution environment then execute the commands in a separate thread. This frees up the Web Socket to process further messages immediately while the commands are executed. When complete any results are sent back to the client as usual.
+
+Given that a new thread is created for each set of commands executed it is not recommended to simply set long running to true for every command. You will need to judge whether any given set of commands may execute for an extended period and set the option accordingly. Examples of potentially long running command include any which involve saving scenes or scene elements to disk or rendering images outside of a render loop. Scene loading is also an example of a typically long running command. However this usually occurs at the start of a session when no other operations need to be run, so typically does not need to be marked as long running.
+
+Note that commands executed on a {@link RS.Stream} do not suffer from this problem as they are already executed in the separate render loop thread between renders. Consequently those methods do not support this option. However the queuing of such commands onto the render loop will be blocked by any commands running on {@link RS.Service} that have not been marked as long running.

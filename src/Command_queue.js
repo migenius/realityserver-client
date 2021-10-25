@@ -18,12 +18,18 @@ class Command_queue {
      * @param {Boolean} wait_for_render - If `true` then a `Promise` will be generated when the
      * results of these commands are available in a rendered image.
      * @param {(RS.State_data|RS.Render_loop_state_data)} state_data - The state to execute in
+     * @param {Object=} options - General command queue options.
+     * @param {Boolean=} options.longrunning - A hint as to whether the commands are expected to
+     * be long running or not. Long running commands are executed asynchronously on the server to
+     * ensure they do not tie up the web socket connection. Note this hint is only supported in
+     * protcol version 7 and above (RealityServer 6.2 3938.141 or later).
      * @hideconstructor
      */
-    constructor(service, wait_for_render, state_data) {
+    constructor(service, wait_for_render, state_data, options) {
         this.service = service;
         this.wait_for_render = wait_for_render;
         this.state_data = state_data;
+        this.options = options || {};
         this.commands = [];
     }
 
@@ -33,7 +39,6 @@ class Command_queue {
      * @param {Boolean} [want_response=false] - Whether we want a response from this command or not
      */
     queue(command, want_response=false) {
-
         this.commands.push({
             command,
             response_promise: want_response ? new Delayed_promise() : undefined

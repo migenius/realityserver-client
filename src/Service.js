@@ -188,8 +188,17 @@ class Service extends EventEmitter {
      * @access private
     */
     static get MAX_SUPPORTED_PROTOCOL() {
-        return 6;
+        return 7;
     };
+
+    /**
+     * The protocol version negotiated with the connected RealityServer. This value is
+     * undefined if not currently connected.
+     * @return {Number}
+     */
+    get connected_protocol_version() {
+        return this.protocol_version;
+    }
 
     /**
      * Connects to RealityServer and performs the initial handshake to ensure
@@ -237,7 +246,6 @@ class Service extends EventEmitter {
             this.command_id = 0;
             this.response_handlers = {};
             this.streams = {};
-            this.protocol_version = 0;
             this.web_socket.binaryType = 'arraybuffer';
 
             let scope = this;
@@ -260,6 +268,7 @@ class Service extends EventEmitter {
                 scope.web_socket.onerror = undefined;
                 scope.web_socket.onmessage = undefined;
                 scope.web_socket = undefined;
+                scope.protocol_version = undefined;
                 /**
                  * Close event.
                  *
@@ -444,7 +453,7 @@ class Service extends EventEmitter {
                         reject(new RS_error('Unexpected handshake header, ' +
                                             'does not appear to be a RealityServer connection.'));
                     } else {
-                        // check that the protcol version is acceptable
+                        // check that the protocol version is acceptable
                         const protocol_version = data.getUint32(8, scope.web_socket_littleendian);
                         if (protocol_version < 2 || protocol_version > Service.MAX_SUPPORTED_PROTOCOL) {
                             // unsupported protocol, can't go on
@@ -659,10 +668,18 @@ class Service extends EventEmitter {
      * @param {Object=} options
      * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
+     * @param {Boolean=} options.longrunning - A hint as to whether the commands are expected to
+     * be long running or not. Long running commands are executed asynchronously on the server to
+     * ensure they do not tie up the web socket connection. Note this hint is only supported in
+     * protocol version 7 and above (RealityServer 6.2 3938.141 or later). See "Long running commands"
+     * in {@tutorial 02-concepts} for more details.
      * @return {RS.Command_queue} The command queue to add commands to and then execute.
      */
-    queue_commands({ scope_name=null }={}) {
-        return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data);
+    queue_commands({ scope_name=null, longrunning=false }={}) {
+        return new Command_queue(this,
+            false,
+            scope_name ? new State_data(scope_name) : this.default_state_data,
+            { longrunning });
     }
 
     /**
@@ -678,12 +695,20 @@ class Service extends EventEmitter {
      * command. If `false` then the promise resolves immediately to `undefined`.
      * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
+     * @param {Boolean=} options.longrunning - A hint as to whether the commands are expected to
+     * be long running or not. Long running commands are executed asynchronously on the server to
+     * ensure they do not tie up the web socket connection. Note this hint is only supported in
+     * protocol version 7 and above (RealityServer 6.2 3938.141 or later). See "Long running commands"
+     * in {@tutorial 02-concepts} for more details.
      * @return {Promise} A `Promise` that resolves to an iterable.
      * @fires RS.Service#command_requests
      * @fires RS.Service#command_results
      */
-    execute_command(command, { want_response=false, scope_name=null }={}) {
-        return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
+    execute_command(command, { want_response=false, scope_name=null, longrunning=false }={}) {
+        return new Command_queue(this,
+            false,
+            scope_name ? new State_data(scope_name) : this.default_state_data,
+            { longrunning })
             .queue(command, want_response)
             .execute();
     }
@@ -700,6 +725,11 @@ class Service extends EventEmitter {
      * command. If `false` then the promise resolves immediately to undefined.
      * @param {String=} options.scope_name - If provided then commands are executed in this
      * scope. If not the default service scope is used.
+     * @param {Boolean=} options.longrunning - A hint as to whether the commands are expected to
+     * be long running or not. Long running commands are executed asynchronously on the server to
+     * ensure they do not tie up the web socket connection. Note this hint is only supported in
+     * protocol version 7 and above (RealityServer 6.2 3938.141 or later). See "Long running commands"
+     * in {@tutorial 02-concepts} for more details.
      * @return {Promise[]} An `Array` of `Promises`. These promises will not reject.
      * @throws {RS.Error} This call will throw an error in the following circumstances:
      * - there is no WebSocket connection.
@@ -707,8 +737,11 @@ class Service extends EventEmitter {
      * @fires RS.Service#command_requests
      * @fires RS.Service#command_results
      */
-    send_command(command, { want_response=false, scope_name=null }={}) {
-        return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
+    send_command(command, { want_response=false, scope_name=null, longrunning=false }={}) {
+        return new Command_queue(this,
+            false,
+            scope_name ? new State_data(scope_name) : this.default_state_data,
+            { longrunning })
             .queue(command, want_response)
             .send();
     }
@@ -757,7 +790,7 @@ class Service extends EventEmitter {
                 commands,
                 render_loop_name: command_queue.state_data.render_loop_name,
                 continue_on_error: command_queue.state_data.continue_on_error,
-                cancel: command_queue.state_data.cancel,
+                cancel: command_queue.state_data.cancel
             };
             if (wait_for_render) {
                 let stream = this.streams[execute_args.render_loop_name];
@@ -781,7 +814,8 @@ class Service extends EventEmitter {
             execute_args = {
                 commands: command_queue.state_data.state_commands ?
                     command_queue.state_data.state_commands.concat(commands) :
-                    commands
+                    commands,
+                longrunning: command_queue.options && command_queue.options.longrunning
             };
         }
         const scope = this;
