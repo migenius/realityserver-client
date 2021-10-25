@@ -1,5 +1,5 @@
 /******************************************************************************
-* Copyright 2010-2020 migenius pty ltd, Australia. All rights reserved.
+* Copyright 2010-2021 migenius pty ltd, Australia. All rights reserved.
 ******************************************************************************/
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -843,8 +843,8 @@
         }
         invert() {
             let det = this.get_determinant();
-            if (det === 0) {
-                throw new Error('Determinant is 0');
+            if (det === 0 || Number.isNaN(det)) {
+                throw new Error('Determinant is 0 or NaN');
             }
             let mat = this.clone();
             this.xx = mat.determinant_rc(0, 0) / det;
@@ -2349,11 +2349,15 @@
     }
 
     class Command_queue {
-        constructor(service, wait_for_render, state_data) {
+        constructor(service, wait_for_render, state_data, options) {
             this.service = service;
             this.wait_for_render = wait_for_render;
             this.state_data = state_data;
+            this.options = options || {};
             this.commands = [];
+        }
+        get length() {
+            return this.commands.length;
         }
         queue(command, want_response=false) {
             this.commands.push({
@@ -2720,8 +2724,11 @@
             return 0x07;
         };
         static get MAX_SUPPORTED_PROTOCOL() {
-            return 6;
+            return 7;
         };
+        get connected_protocol_version() {
+            return this.protocol_version;
+        }
         connect(url, extra_constructor_args=null) {
             return new Promise((resolve, reject) => {
                 if (url !== undefined && url !== null && url.constructor === String) {
@@ -2750,7 +2757,6 @@
                 this.command_id = 0;
                 this.response_handlers = {};
                 this.streams = {};
-                this.protocol_version = 0;
                 this.web_socket.binaryType = 'arraybuffer';
                 let scope = this;
                 this.web_socket.onopen = event => {
@@ -2762,6 +2768,7 @@
                     scope.web_socket.onerror = undefined;
                     scope.web_socket.onmessage = undefined;
                     scope.web_socket = undefined;
+                    scope.protocol_version = undefined;
                     scope.emit('close', event);
                 };
                 this.web_socket.onerror = error => {
@@ -3031,16 +3038,25 @@
         streaming(render_loop_name) {
             return !!this.streams[render_loop_name];
         }
-        queue_commands({ scope_name=null }={}) {
-            return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data);
+        queue_commands({ scope_name=null, longrunning=false }={}) {
+            return new Command_queue(this,
+                false,
+                scope_name ? new State_data(scope_name) : this.default_state_data,
+                { longrunning });
         }
-        execute_command(command, { want_response=false, scope_name=null }={}) {
-            return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
+        execute_command(command, { want_response=false, scope_name=null, longrunning=false }={}) {
+            return new Command_queue(this,
+                false,
+                scope_name ? new State_data(scope_name) : this.default_state_data,
+                { longrunning })
                 .queue(command, want_response)
                 .execute();
         }
-        send_command(command, { want_response=false, scope_name=null }={}) {
-            return new Command_queue(this, false, scope_name ? new State_data(scope_name) : this.default_state_data)
+        send_command(command, { want_response=false, scope_name=null, longrunning=false }={}) {
+            return new Command_queue(this,
+                false,
+                scope_name ? new State_data(scope_name) : this.default_state_data,
+                { longrunning })
                 .queue(command, want_response)
                 .send();
         }
@@ -3077,7 +3093,7 @@
                     commands,
                     render_loop_name: command_queue.state_data.render_loop_name,
                     continue_on_error: command_queue.state_data.continue_on_error,
-                    cancel: command_queue.state_data.cancel,
+                    cancel: command_queue.state_data.cancel
                 };
                 if (wait_for_render) {
                     let stream = this.streams[execute_args.render_loop_name];
@@ -3101,7 +3117,8 @@
                 execute_args = {
                     commands: command_queue.state_data.state_commands ?
                         command_queue.state_data.state_commands.concat(commands) :
-                        commands
+                        commands,
+                    longrunning: command_queue.options && command_queue.options.longrunning
                 };
             }
             const scope = this;

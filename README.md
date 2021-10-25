@@ -255,6 +255,16 @@ A [RealityServer Extras](https://github.com/migenius/realityserver-extras "Reali
 
 ## Release Notes
 
+### 1.0.10
+
+Added support for a `longrunning` hint to all commands executed on `RS.Service`. For a given Web Socket connection RealityServer can only process one message at a time. Therefore if a command (or queue of commands) takes a long time to execute it will not be possible to perform other operations in parallel. These will queue up and be executed after the long running operation completes. Setting the `longrunning` option to `true` when creating a command queue or executing commands will cause these commands to be executed asynchronously on the server, freeing up the connection to process other messages in parallel. Note this only affects commands executed on `RS.Service`. Those executed on `RS.Stream` already occur asynchronously. See the 'Concepts' section of the documentation for more details. This feature requires RealityServer 6.2 3938.141 or later.
+
+Added `RS.Service.connected_protocol_version` to expose the negotiated protocol version.
+
+Added `RS.Command_queue.length` to return the number of commands currently on the queue.
+
+`RS.Matrix4x4.invert` will now throw if the determinant is NaN.
+
 ### 1.0.9
 
 Added experimental support for streaming H.264 video to Chrome based browsers via `RS.Utils.html_video_display`.
