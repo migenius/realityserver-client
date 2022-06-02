@@ -129,6 +129,7 @@ class Stream extends EventEmitter {
      * object to specify additional streaming data.
      * @param {String} render_loop.render_loop_name - the name of the render loop to stream.
      * @param {String=} render_loop.image_format - the streamed image format.
+     * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} render_loop.quality - the streamed image quality.
      * @return {Promise} A promise that resolves when the stream has started.
      * @fires RS.Stream#image
@@ -226,6 +227,7 @@ class Stream extends EventEmitter {
      * - updating the parameters failed
      * @param {Object} parameters The parameter to set. Supported parameters include:
      * @param {String=} parameters.image_format - the streamed image format.
+     * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} parameters.quality - the streamed image quality.
      * @return {Promise} A promise that resolves with the set parameter response or rejects with
      * the error message.
