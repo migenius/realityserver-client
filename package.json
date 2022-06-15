@@ -21,17 +21,17 @@
   "license": "ISC",
   "devDependencies": {
     "@migenius/jsdoc-template": "^1.0.1",
-    "eslint": "^5.13.0",
+    "eslint": "^8.17.0",
     "esm": "^3.2.25",
-    "eventemitter3": "^3.1.0",
-    "fs-extra": "^7.0.1",
-    "jsdoc": "^3.6.3",
-    "rollup": "^1.1.2",
-    "rollup-plugin-cleanup": "^3.1.1",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-filesize": "^6.0.1",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-terser": "^5.3.0"
+    "eventemitter3": "^4.0.7",
+    "fs-extra": "^10.1.0",
+    "jsdoc": "^3.6.10",
+    "rollup": "^1.32.1",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-filesize": "^6.2.1",
+    "rollup-plugin-node-resolve": "^4.2.4",
+    "rollup-plugin-terser": "^5.3.1"
   },
   "engines": {
     "node": ">=6.5"
