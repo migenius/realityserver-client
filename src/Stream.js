@@ -371,14 +371,41 @@ class Stream extends EventEmitter {
      * - arguments are the wrong type or \p position has a negative coordinate
      * - the render loop is no longer available.
      * - the connected RealityServer does not support picking on a stream.
+     * @deprecated This variant of pick is deprecated in favour of the two argument version below.
      * @param {Vector2} position The screen space position of the pick.
      * @param {Vector2=} size The screen space rectangular size of the pick. Defaults to a 1x1 pixel area.
      * @param {Number=} cancel_level - The cancel level override. Defaults to 1.
      * @return {Promise} A `Promise` that resolves to an array of pick results. Each element
-	 *                   in the pick result array will be an object containing the following properties:
-	 *                   world_point (Vector3), picked_object_name (String), path (String[]).
+     *                   in the pick result array will be an object containing the following properties:
+     *                   world_point (Vector3), picked_object_name (String), path (String[]).
+     *//**
+     * Executes a pick operation on the render loop. The returned promise resolves with an array of
+     * pick results. If no objects were under the point then the array will be empty.
+     *
+     * Note that stream picking is only supported in RealityServer 6.2 and above.
+     *
+     * The returned promise will reject in the following circumstances:
+     * - there is no WebSocket connection.
+     * - the WebSocket connection has not started (IE: {@link RS.Service#connect} has not yet resolved).
+     * - this stream is not yet streaming
+     * - no position is provided.
+     * - arguments are the wrong type or \p position has a negative coordinate
+     * - the render loop is no longer available.
+     * - the connected RealityServer does not support picking on a stream.
+     * @param {Object} pick Object defining what to pick
+     * @param {Vector2} pick.position The screen space position of the pick.
+     * @param {Vector2=} pick.size The screen space rectangular size of the pick. Defaults to a 1x1 pixel area.
+     * @param {Number=} pick.max_levels Controls the number of rays that may be cast, per ray, during the
+     *                   picking operation. A level of 1 will only trace primary rays. Any other value
+     *                   will continue tracing rays through the scene until nothing was hit or the maximum
+     *                   depth is exhausted, with a value of 0 indicating unconstrained depth. This parameter
+     *                   has no effect when using versions of RealityServer prior to 6.3.
+     * @param {Number=} cancel_level - The cancel level override. Defaults to 1.
+     * @return {Promise} A `Promise` that resolves to an array of pick results. Each element
+     *                   in the pick result array will be an object containing the following properties:
+     *                   world_point (Vector3), picked_object_name (String), path (String[]).
      */
-    pick(position, size = null, cancel_level = null) {
+    pick(pick, cancel_level = null) {
 
         const promise = new Delayed_promise();
         if (!this.service.validate(promise.reject)) {
@@ -396,18 +423,31 @@ class Stream extends EventEmitter {
             promise.reject(new RS_error('Not streaming.'));
             return promise.promise;
         }
-        if (!position) {
+
+        if (!pick.position) {
+            pick = {
+                position: arguments[0],
+                size: arguments[1]
+            };
+            cancel_level = arguments[2];
+        }
+
+        if (!pick.position) {
             promise.reject(new RS_error('No position provided.'));
             return promise.promise;
         }
 
         const args = {
             render_loop_name: this.render_loop_name,
-            position: position
+            position: pick.position
         };
 
-        if (size !== null && size !== undefined) {
-            args.size = size;
+        if (pick.size !== null && pick.size !== undefined) {
+            args.size = pick.size;
+        }
+
+        if (pick.max_levels !== null && pick.max_levels !== undefined) {
+            args.max_levels = pick.max_levels;
         }
 
         if (cancel_level !== null && cancel_level !== undefined) {
