@@ -188,7 +188,7 @@ class Service extends EventEmitter {
      * @access private
     */
     static get MAX_SUPPORTED_PROTOCOL() {
-        return 7;
+        return 8;
     };
 
     /**
@@ -316,7 +316,7 @@ class Service extends EventEmitter {
                      * and on each individual {@link RS.Stream}
                      *
                      * @event RS.Stream#image
-                     * @param {RS.Stream~Rendered_image} image The rendered image
+                     * @param {RS.Stream~Rendered_result} image The rendered result
                      */
                     scope.emit('image', data);
                     stream.emit('image', data);
@@ -324,6 +324,7 @@ class Service extends EventEmitter {
             }
             function process_received_render(message, now) {
                 const result = message.getSint32();
+                const n_canvases = scope.protocol_version <= 7 ? 1 : message.getUint32();
                 // render loop name
                 const render_loop_name = message.getString();
                 const stream = scope.streams[render_loop_name];
@@ -332,57 +333,70 @@ class Service extends EventEmitter {
                     return;
                 }
                 if (result >= 0) {
-                    // should have an image
-                    const have_image = message.getUint32();
-                    if (have_image === 0) {
-                        // got an image
-                        const img_width = message.getUint32();
-                        const img_height = message.getUint32();
-                        const mime_type = message.getString();
-                        const img_size = message.getUint32();
-                        // and finally the image itself
-                        const image = message.getUint8Array(img_size);
+                    const images = [];
+                    for (let canvas_index=0; canvas_index<n_canvases; canvas_index++) {
+                        // should have an image
+                        const have_image = message.getUint32();
+                        if (have_image === 0) {
+                            // got an image
+                            const img_width = message.getUint32();
+                            const img_height = message.getUint32();
+                            const mime_type = message.getString();
+                            const render_type = message.getString();
+                            const img_size = message.getUint32();
+                            // and finally the image itself
+                            const image = message.getUint8Array(img_size);
 
-                        // then any statistical data
-                        const have_stats = message.getUint8();
-                        let stats;
-                        if (have_stats) {
-                            stats = message.getTypedValue();
+                            const data = {
+                                width: img_width,
+                                height: img_height,
+                                mime_type: mime_type,
+                                render_type: render_type,
+                                image: image
+                            };
+
+                            images.push(data);
                         }
-                        if (stream.last_render_time) {
-                            stats['fps'] = 1 / (now - stream.last_render_time);
+                    }
+                            
+                    // then any statistical data
+                    const have_stats = message.getUint8();
+                    let stats;
+                    if (have_stats) {
+                        stats = message.getTypedValue();
+                    }
+                    if (stream.last_render_time) {
+                        stats['fps'] = 1 / (now - stream.last_render_time);
+                    }
+                    stream.last_render_time = now;
+                    
+                    const data = {
+                        images : images,
+                        result : result,
+                        render_loop_name : stream.render_loop_name,
+                        statistics : stats
+                    };
+
+                    // Process any command promises that are resolved by this render.
+                    const sequence_promises = [];
+                    if (stats.sequence_id > 0) {
+                        while (stream.sequence_promises.length &&
+                        stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
+                            const handler = stream.sequence_promises.shift();
+                            handler.delayed_promise.resolve(data);
+                            sequence_promises.push(handler.promise);
                         }
-                        stream.last_render_time = now;
-                        const data = {
-                            result: result,
-                            width: img_width,
-                            height: img_height,
-                            mime_type: mime_type,
-                            image: image,
-                            statistics: stats,
-                            render_loop_name: stream.render_loop_name
-                        };
-                        // Process any command promises that are resolved by this render.
-                        const sequence_promises = [];
-                        if (stats.sequence_id > 0) {
-                            while (stream.sequence_promises.length &&
-                              stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
-                                const handler = stream.sequence_promises.shift();
-                                handler.delayed_promise.resolve(data);
-                                sequence_promises.push(handler.promise);
-                            }
-                        }
-                        // Any command promises resolved above will not have their resolve
-                        // functions called until the next tick. So if there are any we
-                        // must wait until they are complete before emitting the image event
-                        // giving them a chance to unpause the stream.
-                        if (sequence_promises.length) {
-                            Promise.all(sequence_promises).then(() => {
-                                emit_image_event(stream, data);
-                            });
-                        } else {
+                    }
+                    // Any command promises resolved above will not have their resolve
+                    // functions called until the next tick. So if there are any we
+                    // must wait until they are complete before emitting the image event
+                    // giving them a chance to unpause the stream.
+                    if (sequence_promises.length) {
+                        Promise.all(sequence_promises).then(() => {
                             emit_image_event(stream, data);
-                        }
+                        });
+                    } else {
+                        emit_image_event(stream, data);
                     }
                 } else {
                     emit_image_event(stream, { result });
@@ -399,7 +413,11 @@ class Service extends EventEmitter {
                         // yup, an image
                         let img_msg = new Web_socket_message_reader(data, 4, scope.web_socket_littleendian);
                         let header_size = img_msg.getUint32();
-                        if (header_size !== 16) {
+                        if (this.protocol_version <= 7 && header_size !== 16) {
+                            // not good
+                            return;
+                        }
+                        if (this.protocol_version > 7 && header_size !== 20) {
                             // not good
                             return;
                         }

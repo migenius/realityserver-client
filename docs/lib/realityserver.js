@@ -5,7 +5,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
     (global = global || self, factory(global.RS = global.RS || {}));
-}(this, function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
     class Command {
         constructor(name, parameters) {
@@ -271,6 +271,7 @@
             throw 'No URL creator available.';
         }
         function display_image(data) {
+            data = data.images[0];
             if (data.image && data.mime_type) {
                 if (this.lastUrl) {
                     this.url_creator.revokeObjectURL(this.lastUrl);
@@ -324,6 +325,7 @@
     }
 
     var Utils = /*#__PURE__*/Object.freeze({
+        __proto__: null,
         EventEmitter: eventemitter3,
         create_random_string: create_random_string,
         extract_url_details: extract_url_details,
@@ -1549,6 +1551,7 @@
 
 
     var index = /*#__PURE__*/Object.freeze({
+        __proto__: null,
         Color: Color,
         Matrix4x4: Matrix4x4,
         Spectrum: Spectrum,
@@ -1902,8 +1905,7 @@
                     r[key] = value;
                 }
                 return Class_hinting.resolve(r);
-            }
-            case 0x0c: {
+            }        case 0x0c: {
                 let count = this.getUint32();
                 let r = [];
                 for (let i=0;i<count;i++) {
@@ -1911,8 +1913,7 @@
                     r.push(value);
                 }
                 return r;
-            }
-            case 0x0d: return null;
+            }        case 0x0d: return null;
             case 0x0e: return true;
             case 0x0f: return false;
             case 0x10: return {};
@@ -1924,8 +1925,7 @@
                 let byte_count = this.getUint64();
                 binary.data = this.getUint8Array(byte_count);
                 return binary;
-            }
-            case 0x14: {
+            }        case 0x14: {
                 let canvas = {};
                 canvas.num_layers = this.getUint32();
                 if (canvas.num_layers === 0) {
@@ -1944,8 +1944,7 @@
                     canvas.layers.push(this.getUint8Array(canvas_size));
                 }
                 return canvas;
-            }
-            }
+            }        }
             throw 'unsupported typed value type ' + type;
         }
     }
@@ -2234,15 +2233,13 @@
                     self.pushTypedValue(value[key]);
                 });
                 return;
-            }
-            case 0x0c: {
+            }        case 0x0c: {
                 this.pushUint32(value.length);
                 for (let i=0;i<value.length;i++) {
                     this.pushTypedValue(value[i]);
                 }
                 return;
-            }
-            case 0x0d: return;
+            }        case 0x0d: return;
             case 0x0e: return;
             case 0x0f: return;
             case 0x10: return;
@@ -2264,8 +2261,7 @@
                     this.pushArrayBuffer(value.data.buffer);
                 }
                 return;
-            }
-            case 0x14: {
+            }        case 0x14: {
                 if (value.num_layers === undefined ||
                       value.resolution_x === undefined || value.resolution_y === undefined ||
                       value.pixel_format === undefined || !Array.isArray(value.layers)) {
@@ -2299,8 +2295,7 @@
                     this.pushArrayBuffer(value.layers[l].buffer);
                 }
                 return;
-            }
-            }
+            }        }
             throw 'unsupported typed value type ' + type_byte;
         }
     }
@@ -2566,7 +2561,7 @@
             });
             return promise.promise;
         }
-        pick(position, size = null, cancel_level = null) {
+        pick(pick, cancel_level = null) {
             const promise = new Delayed_promise();
             if (!this.service.validate(promise.reject)) {
                 return promise.promise;
@@ -2581,16 +2576,29 @@
                 promise.reject(new RealityServerError('Not streaming.'));
                 return promise.promise;
             }
-            if (!position) {
+            if (!pick.position) {
+                pick = {
+                    position: arguments[0],
+                    size: arguments[1]
+                };
+                cancel_level = arguments[2];
+            }
+            if (!pick.position) {
                 promise.reject(new RealityServerError('No position provided.'));
                 return promise.promise;
             }
             const args = {
                 render_loop_name: this.render_loop_name,
-                position: position
+                position: pick.position
             };
-            if (size !== null && size !== undefined) {
-                args.size = size;
+            if (pick.size !== null && pick.size !== undefined) {
+                args.size = pick.size;
+            }
+            if (pick.max_levels !== null && pick.max_levels !== undefined) {
+                args.max_levels = pick.max_levels;
+            }
+            if (pick.params !== null && pick.params !== undefined) {
+                args.params = pick.params;
             }
             if (cancel_level !== null && cancel_level !== undefined) {
                 args.cancel_level = cancel_level;
@@ -2724,7 +2732,7 @@
             return 0x07;
         };
         static get MAX_SUPPORTED_PROTOCOL() {
-            return 7;
+            return 8;
         };
         get connected_protocol_version() {
             return this.protocol_version;
@@ -2793,53 +2801,63 @@
                 }
                 function process_received_render(message, now) {
                     const result = message.getSint32();
+                    const n_canvases = scope.protocol_version <= 7 ? 1 : message.getUint32();
                     const render_loop_name = message.getString();
                     const stream = scope.streams[render_loop_name];
                     if (stream === undefined) {
                         return;
                     }
                     if (result >= 0) {
-                        const have_image = message.getUint32();
-                        if (have_image === 0) {
-                            const img_width = message.getUint32();
-                            const img_height = message.getUint32();
-                            const mime_type = message.getString();
-                            const img_size = message.getUint32();
-                            const image = message.getUint8Array(img_size);
-                            const have_stats = message.getUint8();
-                            let stats;
-                            if (have_stats) {
-                                stats = message.getTypedValue();
+                        const images = [];
+                        for (let canvas_index=0; canvas_index<n_canvases; canvas_index++) {
+                            const have_image = message.getUint32();
+                            if (have_image === 0) {
+                                const img_width = message.getUint32();
+                                const img_height = message.getUint32();
+                                const mime_type = message.getString();
+                                const render_type = message.getString();
+                                const img_size = message.getUint32();
+                                const image = message.getUint8Array(img_size);
+                                stream.last_render_time = now;
+                                const data = {
+                                    width: img_width,
+                                    height: img_height,
+                                    mime_type: mime_type,
+                                    render_type: render_type,
+                                    image: image
+                                };
+                                images.push(data);
                             }
-                            if (stream.last_render_time) {
-                                stats['fps'] = 1 / (now - stream.last_render_time);
+                        }
+                        const have_stats = message.getUint8();
+                        let stats;
+                        if (have_stats) {
+                            stats = message.getTypedValue();
+                        }
+                        if (stream.last_render_time) {
+                            stats['fps'] = 1 / (now - stream.last_render_time);
+                        }
+                        const data = {
+                            images : images,
+                            result : result,
+                            render_loop_name : stream.render_loop_name,
+                            statistics : stats
+                        };
+                        const sequence_promises = [];
+                        if (stats.sequence_id > 0) {
+                            while (stream.sequence_promises.length &&
+                            stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
+                                const handler = stream.sequence_promises.shift();
+                                handler.delayed_promise.resolve(data);
+                                sequence_promises.push(handler.promise);
                             }
-                            stream.last_render_time = now;
-                            const data = {
-                                result: result,
-                                width: img_width,
-                                height: img_height,
-                                mime_type: mime_type,
-                                image: image,
-                                statistics: stats,
-                                render_loop_name: stream.render_loop_name
-                            };
-                            const sequence_promises = [];
-                            if (stats.sequence_id > 0) {
-                                while (stream.sequence_promises.length &&
-                                  stream.sequence_promises[0].sequence_id <= stats.sequence_id) {
-                                    const handler = stream.sequence_promises.shift();
-                                    handler.delayed_promise.resolve(data);
-                                    sequence_promises.push(handler.promise);
-                                }
-                            }
-                            if (sequence_promises.length) {
-                                Promise.all(sequence_promises).then(() => {
-                                    emit_image_event(stream, data);
-                                });
-                            } else {
+                        }
+                        if (sequence_promises.length) {
+                            Promise.all(sequence_promises).then(() => {
                                 emit_image_event(stream, data);
-                            }
+                            });
+                        } else {
+                            emit_image_event(stream, data);
                         }
                     } else {
                         emit_image_event(stream, { result });
@@ -2853,7 +2871,10 @@
                         if (message === Service.MESSAGE_ID_IMAGE) {
                             let img_msg = new Web_socket_message_reader(data, 4, scope.web_socket_littleendian);
                             let header_size = img_msg.getUint32();
-                            if (header_size !== 16) {
+                            if (this.protocol_version <= 7 && header_size !== 16) {
+                                return;
+                            }
+                            if (this.protocol_version > 7 && header_size !== 20) {
                                 return;
                             }
                             let image_id = img_msg.getUint32();
@@ -3239,24 +3260,24 @@
         }
     }
 
-    exports.Utils = Utils;
-    exports.Math = index;
+    exports.ALMOST_ZERO = ALMOST_ZERO;
+    exports.Color = Color;
     exports.Command = Command;
     exports.Command_error = Command_error;
     exports.Error = RealityServerError;
-    exports.Service = Service;
-    exports.Stream = Stream;
-    exports.Color = Color;
+    exports.Math = index;
     exports.Matrix4x4 = Matrix4x4;
+    exports.Service = Service;
     exports.Spectrum = Spectrum;
+    exports.Stream = Stream;
+    exports.Utils = Utils;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;
     exports.Vector4 = Vector4;
-    exports.ALMOST_ZERO = ALMOST_ZERO;
-    exports.radians = radians;
     exports.degrees = degrees;
+    exports.radians = radians;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=realityserver.js.map

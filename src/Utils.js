@@ -184,7 +184,9 @@ export function extract_url_details(url) {
  *      };
  *  }
  */
+
 export function html_image_display(image, url_creator) {
+    
     const bind_to = {
         image
     };
@@ -196,6 +198,12 @@ export function html_image_display(image, url_creator) {
     }
 
     function display_image(data) {
+        if (!data.images || data.images.length == 0) {
+            return;
+        }
+        
+        data = data.images[0];
+
         if (data.image && data.mime_type) {
             if (this.lastUrl) {
                 this.url_creator.revokeObjectURL(this.lastUrl);

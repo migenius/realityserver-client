@@ -33,17 +33,23 @@ class Stream extends EventEmitter {
         this.state_data = new Render_loop_state_data();
     }
 
-
     /**
-     * The result of an image render.
+     * A single image of a render result.
      * @typedef {Object} RS.Stream~Rendered_image
-     * @property {String} render_loop_name - The name of the render loop this image was rendered by.
-     * @property {Number} result - The render result, `0` for success, `1` for converged,
-     * `-1` cancelled render, other negative values indicate errors.
      * @property {Number} width - The image width.
      * @property {Number} height - The image height.
      * @property {Uint8Array} image - The rendered image
      * @property {String} mime_type - The mime type of the rendered image.
+     * @property {String} render_type - The renderer defined type for the image. Typically 'result'.
+     */
+
+    /**
+     * The result of an image render.
+     * @typedef {Object} RS.Stream~Rendered_result
+     * @property {String} render_loop_name - The name of the render loop this image was rendered by.
+     * @property {Number} result - The render result, `0` for success, `1` for converged,
+     * `-1` cancelled render, other negative values indicate errors.
+     * @property {RS.Stream~Rendered_image[]} images - An array of images that have been rendered.
      * @property {Object} statistics - Rendering statistics.
      */
 
@@ -131,6 +137,8 @@ class Stream extends EventEmitter {
      * @param {String=} render_loop.image_format - the streamed image format.
      * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} render_loop.quality - the streamed image quality.
+     * @param {String=} render_loop.encoders - an array of named stream encoder settings,
+     * each defining image_format, pixel_type and quality parameters.
      * @return {Promise} A promise that resolves when the stream has started.
      * @fires RS.Stream#image
      */
@@ -226,6 +234,7 @@ class Stream extends EventEmitter {
      * - this stream is not yet streaming
      * - updating the parameters failed
      * @param {Object} parameters The parameter to set. Supported parameters include:
+     * @param {String=} parameters.encoder_name - the name of the stream encoder to modify or the default encoder if omitted.
      * @param {String=} parameters.image_format - the streamed image format.
      * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} parameters.quality - the streamed image quality.
@@ -400,6 +409,7 @@ class Stream extends EventEmitter {
      *                   will continue tracing rays through the scene until nothing was hit or the maximum
      *                   depth is exhausted, with a value of 0 indicating unconstrained depth. This parameter
      *                   has no effect when using versions of RealityServer prior to 6.3.
+     * @param {Object=} pick.params Render loop handler defined parameters used to control the pick operation. 
      * @param {Number=} cancel_level - The cancel level override. Defaults to 1.
      * @return {Promise} A `Promise` that resolves to an array of pick results. Each element
      *                   in the pick result array will be an object containing the following properties:
@@ -448,6 +458,10 @@ class Stream extends EventEmitter {
 
         if (pick.max_levels !== null && pick.max_levels !== undefined) {
             args.max_levels = pick.max_levels;
+        }
+
+        if (pick.params !== null && pick.params !== undefined) {
+            args.params = pick.params;
         }
 
         if (cancel_level !== null && cancel_level !== undefined) {
@@ -506,7 +520,7 @@ class Stream extends EventEmitter {
      * The iterable will contain up to 2 results
      * - if `want_response` is `true` then the first iterable will be the result of the command or a
      * {@link RS.Command_error}.
-     * - if `wait_for_render` is `true` then the last iterable will be a {@link RS.Stream~Rendered_image} containing
+     * - if `wait_for_render` is `true` then the last iterable will be a {@link RS.Stream~Rendered_result} containing
      * the first rendered image that contains the result of the command.
      *
      * The promise will reject in the following circumstances:
@@ -550,7 +564,7 @@ class Stream extends EventEmitter {
      * @param {Boolean=} options.want_response - If `true` then the `reponse` promise resolves to the response of the
      * command. If `false` then the promise resolves immediately to undefined.
      * @param {Boolean=} options.wait_for_render - If `true`, then the `render` promise resolves to a
-     * {@link RS.Stream~Rendered_image} just before the {@link RS.Service#event:image} event that contains the
+     * {@link RS.Stream~Rendered_result} just before the {@link RS.Service#event:image} event that contains the
      * result of this command is emitted.
      * @param {Number} [options.cancel_level=this.cancel_level] - If provided then this overrides the streams
      * cancel level.
