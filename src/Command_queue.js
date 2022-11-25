@@ -60,7 +60,7 @@ class Command_queue {
      * argument was `true`. On command error they will resolve with a {@link RS.Command_error}. If the
      * queue was created with `wait_for_render` set to `true` (see {@link RS.Stream#queue_commands})
      * then there will be an additional `Promise` at the end of the array that will resolve with a
-     * {@link RS.Stream~Rendered_image} just before the {@link RS.Stream#event:image} event that
+     * {@link RS.Stream~Rendered_result} just before the {@link RS.Stream#event:image} event that
      * contains the result of this command is emitted.
      * @return {Promise[]} An `Array` of `Promises`.
      * @throws {RS.Error} This call will throw an error in the following circumstances:
