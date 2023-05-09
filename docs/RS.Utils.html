@@ -1079,6 +1079,8 @@
             
                 <li class="parent" data-name="RS.Stream~Rendered_image"><a href="RS.Stream.html#~Rendered_image">Rendered_image</a></li>
             
+                <li class="parent" data-name="RS.Stream~Rendered_result"><a href="RS.Stream.html#~Rendered_result">Rendered_result</a></li>
+            
             </ul>
             
             <ul class="typedefs itemMembers">
@@ -1092,6 +1094,8 @@
                 <li class="parent  " data-name="RS.Stream#execute_command"><a href="RS.Stream.html#execute_command">execute_command</a></li>
             
                 <li class="parent  " data-name="RS.Stream#pause"><a href="RS.Stream.html#pause">pause</a></li>
+            
+                <li class="parent  status-deprecated" data-name="RS.Stream#pick"><a href="RS.Stream.html#pick">pick</a></li>
             
                 <li class="parent  " data-name="RS.Stream#pick"><a href="RS.Stream.html#pick">pick</a></li>
             
@@ -1569,7 +1573,10 @@ default port for the protocol is returned.</li>
         
 
     
-    <pre class="prettyprint"><code>const url_info = RS.Utils.extract_url_details(document.location.toString());const ws_url = (url_info.secure ? 'wss://' : 'ws://') +                url_info.host + ':' + url_info.port +                '/service/';</code></pre>
+    <pre class="prettyprint"><code>const url_info = RS.Utils.extract_url_details(document.location.toString());
+const ws_url = (url_info.secure ? 'wss://' : 'ws://') +
+                url_info.host + ':' + url_info.port +
+                '/service/';</code></pre>
     
 
     
@@ -1733,7 +1740,47 @@ URL assigned to it's <code>src</code> property).</p>
         
 
     
-    <pre class="prettyprint"><code>// Assumptions: There exists a DOM element &lt;img src="" id="rs_display"&gt;async start_render_loop(service) {    // start the render loop    try {        await service.execute_command(                 new RS.Command('start_render_loop',{                     render_loop_name: 'meyemii_render_loop',                     render_loop_handler_name: 'default',                     scene_name: 'meyemii',                     render_loop_handler_parameters: [ 'renderer', 'iray' ],                     timeout: 30                 }),true);     } catch(err) {         console.error(`Start render loop failed ${JSON.stringify(err)}`);         return;     }     // get image to display in     const image_element = Document.getElementById('rs_display');     // stream rendered results back from the render loop and display them in     // rs_display     try {         const stream = await service.stream(             {                 render_loop_name: 'meyemii_render_loop',                 image_format: 'jpg',                 quality: '100'             });         stream.on('image',RS.Utils.html_image_display(image_element));         stream.on('image',image => {                 if (image.result < 0) {                     console.error(`Render error: ${image.result}`)                     return; // error on render                 }                 console.log('Image rendered.');         });     } catch (err) {         console.error(`Start render loop stream failed ${JSON.stringify(err)}`)     }; }</code></pre>
+    <pre class="prettyprint"><code>// Assumptions: There exists a DOM element &lt;img src="" id="rs_display"&gt;
+
+async start_render_loop(service) {
+    // start the render loop
+    try {
+        await service.execute_command(
+                 new RS.Command('start_render_loop',{
+                     render_loop_name: 'meyemii_render_loop',
+                     render_loop_handler_name: 'default',
+                     scene_name: 'meyemii',
+                     render_loop_handler_parameters: [ 'renderer', 'iray' ],
+                     timeout: 30
+                 }),true);
+     } catch(err) {
+         console.error(`Start render loop failed ${JSON.stringify(err)}`);
+         return;
+     }
+     // get image to display in
+     const image_element = Document.getElementById('rs_display');
+
+     // stream rendered results back from the render loop and display them in
+     // rs_display
+     try {
+         const stream = await service.stream(
+             {
+                 render_loop_name: 'meyemii_render_loop',
+                 image_format: 'jpg',
+                 quality: '100'
+             });
+         stream.on('image',RS.Utils.html_image_display(image_element));
+         stream.on('image',image => {
+                 if (image.result < 0) {
+                     console.error(`Render error: ${image.result}`)
+                     return; // error on render
+                 }
+                 console.log('Image rendered.');
+         });
+     } catch (err) {
+         console.error(`Start render loop stream failed ${JSON.stringify(err)}`)
+     };
+ }</code></pre>
     
 
     
@@ -1948,7 +1995,7 @@ If not provided then the <code>MediaSource</code> constructor will be used.</p><
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Tue Oct 26 2021 10:04:27 GMT+1100 (Australian Eastern Daylight Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Mon May 08 2023 15:39:26 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>
