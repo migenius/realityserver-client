@@ -234,7 +234,8 @@ class Stream extends EventEmitter {
      * - this stream is not yet streaming
      * - updating the parameters failed
      * @param {Object} parameters The parameter to set. Supported parameters include:
-     * @param {String=} parameters.encoder_name - the name of the stream encoder to modify or the default encoder if omitted.
+     * @param {String=} parameters.encoder_name - the name of the stream encoder to modify or the default encoder
+     * if omitted.
      * @param {String=} parameters.image_format - the streamed image format.
      * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} parameters.quality - the streamed image quality.
@@ -409,7 +410,7 @@ class Stream extends EventEmitter {
      *                   will continue tracing rays through the scene until nothing was hit or the maximum
      *                   depth is exhausted, with a value of 0 indicating unconstrained depth. This parameter
      *                   has no effect when using versions of RealityServer prior to 6.3.
-     * @param {Object=} pick.params Render loop handler defined parameters used to control the pick operation. 
+     * @param {Object=} pick.params Render loop handler defined parameters used to control the pick operation.
      * @param {Number=} cancel_level - The cancel level override. Defaults to 1.
      * @return {Promise} A `Promise` that resolves to an array of pick results. Each element
      *                   in the pick result array will be an object containing the following properties:

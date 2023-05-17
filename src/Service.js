@@ -358,7 +358,7 @@ class Service extends EventEmitter {
                             images.push(data);
                         }
                     }
-                            
+
                     // then any statistical data
                     const have_stats = message.getUint8();
                     let stats;
@@ -369,12 +369,12 @@ class Service extends EventEmitter {
                         stats['fps'] = 1 / (now - stream.last_render_time);
                     }
                     stream.last_render_time = now;
-                    
+
                     const data = {
-                        images : images,
-                        result : result,
-                        render_loop_name : stream.render_loop_name,
-                        statistics : stats
+                        images: images,
+                        result: result,
+                        render_loop_name: stream.render_loop_name,
+                        statistics: stats
                     };
 
                     // Process any command promises that are resolved by this render.
