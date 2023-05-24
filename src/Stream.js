@@ -131,14 +131,21 @@ class Stream extends EventEmitter {
      * Once the stream has started {@link RS.Stream#event:image} events will be emitted on both the stream
      * object and the original {@link RS.Service} object every time a rendered image is received from the server.
      *
+     * Starting from version 2.0.1 the special `image_format` value of `NONE` can be supplied. This will
+     * establish a 'command and control' stream that will not send images to the client but can still
+     * be used to edit the RealityServer scene. Note that it is not possible to start or stop streaming
+     * images once a stream has started.
+     *
      * @param {String|Object} render_loop If a `String` then the name of the render loop to stream. Provide an
      * object to specify additional streaming data.
      * @param {String} render_loop.render_loop_name - the name of the render loop to stream.
      * @param {String=} render_loop.image_format - the streamed image format.
-     * @param {String=} parameters.pixel_type - the streamed image pixel type.
+     * @param {String=} render_loop.pixel_type - the streamed image pixel type.
      * @param {String=} render_loop.quality - the streamed image quality.
-     * @param {String=} render_loop.encoders - an array of named stream encoder settings,
-     * each defining image_format, pixel_type and quality parameters.
+     * @param {Object=} render_loop.encoders - an object containing named stream encoder settings,
+     * each defining image_format, pixel_type and quality parameters. Note that all possible named encoders
+     * must be specified at start time. It is not possible to add new named encoders using
+     * {@link RS.Stream#set_parameters}, only modify existing settings.
      * @return {Promise} A promise that resolves when the stream has started.
      * @fires RS.Stream#image
      */
@@ -239,6 +246,7 @@ class Stream extends EventEmitter {
      * @param {String=} parameters.image_format - the streamed image format.
      * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} parameters.quality - the streamed image quality.
+     * @param {Object=} parameters.encoders - named encoder parameters.
      * @return {Promise} A promise that resolves with the set parameter response or rejects with
      * the error message.
      */
