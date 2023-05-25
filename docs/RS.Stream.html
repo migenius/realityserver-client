@@ -1003,6 +1003,10 @@
             
             <ul class="typedefs itemMembers">
             
+            <span class="subtitle">Typedefs</span>
+            
+                <li class="parent" data-name="RS.Service~Progress_data"><a href="RS.Service.html#~Progress_data">Progress_data</a></li>
+            
             </ul>
             
             <ul class="typedefs itemMembers">
@@ -1046,6 +1050,8 @@
                 <li class="parent" data-name="RS.Service#event:error"><a href="RS.Service.html#event:error">error</a></li>
             
                 <li class="parent" data-name="RS.Service#event:open"><a href="RS.Service.html#event:open">open</a></li>
+            
+                <li class="parent" data-name="RS.Service#event:progress"><a href="RS.Service.html#event:progress">progress</a></li>
             
             </ul>
             
@@ -3488,7 +3494,8 @@ The returned promise will reject in the following circumstances:</p>
                         
                     
                 
-                <p>the name of the stream encoder to modify or the default encoder if omitted.</p></td>
+                <p>the name of the stream encoder to modify or the default encoder
+if omitted.</p></td>
         </tr>
 	
 	
@@ -3579,6 +3586,36 @@ The returned promise will reject in the following circumstances:</p>
                     
                 
                 <p>the streamed image quality.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>encoders</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                <p>named encoder parameters.</p></td>
         </tr>
 	
 	
@@ -3696,6 +3733,10 @@ data is provided.</li>
 </ul>
 <p>Once the stream has started <a href="RS.Stream.html#event:image">RS.Stream#event:image</a> events will be emitted on both the stream
 object and the original <a href="RS.Service.html">RS.Service</a> object every time a rendered image is received from the server.</p>
+<p>Starting from version 2.0.1 the special <code>image_format</code> value of <code>NONE</code> can be supplied. This will
+establish a 'command and control' stream that will not send images to the client but can still
+be used to edit the RealityServer scene. Note that it is not possible to start or stop streaming
+images once a stream has started.</p>
     </div>
     
 
@@ -3744,11 +3785,6 @@ object and the original <a href="RS.Service.html">RS.Service</a> object every ti
             
             
             <td class="description last">
-                
-                    
-                    
-                        
-                    
                 
                 <p>If a <code>String</code> then the name of the render loop to stream. Provide an
 object to specify additional streaming data.</p>
@@ -3829,16 +3865,10 @@ object to specify additional streaming data.</p>
         </tr>
 	
 	
-	</tbody>
-</table>
-            </td>
-        </tr>
-	
-	
 	
         <tr>
             
-                <td class="name"><code>parameters.pixel_type</code></td>
+                <td class="name"><code>pixel_type</code></td>
             
             
             <td class="type">
@@ -3868,7 +3898,7 @@ object to specify additional streaming data.</p>
 	
         <tr>
             
-                <td class="name"><code>render_loop.quality</code></td>
+                <td class="name"><code>quality</code></td>
             
             
             <td class="type">
@@ -3898,13 +3928,13 @@ object to specify additional streaming data.</p>
 	
         <tr>
             
-                <td class="name"><code>render_loop.encoders</code></td>
+                <td class="name"><code>encoders</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">Object</span>
 
 
             
@@ -3921,8 +3951,16 @@ object to specify additional streaming data.</p>
                         
                     
                 
-                <p>an array of named stream encoder settings,
-each defining image_format, pixel_type and quality parameters.</p></td>
+                <p>an object containing named stream encoder settings,
+each defining image_format, pixel_type and quality parameters. Note that all possible named encoders
+must be specified at start time. It is not possible to add new named encoders using
+<a href="RS.Stream.html#set_parameters">RS.Stream#set_parameters</a>, only modify existing settings.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
@@ -5639,7 +5677,7 @@ and on each individual <a href="RS.Stream.html">RS.Stream</a></p>
             
             <td class="description last">
                 
-                <p>The rendered image</p></td>
+                <p>The rendered result</p></td>
         </tr>
 	
 	
@@ -5698,7 +5736,7 @@ and on each individual <a href="RS.Stream.html">RS.Stream</a></p>
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Mon May 08 2023 15:39:26 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu May 25 2023 13:53:03 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

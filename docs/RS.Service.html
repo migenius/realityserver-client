@@ -1003,6 +1003,10 @@
             
             <ul class="typedefs itemMembers">
             
+            <span class="subtitle">Typedefs</span>
+            
+                <li class="parent" data-name="RS.Service~Progress_data"><a href="RS.Service.html#~Progress_data">Progress_data</a></li>
+            
             </ul>
             
             <ul class="typedefs itemMembers">
@@ -1046,6 +1050,8 @@
                 <li class="parent" data-name="RS.Service#event:error"><a href="RS.Service.html#event:error">error</a></li>
             
                 <li class="parent" data-name="RS.Service#event:open"><a href="RS.Service.html#event:open">open</a></li>
+            
+                <li class="parent" data-name="RS.Service#event:progress"><a href="RS.Service.html#event:progress">progress</a></li>
             
             </ul>
             
@@ -3502,6 +3508,181 @@ control (the default) or <code>-1</code> to disable rate control entirely.</p></
     
     
     
+        <h3 class="subsection-title">Type Definitions</h3>
+        
+        <dl class="list-definitions">
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~Progress_data">
+            <a class="share-icon" href="#~Progress_data"><span class="glyphicon glyphicon-link"></span></a>
+            <span class="">Progress_data</span>
+            <span class="type-signature type">Object</span>
+            
+            
+            
+            
+        </h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>Data emitted when progress has been made during command execution.</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The id registered when the command was executed.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>0 to 100 value indicating progress.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>area</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The area of execution the command is currently in.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>A message associated with the progress event.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+            </dl>
+    
     
     
 
@@ -4352,6 +4533,125 @@ See <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/API/We
     
 </dd>
 
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="event:progress">
+            <a class="share-icon" href="#event:progress"><span class="glyphicon glyphicon-link"></span></a>
+            <span class="">
+                progress
+            </span>
+            
+            
+            
+            
+            
+        </h4>
+    
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Progress event.</p>
+<p>Fired whenever a command has completed some measure of progress.
+This event will be fired on <a href="RS.Service.html">RS.Service</a> for all streams.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>progress</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="RS.Service.html#~Progress_data">RS.Service~Progress_data</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                <p>The command progress data</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
         </dl>
     
 </article>
@@ -4366,7 +4666,7 @@ See <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/API/We
 
         <footer class="content-size">
             <div class="footer">
-                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Mon May 08 2023 15:39:26 GMT+1000 (Australian Eastern Standard Time)
+                Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu May 25 2023 13:53:03 GMT+1000 (Australian Eastern Standard Time)
             </div>
         </footer>
     </div>

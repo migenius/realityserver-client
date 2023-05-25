@@ -182,13 +182,16 @@ class Service extends EventEmitter {
     static get MESSAGE_ID_PREFER_STRING() {
         return 0x07;
     };
+    static get MESSAGE_ID_PROGRESS() {
+        return 0x08;
+    };
 
     /**
      * Max supported protocol version
      * @access private
     */
     static get MAX_SUPPORTED_PROTOCOL() {
-        return 8;
+        return 9;
     };
 
     /**
@@ -200,6 +203,15 @@ class Service extends EventEmitter {
         return this.protocol_version;
     }
 
+    /**
+     * Data emitted when progress has been made during command execution.
+     * @typedef {Object} RS.Service~Progress_data
+     * @property {String} id - The id registered when the command was executed.
+     * @property {Number} value - 0 to 100 value indicating progress.
+     * @property {String} area - The area of execution the command is currently in.
+     * @property {String} message - A message associated with the progress event.
+     */
+    
     /**
      * Connects to RealityServer and performs the initial handshake to ensure
      * streaming functionality is available. Returns a `Promise` that resolves when connected. The promise
@@ -448,6 +460,25 @@ class Service extends EventEmitter {
                         if (response.id !== undefined) {
                             process_response(response);
                         }
+                    } else if (message === Service.MESSAGE_ID_PROGRESS) {
+                        let progress_msg = new Web_socket_message_reader(data, 4, scope.web_socket_littleendian);
+                        let id = progress_msg.getString();
+                        let value = progress_msg.getFloat64();
+                        let area = progress_msg.getString();
+                        let message = progress_msg.getString();
+
+                        /**
+                         * Progress event.
+                         *
+                         * Fired whenever a command has completed some measure of progress.
+                         * This event will be fired on {@link RS.Service} for all streams.
+                         *
+                         * @event RS.Service#progress
+                         * @param {RS.Service~Progress_data} progress The command progress data
+                         */
+                        scope.emit('progress', {
+                            id, value, area, message
+                        });
                     }
                 } else {
                     const data = JSON.parse(event.data, Class_hinting.reviver);
