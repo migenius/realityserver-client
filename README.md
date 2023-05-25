@@ -283,6 +283,20 @@ add-on package is available to assist in manipulating scene elements.
 
 ## Release Notes
 
+### 2.0.1
+
+Adds support for progress events coming from RealityServer. Currently the only progress messages
+supported come from the `import_scene` and `import_scene_elements` commands which will report on
+import progress. These commands support a new `import_id` argument to enable identification of which
+events are associated with which commands calls. Note that to receive these messages in a timely
+manner the commands should either be executed on a stream or with the `longrunning` option set.
+
+Adds support for 'command and control' streams that do not stream images from the associated render
+loop. These can be used when scene editing occurs from a different location than render display.
+Enable this mode by specifying `NONE` as the `image_format` when starting a stream.
+
+Both of these feature require at least RealityServer 6.3 3384.241.
+
 ### 2.0.0
 
 Updated to support streaming multiple rendered images simultaneously. This feature requires at
