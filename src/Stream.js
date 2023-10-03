@@ -142,6 +142,14 @@ class Stream extends EventEmitter {
      * @param {String=} render_loop.image_format - the streamed image format.
      * @param {String=} render_loop.pixel_type - the streamed image pixel type.
      * @param {String=} render_loop.quality - the streamed image quality.
+     * @param {Boolean=} render_loop.pause_state - whether render loop pause state events {@link RS.Service#event:progress}
+     * should be generated whenever the render loop is paused or resumed. The event id will be in the format
+     * `[render_loop_name]::pause` and the area will be `pause_state`. The progress field will be one of: `0` (running),
+     * `1` (entering paused state), `2` (paused). The message field will be empty. This option is off by default.
+     * Supported in RealityServer 6.4 3508.349 or later.
+     * @param {Boolean=} render_loop.render_progress - whether rendering progress events {@link RS.Service#event:progress}
+     * should be generated whenever an image is being rendered. The event id will be in the format `[render_loop_name]::render`.
+     * This option is off by default. Supported in RealityServer 6.4 3508.349 or later.
      * @param {Object=} render_loop.encoders - an object containing named stream encoder settings,
      * each defining image_format, pixel_type and quality parameters. Note that all possible named encoders
      * must be specified at start time. It is not possible to add new named encoders using
@@ -246,6 +254,14 @@ class Stream extends EventEmitter {
      * @param {String=} parameters.image_format - the streamed image format.
      * @param {String=} parameters.pixel_type - the streamed image pixel type.
      * @param {String=} parameters.quality - the streamed image quality.
+     * @param {Boolean=} parameters.pause_state - whether render loop pause state events {@link RS.Service#event:progress}
+     * should be generated whenever the render loop is paused or resumed. The event id will be in the format
+     * `[render_loop_name]::pause` and the area will be `pause_state`. The progress field will be one of: `0` (running),
+     * `1` (entering paused state), `2` (paused). The message field will be empty. This option is off by default.
+     * Supported in RealityServer 6.4 3508.349 or later.
+     * @param {Boolean=} parameters.render_progress - whether rendering progress events {@link RS.Service#event:progress}
+     * should be generated whenever an image is being rendered.  The event id will be in the format `[render_loop_name]::render`.
+     * This option is off by default. Supported in RealityServer 6.4 3508.349 or later.
      * @param {Object=} parameters.encoders - named encoder parameters.
      * @return {Promise} A promise that resolves with the set parameter response or rejects with
      * the error message.
@@ -434,7 +450,7 @@ class Stream extends EventEmitter {
         if (this.service.protocol_version < 6) {
             promise.reject(new RS_error(
                 'Connected RealityServer does not support pick command. ' +
-				'Update to RealityServer 6.2 to use this feature.'));
+                'Update to RealityServer 6.2 to use this feature.'));
             return promise.promise;
         }
 
